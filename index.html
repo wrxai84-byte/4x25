@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en" prefix="og: http://ogp.me/ns#">
 <head>
     <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-8GJYYGEB88"></script>
@@ -12,9 +12,69 @@
 </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>4x25 - Permanent Portfolio Calculator</title>
+    
+    <!-- SEO: 核心元数据 -->
+    <title>4x25 - Permanent Portfolio & FIRE Calculator</title>
+    <meta name="description" content="Free tool for Harry Browne's Permanent Portfolio strategy and the FIRE 4% Rule.">
+    <meta name="keywords" content="Permanent Portfolio, Harry Browne, Rebalancing Calculator, FIRE, 4% Rule, Financial Independence, Asset Allocation, 4x25">
+    <meta name="author" content="4x25">
+    <link rel="canonical" href="https://4x25.org/">
+
+    <!-- SEO: 社交媒体优化 -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://4x25.org/">
+    <meta property="og:title" content="4x25 - Permanent Portfolio & FIRE Calculator">
+    <meta property="og:description" content="Free tool for Harry Browne's Permanent Portfolio strategy and the FIRE 4% Rule.">
+    <meta property="og:image" content="https://4x25.org/og-image.png">
+    
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="4x25 - Permanent Portfolio & FIRE Calculator">
+    <meta name="twitter:description" content="Free tool for Harry Browne's Permanent Portfolio strategy and the FIRE 4% Rule.">
+
+    <!-- 样式与脚本 -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- SEO: 结构化数据 (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "4x25 Permanent Portfolio Calculator",
+      "operatingSystem": "Any",
+      "applicationCategory": "FinanceApplication",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "description": "A browser-based calculator for rebalancing Harry Browne's Permanent Portfolio and calculating FIRE withdrawal rates based on the 4% rule."
+    }
+    </script>
+    
+    <!-- SEO: FAQ Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [{
+        "@type": "Question",
+        "name": "Why 4x25?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "It's a double meaning: 1. Permanent Portfolio: 4 assets at 25% each. 2. FIRE Movement: The 4% Rule implies saving 25 times your annual expenses."
+        }
+      }, {
+        "@type": "Question",
+        "name": "What is the best rebalancing threshold?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Harry Browne recommended using a 15/35 band. This means you rebalance only when an asset drops below 15% or rises above 35% (which equals a ±10% threshold). This calculator defaults to ±10%, but you can adjust it at the top based on your risk tolerance."
+        }
+      }]
+    }
+    </script>
+
     <style>
         body { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
         .lang-btn.active { background-color: #3b82f6; color: white; border-color: #3b82f6; }
@@ -37,6 +97,44 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
+        
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
+        }
+
+        /* FAQ 动画样式 */
+        .faq-content {
+            transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+        }
+        .faq-content.open {
+            max-height: 500px;
+            opacity: 1;
+        }
+        .faq-icon {
+            transition: transform 0.3s ease;
+        }
+        .faq-icon.rotate {
+            transform: rotate(180deg);
+        }
+
+        /* Modal 动画 */
+        .modal-overlay {
+            transition: opacity 0.3s ease;
+        }
+        .modal-content {
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
     </style>
 </head>
 <body class="bg-gray-50 text-slate-800 min-h-screen p-4 md:p-8 flex flex-col">
@@ -46,58 +144,59 @@
         <header class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
                 <h1 class="text-4xl font-extrabold text-slate-900 tracking-tight">4x25</h1>
-                <p class="text-slate-500 mt-2 text-lg" data-i18n="subtitle">永久投资组合再平衡计算器 · FIRE 4% 法则</p>
+                <h2 class="text-slate-500 mt-2 text-lg font-normal" data-i18n="subtitle">Permanent Portfolio Rebalancing Calculator · FIRE 4% Rule</h2>
             </div>
             
             <div class="flex flex-col md:flex-row gap-3 items-end md:items-center">
+                <!-- 语言切换按钮 -->
                 <div class="flex rounded-lg shadow-sm overflow-hidden border border-gray-300 bg-white">
-                    <button onclick="setLanguage('zh')" id="btn-zh" class="lang-btn px-4 py-2 text-sm font-medium hover:bg-gray-50 transition-colors active">中文</button>
+                    <button onclick="setLanguage('en')" id="btn-en" class="lang-btn px-4 py-2 text-sm font-medium hover:bg-gray-50 transition-colors active" aria-label="Switch to English">EN</button>
                     <div class="w-px bg-gray-300"></div>
-                    <button onclick="setLanguage('en')" id="btn-en" class="lang-btn px-4 py-2 text-sm font-medium hover:bg-gray-50 transition-colors">EN</button>
+                    <button onclick="setLanguage('zh')" id="btn-zh" class="lang-btn px-4 py-2 text-sm font-medium hover:bg-gray-50 transition-colors" aria-label="Switch to Chinese">中文</button>
                 </div>
 
                 <div class="bg-white px-2 py-1.5 rounded-lg shadow-sm border border-gray-200 flex items-center gap-2 select-none">
-                    <span class="text-sm font-medium text-gray-500 ml-2" data-i18n="thresholdLabel">再平衡阈值: ±</span>
+                    <span class="text-sm font-medium text-gray-500 ml-2" data-i18n="thresholdLabel">Threshold: ±</span>
                     <div class="flex items-center bg-gray-100 rounded-md p-1">
-                        <button onclick="changeThreshold(-1)" id="btn-minus" class="w-8 h-8 flex items-center justify-center bg-white rounded shadow-sm text-slate-600 hover:text-blue-600 hover:bg-blue-50 transition-all font-bold text-lg">-</button>
+                        <button onclick="changeThreshold(-1)" id="btn-minus" class="w-8 h-8 flex items-center justify-center bg-white rounded shadow-sm text-slate-600 hover:text-blue-600 hover:bg-blue-50 transition-all font-bold text-lg" aria-label="Decrease Threshold">-</button>
                         <div class="w-10 text-center font-bold text-slate-800" id="threshold-display">10</div>
                         <span class="text-xs font-bold text-slate-400 mr-2">%</span>
-                        <button onclick="changeThreshold(1)" id="btn-plus" class="w-8 h-8 flex items-center justify-center bg-white rounded shadow-sm text-slate-600 hover:text-blue-600 hover:bg-blue-50 transition-all font-bold text-lg">+</button>
+                        <button onclick="changeThreshold(1)" id="btn-plus" class="w-8 h-8 flex items-center justify-center bg-white rounded shadow-sm text-slate-600 hover:text-blue-600 hover:bg-blue-50 transition-all font-bold text-lg" aria-label="Increase Threshold">+</button>
                     </div>
                 </div>
             </div>
         </header>
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <main class="grid grid-cols-1 lg:grid-cols-12 gap-8">
             
             <!-- 左侧输入 -->
-            <div class="lg:col-span-5 space-y-6">
+            <section class="lg:col-span-5 space-y-6">
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-                    <h2 class="text-xl font-bold mb-6 flex items-center gap-2" data-i18n="inputTitle">
-                        💰 当前持仓输入
-                    </h2>
+                    <h3 class="text-xl font-bold mb-6 flex items-center gap-2" data-i18n="inputTitle">
+                        💰 Current Holdings
+                    </h3>
                     <div class="space-y-5" id="inputs-container">
                         <!-- 输入框由 JS 生成 -->
                     </div>
                     <div class="mt-8 pt-6 border-t border-gray-100 flex justify-between items-center overflow-hidden">
-                        <span class="text-gray-500 font-medium whitespace-nowrap mr-2" data-i18n="totalValue">总资产价值</span>
+                        <span class="text-gray-500 font-medium whitespace-nowrap mr-2" data-i18n="totalValue">Total Value</span>
                         <span class="text-2xl font-bold text-slate-900 font-mono truncate" id="total-value">0</span>
                     </div>
                 </div>
 
                 <!-- 图表 -->
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 h-80 flex flex-col items-center justify-center relative">
-                    <canvas id="myChart"></canvas>
+                    <canvas id="myChart" aria-label="Asset Allocation Chart" role="img"></canvas>
                 </div>
-            </div>
+            </section>
 
             <!-- 右侧结果 -->
-            <div class="lg:col-span-7 space-y-6">
+            <section class="lg:col-span-7 space-y-6">
                 
                 <!-- 状态提示 -->
-                <div id="status-card" class="rounded-2xl p-6 border-l-4 shadow-sm transition-all bg-emerald-50 border-emerald-500 text-emerald-900">
+                <div id="status-card" class="rounded-2xl p-6 border-l-4 shadow-sm transition-all bg-emerald-50 border-emerald-500 text-emerald-900" role="alert">
                     <div class="flex items-start gap-4">
-                        <div id="status-icon" class="text-2xl">✅</div>
+                        <div id="status-icon" class="text-2xl" aria-hidden="true">✅</div>
                         <div>
                             <h3 class="text-lg font-bold" id="status-title">...</h3>
                             <p class="mt-1 text-sm" id="status-desc">...</p>
@@ -108,17 +207,18 @@
                 <!-- 表格 -->
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
                     <div class="p-6 border-b border-gray-100 flex justify-between items-center">
-                        <h2 class="text-xl font-bold" data-i18n="rebalanceTitle">🔄 再平衡操作建议</h2>
-                        <span class="text-xs font-mono bg-gray-100 text-gray-600 px-2 py-1 rounded" data-i18n="targetLabel">目标占比: 25%</span>
+                        <h3 class="text-xl font-bold" data-i18n="rebalanceTitle">🔄 Rebalancing Suggestions</h3>
+                        <span class="text-xs font-mono bg-gray-100 text-gray-600 px-2 py-1 rounded" data-i18n="targetLabel">Target: 25%</span>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse">
+                            <caption class="sr-only">Asset Rebalancing Table</caption>
                             <thead>
                                 <tr class="bg-gray-50 text-gray-500 text-sm uppercase tracking-wider">
-                                    <th class="p-4 font-medium whitespace-nowrap" data-i18n="colAsset">资产</th>
-                                    <th class="p-4 font-medium text-right whitespace-nowrap" data-i18n="colCurrent">当前占比</th>
-                                    <th class="p-4 font-medium text-right whitespace-nowrap" data-i18n="colTarget">目标金额</th>
-                                    <th class="p-4 font-medium text-right whitespace-nowrap" data-i18n="colAction">操作</th>
+                                    <th class="p-4 font-medium whitespace-nowrap" data-i18n="colAsset">Asset</th>
+                                    <th class="p-4 font-medium text-right whitespace-nowrap" data-i18n="colCurrent">Current %</th>
+                                    <th class="p-4 font-medium text-right whitespace-nowrap" data-i18n="colTarget">Target Value</th>
+                                    <th class="p-4 font-medium text-right whitespace-nowrap" data-i18n="colAction">Action</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100" id="result-body">
@@ -130,64 +230,99 @@
 
                 <!-- FIRE 计算 -->
                 <div class="bg-slate-900 text-white rounded-2xl p-6 shadow-lg overflow-hidden">
-                    <h3 class="text-lg font-bold mb-2" data-i18n="fireTitle">FIRE 4% 法则预览</h3>
+                    <h3 class="text-lg font-bold mb-2" data-i18n="fireTitle">FIRE 4% Rule Preview</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
                         <div class="overflow-hidden">
-                            <p class="text-slate-400 text-sm mb-1" data-i18n="fireYear">可支持年支出</p>
+                            <p class="text-slate-400 text-sm mb-1" data-i18n="fireYear">Safe Annual Withdrawal</p>
                             <p class="text-3xl font-mono font-bold text-emerald-400 truncate" id="fire-year">0</p>
                         </div>
                         <div class="overflow-hidden">
-                            <p class="text-slate-400 text-sm mb-1" data-i18n="fireMonth">可支持月支出</p>
+                            <p class="text-slate-400 text-sm mb-1" data-i18n="fireMonth">Safe Monthly Withdrawal</p>
                             <p class="text-2xl font-mono font-bold text-emerald-400 truncate" id="fire-month">0</p>
                         </div>
                     </div>
                 </div>
 
                 <!-- 4% 法则简介 -->
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+                <article class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
                     <h3 class="text-base font-bold text-slate-900 mb-2 flex items-center gap-2">
-                        <span class="text-blue-500">ℹ️</span> <span data-i18n="fireRuleTitle">关于 4% 法则</span>
+                        <span class="text-blue-500" aria-hidden="true">ℹ️</span> <span data-i18n="fireRuleTitle">About the 4% Rule</span>
                     </h3>
                     <div class="text-sm text-slate-600 leading-relaxed" data-i18n="fireRuleText">
                         <!-- 内容由 JS 填充 -->
                     </div>
-                </div>
+                </article>
 
-            </div>
-        </div>
+            </section>
+        </main>
 
-        <!-- 底部介绍 -->
-        <div class="mt-10 bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
-            <h2 class="text-2xl font-bold text-slate-900 mb-4" data-i18n="introTitle">什么是永久投资组合？</h2>
-            <div class="prose text-slate-600 max-w-none leading-relaxed" data-i18n="introText">
+        <!-- 底部介绍 (SEO 内容区) -->
+        <article class="mt-10 bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+            <h2 class="text-2xl font-bold text-slate-900 mb-4" data-i18n="introTitle">What is the Permanent Portfolio?</h2>
+            <div class="prose text-slate-600 max-w-none leading-relaxed mb-10" data-i18n="introText">
                 <!-- 内容由 JS 填充 -->
             </div>
-        </div>
+            
+            <!-- FAQ 区域 -->
+            <div class="border-t border-gray-100 pt-8">
+                <h3 class="text-xl font-bold text-slate-800 mb-6" data-i18n="faqTitle">Frequently Asked Questions (FAQ)</h3>
+                <div id="faq-container" class="space-y-4">
+                     <!-- FAQ 内容由 JS 动态生成 -->
+                </div>
+            </div>
+        </article>
     </div>
 
     <!-- 底部 Footer -->
     <footer class="mt-12 text-center pb-8 px-4 border-t border-gray-100 pt-8">
         <p class="text-slate-400 text-sm mb-2">
-            &copy; 2026 4x25 · <span class="cursor-pointer hover:text-slate-600 transition-colors" data-i18n="privacy">隐私政策</span>
+            &copy; 2026 4x25 · 
+            <!-- 修改点：添加 onclick 事件，样式改为 cursor-pointer -->
+            <button onclick="openPrivacyModal()" class="cursor-pointer hover:text-slate-600 transition-colors underline decoration-slate-300 underline-offset-2" data-i18n="privacy">Privacy Policy</button>
         </p>
         <p class="text-slate-400 text-xs max-w-2xl mx-auto leading-relaxed opacity-80" data-i18n="disclaimer">
-            免责声明：本工具仅供参考，不构成任何财务建议。
+            Disclaimer: This tool is for informational purposes only and does not constitute financial advice. Invest at your own risk.
         </p>
     </footer>
 
+    <!-- 隐私政策 Modal (新增) -->
+    <div id="privacy-modal" class="fixed inset-0 z-50 hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <!-- 背景遮罩 -->
+        <div class="modal-overlay absolute inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity opacity-0" onclick="closePrivacyModal()"></div>
+        
+        <!-- Modal 内容 -->
+        <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+            <div class="modal-content relative transform overflow-hidden rounded-2xl bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
+                <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start">
+                        <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left w-full">
+                            <h3 class="text-xl font-bold leading-6 text-slate-900 mb-4" id="modal-title" data-i18n="privacyTitle">Privacy Policy</h3>
+                            <div class="mt-2 text-sm text-slate-600 space-y-3 leading-relaxed" data-i18n="privacyContent">
+                                <!-- 内容由 JS 填充 -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+                    <button type="button" onclick="closePrivacyModal()" class="inline-flex w-full justify-center rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 sm:ml-3 sm:w-auto transition-colors" data-i18n="closeBtn">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         // --- 国际化配置 (i18n) ---
-        let currentLang = 'zh'; 
+        let currentLang = 'en'; 
 
         const translations = {
             zh: {
                 symbol: '¥', 
-                subtitle: "永久投资组合再平衡计算器 · FIRE 4% 法则", // 修改：Rule -> 法则
+                subtitle: "永久投资组合再平衡计算器 · FIRE 4% 法则", 
                 thresholdLabel: "再平衡阈值: ±",
                 inputTitle: "💰 当前持仓输入",
                 totalValue: "总资产价值",
                 rebalanceTitle: "🔄 再平衡操作建议",
-                targetLabel: "目标占比: 25%", // 新增
+                targetLabel: "目标占比: 25%",
                 colAsset: "资产",
                 colCurrent: "当前占比",
                 colTarget: "目标金额",
@@ -214,8 +349,37 @@
                     <p class="mb-4">其核心理念极其简单：将资产平分为四等份（各25%）：<strong>股票</strong>（应对繁荣）、<strong>长期国债</strong>（应对通缩）、<strong>现金/短债</strong>（应对衰退/紧缩）、<strong>黄金</strong>（应对通胀）。</p>
                     <p>你只需要每年检查一次，如果某项资产占比偏离 25% 太多（例如超过设定的阈值），就进行“再平衡”：卖出涨得多的，买入跌得多的，使其回到 25%。</p>
                 `,
+                faqTitle: "常见问题 (FAQ)",
+                faqData: [
+                    {
+                        question: "为什么叫 4x25?",
+                        answer: `
+                            <p class="mb-2">这是一个双关含义：</p>
+                            <ul class="list-decimal list-inside space-y-1 ml-1">
+                                <li><strong>永久投资组合：</strong>4种资产，各占 25%。</li>
+                                <li><strong>FIRE 运动：</strong>4% 法则，意味着你需要存够年支出的 25 倍。</li>
+                            </ul>
+                        `
+                    },
+                    {
+                        question: "再平衡的阈值设为多少比较好?",
+                        answer: `
+                            <p>哈利·布朗建议使用 <strong>15/35 频带</strong>，即当某项资产跌破 15% 或涨超 35% 时触发再平衡（相当于 ±10% 的阈值）。</p>
+                            <p class="mt-2">本计算器默认设置为 ±10%，你可以根据自己的风险偏好在顶部调整。</p>
+                        `
+                    }
+                ],
                 privacy: "隐私政策",
-                disclaimer: "免责声明：本工具仅供参考，不构成任何财务建议。"
+                disclaimer: "免责声明：本工具仅供参考，不构成任何财务建议。投资有风险，入市需谨慎。",
+                // 新增隐私政策内容
+                privacyTitle: "隐私政策",
+                privacyContent: `
+                    <p><strong>1. 数据安全与本地计算</strong><br>本网站是一个纯前端应用。所有计算均在您的浏览器本地完成。我们没有后端服务器，也不会收集、存储或传输您的任何财务数据。</p>
+                    <p><strong>2. Cookie 使用</strong><br>本网站不使用任何用于追踪个人身份的 Cookie。</p>
+                    <p><strong>3. 第三方服务</strong><br>本网站可能使用基础的流量统计服务（如 Google Analytics）以优化用户体验，这些服务仅收集匿名数据（如访问量、浏览器类型），不包含个人财务信息。</p>
+                    <p class="text-xs text-gray-400 mt-4">最后更新日期：2026年1月3日</p>
+                `,
+                closeBtn: "关闭"
             },
             en: {
                 symbol: '$', 
@@ -224,7 +388,7 @@
                 inputTitle: "💰 Current Holdings",
                 totalValue: "Total Value",
                 rebalanceTitle: "🔄 Rebalancing Suggestions",
-                targetLabel: "Target: 25%", // 新增
+                targetLabel: "Target: 25%",
                 colAsset: "Asset",
                 colCurrent: "Current %",
                 colTarget: "Target Value",
@@ -251,12 +415,40 @@
                     <p class="mb-4">The core concept is simple: divide your assets equally into four parts (25% each): <strong>Stocks</strong> (for prosperity), <strong>Long-Term Bonds</strong> (for deflation), <strong>Cash</strong> (for recession), and <strong>Gold</strong> (for inflation).</p>
                     <p>You simply check it once a year. If an asset deviates too far from 25% (beyond your set threshold), you "rebalance": sell the winners and buy the losers to get back to 25%.</p>
                 `,
+                faqTitle: "Frequently Asked Questions (FAQ)",
+                faqData: [
+                    {
+                        question: "Why 4x25?",
+                        answer: `
+                            <p class="mb-2">It's a double meaning:</p>
+                            <ul class="list-decimal list-inside space-y-1 ml-1">
+                                <li><strong>Permanent Portfolio:</strong> 4 assets at 25% each.</li>
+                                <li><strong>FIRE Movement:</strong> The 4% Rule implies saving 25 times your annual expenses.</li>
+                            </ul>
+                        `
+                    },
+                    {
+                        question: "What is the best rebalancing threshold?",
+                        answer: `
+                            <p>Harry Browne recommended using a <strong>15/35 band</strong>. This means you rebalance only when an asset drops below 15% or rises above 35% (which equals a ±10% threshold).</p>
+                            <p class="mt-2">This calculator defaults to ±10%, but you can adjust it at the top based on your risk tolerance.</p>
+                        `
+                    }
+                ],
                 privacy: "Privacy Policy",
-                disclaimer: "Disclaimer: This tool is for informational purposes only and does not constitute financial advice."
+                disclaimer: "Disclaimer: This tool is for informational purposes only and does not constitute financial advice. Invest at your own risk.",
+                // New Privacy Content
+                privacyTitle: "Privacy Policy",
+                privacyContent: `
+                    <p><strong>1. Data Security & Local Processing</strong><br>This is a client-side application. All calculations are performed locally in your browser. We do not have a backend server, and we do not collect, store, or transmit any of your financial data.</p>
+                    <p><strong>2. Cookies</strong><br>This website does not use cookies for tracking personal identities.</p>
+                    <p><strong>3. Third-Party Services</strong><br>We may use basic analytics services (like Google Analytics) to improve user experience. These services only collect anonymous data (e.g., visitor counts, browser types) and do not access your financial inputs.</p>
+                    <p class="text-xs text-gray-400 mt-4">Last Updated: January 3, 2026</p>
+                `,
+                closeBtn: "Close"
             }
         };
 
-        // 初始值设为空，方便用户直接输入，或者设为0
         const assetsConfig = [
             { key: 'stocks', color: '#3B82F6', value: 0 },
             { key: 'bonds', color: '#8B5CF6', value: 0 },
@@ -288,17 +480,16 @@
         const inputsContainer = document.getElementById('inputs-container');
         assetsConfig.forEach((asset, index) => {
             const div = document.createElement('div');
-            // 关键修改：添加 placeholder="0"，并且初始 value 如果是 0 则显示为空字符串以便显示 placeholder
             const initialValue = asset.value === 0 ? '' : asset.value;
             
             div.innerHTML = `
-                <label class="block text-sm font-medium text-gray-700 mb-1.5" id="label-${asset.key}"></label>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5" id="label-${asset.key}" for="input-${asset.key}"></label>
                 <div class="relative">
                     <span class="currency-symbol absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold select-none"></span>
-                    <input type="number" step="1" min="0" placeholder="0" data-index="${index}" value="${initialValue}" 
+                    <input type="number" id="input-${asset.key}" step="1" min="0" placeholder="0" data-index="${index}" value="${initialValue}" 
                         oninput="if(this.value.length > ${MAX_DIGITS}) this.value = this.value.slice(0, ${MAX_DIGITS});"
                         onkeypress="return event.charCode >= 48 && event.charCode <= 57"
-                        class="asset-input w-full pl-8 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none font-mono text-lg placeholder-gray-300">
+                        class="asset-input w-full pl-8 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none font-mono text-lg placeholder-gray-300 transition-shadow">
                 </div>
             `;
             inputsContainer.appendChild(div);
@@ -321,16 +512,67 @@
             document.getElementById('btn-plus').disabled = (currentThreshold >= MAX_THRESHOLD);
         }
 
+        function toggleFaq(index) {
+            const content = document.getElementById(`faq-content-${index}`);
+            const icon = document.getElementById(`faq-icon-${index}`);
+            
+            if (content.classList.contains('open')) {
+                content.classList.remove('open');
+                icon.classList.remove('rotate');
+            } else {
+                content.classList.add('open');
+                icon.classList.add('rotate');
+            }
+        }
+
+        // --- Modal 逻辑 ---
+        function openPrivacyModal() {
+            const modal = document.getElementById('privacy-modal');
+            const overlay = modal.querySelector('.modal-overlay');
+            const content = modal.querySelector('.modal-content');
+            
+            modal.classList.remove('hidden');
+            // 简单的动画延迟，让 display:block 生效后再加 opacity
+            setTimeout(() => {
+                overlay.classList.remove('opacity-0');
+                content.classList.remove('opacity-0', 'translate-y-4', 'sm:translate-y-0', 'sm:scale-95');
+                content.classList.add('opacity-100', 'translate-y-0', 'sm:scale-100');
+            }, 10);
+        }
+
+        function closePrivacyModal() {
+            const modal = document.getElementById('privacy-modal');
+            const overlay = modal.querySelector('.modal-overlay');
+            const content = modal.querySelector('.modal-content');
+
+            overlay.classList.add('opacity-0');
+            content.classList.remove('opacity-100', 'translate-y-0', 'sm:scale-100');
+            content.classList.add('opacity-0', 'translate-y-4', 'sm:translate-y-0', 'sm:scale-95');
+
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300); // 等待过渡结束
+        }
+
+        // 监听 ESC 键关闭 Modal
+        document.addEventListener('keydown', function(event) {
+            if (event.key === "Escape") {
+                closePrivacyModal();
+            }
+        });
+
         function setLanguage(lang) {
             currentLang = lang;
+            document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
             
             document.getElementById('btn-zh').classList.toggle('active', lang === 'zh');
             document.getElementById('btn-en').classList.toggle('active', lang === 'en');
 
+            // 更新常规文本
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
                 if (translations[lang][key]) {
-                    if (key === 'introText' || key === 'fireRuleText') {
+                    if (['introText', 'fireRuleText', 'privacyContent'].includes(key)) {
                         el.innerHTML = translations[lang][key];
                     } else {
                         el.innerText = translations[lang][key];
@@ -338,10 +580,40 @@
                 }
             });
 
+            // 专门处理 FAQ 生成
+            const faqContainer = document.getElementById('faq-container');
+            faqContainer.innerHTML = ''; 
+            const faqData = translations[lang].faqData;
+            
+            faqData.forEach((item, index) => {
+                const faqItem = document.createElement('div');
+                faqItem.className = 'border border-gray-200 rounded-xl overflow-hidden bg-white';
+                faqItem.innerHTML = `
+                    <button onclick="toggleFaq(${index})" class="w-full flex justify-between items-center p-4 bg-gray-50 hover:bg-gray-100 transition-colors text-left focus:outline-none">
+                        <span class="font-bold text-slate-800 text-sm md:text-base">${item.question}</span>
+                        <svg id="faq-icon-${index}" class="faq-icon w-5 h-5 text-slate-400 flex-shrink-0 ml-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+                    <div id="faq-content-${index}" class="faq-content bg-white">
+                        <div class="p-4 text-sm text-slate-600 leading-relaxed border-t border-gray-100">
+                            ${item.answer}
+                        </div>
+                    </div>
+                `;
+                faqContainer.appendChild(faqItem);
+            });
+
             const symbol = translations[lang].symbol;
             document.querySelectorAll('.currency-symbol').forEach(el => {
                 el.innerText = symbol;
             });
+
+            if (lang === 'en') {
+                document.title = "4x25 - Permanent Portfolio & FIRE Calculator";
+            } else {
+                document.title = "4x25 - 永久投资组合再平衡计算器 & FIRE 4%法则工具";
+            }
 
             calculate();
         }
@@ -359,7 +631,6 @@
             let total = 0;
             
             document.querySelectorAll('.asset-input').forEach((input, idx) => {
-                // 关键逻辑：如果输入为空，parseInt 会返回 NaN，我们将其视为 0
                 let val = parseInt(input.value);
                 if (isNaN(val)) val = 0;
                 
@@ -399,7 +670,7 @@
                 
                 let actionHtml = '';
 
-                if (globalNeedsRebalance && total > 0) { // 只有总资产大于0才建议操作
+                if (globalNeedsRebalance && total > 0) {
                     if (Math.abs(diff) > 0) {
                         const type = diff > 0 ? t.buy : t.sell;
                         const colorClass = diff > 0 ? 'bg-blue-50 text-blue-700' : 'bg-orange-50 text-orange-700';
@@ -449,7 +720,8 @@
             input.addEventListener('input', calculate);
         });
 
-        setLanguage('zh');
+        // 初始化：默认设置为英文 'en'
+        setLanguage('en');
         updateThresholdUI();
 
     </script>
