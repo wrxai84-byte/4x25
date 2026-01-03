@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4x25.org - 永久组合计算器</title>
+    <!-- 引入 Tailwind CSS 进行样式美化 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 Chart.js 画图 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-50 text-slate-800 min-h-screen p-4 md:p-8">
+
+    <div class="max-w-5xl mx-auto">
+        <!-- 头部 -->
+        <header class="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+                <h1 class="text-4xl font-extrabold text-slate-900 tracking-tight">4x25.org</h1>
+                <p class="text-slate-500 mt-2 text-lg">永久投资组合再平衡计算器 · FIRE 4% Rule</p>
+            </div>
+            <div class="bg-white px-4 py-2 rounded-lg shadow-sm border border-gray-200 flex items-center gap-2">
+                <span class="text-sm font-medium text-gray-500">再平衡阈值: ±</span>
+                <input type="number" id="threshold" value="10" class="w-12 text-center border-b border-gray-300 focus:outline-none focus:border-blue-500 font-bold text-slate-700">
+                <span class="text-sm font-medium text-gray-500">%</span>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            <!-- 左侧输入 -->
+            <div class="lg:col-span-5 space-y-6">
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+                    <h2 class="text-xl font-bold mb-6 flex items-center gap-2">
+                        💰 当前持仓输入
+                    </h2>
+                    <div class="space-y-5" id="inputs-container">
+                        <!-- 输入框将由 JS 生成 -->
+                    </div>
+                    <div class="mt-8 pt-6 border-t border-gray-100 flex justify-between items-center">
+                        <span class="text-gray-500 font-medium">总资产价值</span>
+                        <span class="text-2xl font-bold text-slate-900 font-mono" id="total-value">$0</span>
+                    </div>
+                </div>
+
+                <!-- 图表 -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 h-80 flex flex-col items-center justify-center relative">
+                    <canvas id="myChart"></canvas>
+                </div>
+            </div>
+
+            <!-- 右侧结果 -->
+            <div class="lg:col-span-7 space-y-6">
+                
+                <!-- 状态提示 -->
+                <div id="status-card" class="rounded-2xl p-6 border-l-4 shadow-sm transition-all bg-emerald-50 border-emerald-500 text-emerald-900">
+                    <div class="flex items-start gap-4">
+                        <div id="status-icon" class="text-2xl">✅</div>
+                        <div>
+                            <h3 class="text-lg font-bold" id="status-title">投资组合处于健康区间</h3>
+                            <p class="mt-1 text-sm" id="status-desc">所有资产均在目标区间内。</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 表格 -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="p-6 border-b border-gray-100 flex justify-between items-center">
+                        <h2 class="text-xl font-bold">🔄 再平衡操作建议</h2>
+                        <span class="text-xs font-mono bg-gray-100 text-gray-600 px-2 py-1 rounded">Target: 25%</span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-gray-50 text-gray-500 text-sm uppercase tracking-wider">
+                                    <th class="p-4 font-medium">资产</th>
+                                    <th class="p-4 font-medium text-right">当前占比</th>
+                                    <th class="p-4 font-medium text-right">目标金额</th>
+                                    <th class="p-4 font-medium text-right">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100" id="result-body">
+                                <!-- 结果将由 JS 生成 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- FIRE 计算 -->
+                <div class="bg-slate-900 text-white rounded-2xl p-6 shadow-lg">
+                    <h3 class="text-lg font-bold mb-2">FIRE 4% 法则预览</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                        <div>
+                            <p class="text-slate-400 text-sm mb-1">可支持年支出</p>
+                            <p class="text-3xl font-mono font-bold text-emerald-400" id="fire-year">$0</p>
+                        </div>
+                        <div>
+                            <p class="text-slate-400 text-sm mb-1">可支持月支出</p>
+                            <p class="text-2xl font-mono font-bold text-emerald-400" id="fire-month">$0</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 配置
+        const assetsConfig = [
+            { key: 'stocks', name: '股票 (Stocks)', color: '#3B82F6', value: 25000 },
+            { key: 'bonds', name: '长期国债 (Bonds)', color: '#8B5CF6', value: 25000 },
+            { key: 'cash', name: '现金/短债 (Cash)', color: '#10B981', value: 25000 },
+            { key: 'gold', name: '黄金 (Gold)', color: '#F59E0B', value: 25000 }
+        ];
+
+        // 初始化图表
+        const ctx = document.getElementById('myChart').getContext('2d');
+        let myChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: assetsConfig.map(a => a.name),
+                datasets: [{
+                    data: assetsConfig.map(a => a.value),
+                    backgroundColor: assetsConfig.map(a => a.color),
+                    borderWidth: 0
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+        });
+
+        // 渲染输入框
+        const inputsContainer = document.getElementById('inputs-container');
+        assetsConfig.forEach((asset, index) => {
+            const div = document.createElement('div');
+            div.innerHTML = `
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">${asset.name}</label>
+                <div class="relative">
+                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">$</span>
+                    <input type="number" data-index="${index}" value="${asset.value}" 
+                        class="asset-input w-full pl-8 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none font-mono text-lg">
+                </div>
+            `;
+            inputsContainer.appendChild(div);
+        });
+
+        // 核心计算逻辑
+        function calculate() {
+            const threshold = parseFloat(document.getElementById('threshold').value) || 10;
+            let total = 0;
+            
+            // 获取最新值
+            document.querySelectorAll('.asset-input').forEach((input, idx) => {
+                const val = parseFloat(input.value) || 0;
+                assetsConfig[idx].value = val;
+                total += val;
+            });
+
+            // 更新总额
+            document.getElementById('total-value').innerText = '$' + total.toLocaleString();
+            
+            // 更新 FIRE 数据
+            document.getElementById('fire-year').innerText = '$' + (total * 0.04).toLocaleString(undefined, {maximumFractionDigits:0});
+            document.getElementById('fire-month').innerText = '$' + (total * 0.04 / 12).toLocaleString(undefined, {maximumFractionDigits:0});
+
+            // 更新图表
+            myChart.data.datasets[0].data = assetsConfig.map(a => a.value);
+            myChart.update();
+
+            // 计算再平衡
+            const targetPerAsset = total / 4;
+            const tbody = document.getElementById('result-body');
+            tbody.innerHTML = '';
+            let needsRebalance = false;
+
+            assetsConfig.forEach(asset => {
+                const currentPercent = total === 0 ? 0 : (asset.value / total) * 100;
+                const diff = targetPerAsset - asset.value;
+                
+                // 判断是否越界 (25% +/- threshold)
+                const isBreached = currentPercent > (25 + threshold) || currentPercent < (25 - threshold);
+                if (isBreached) needsRebalance = true;
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-gray-50 transition-colors";
+                
+                // 构造操作建议 HTML
+                let actionHtml = '<span class="text-gray-400 text-sm">-</span>';
+                if (Math.abs(diff) >= 1) {
+                    const type = diff > 0 ? '买入' : '卖出';
+                    const colorClass = diff > 0 ? 'bg-blue-50 text-blue-700' : 'bg-orange-50 text-orange-700';
+                    actionHtml = `<div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-bold ${colorClass}">
+                        ${type} <span class="font-mono ml-1">$${Math.abs(diff).toLocaleString(undefined, {maximumFractionDigits:0})}</span>
+                    </div>`;
+                }
+
+                tr.innerHTML = `
+                    <td class="p-4"><div class="flex items-center gap-3"><div class="w-3 h-3 rounded-full" style="background-color:${asset.color}"></div><span class="font-medium text-slate-700">${asset.name}</span></div></td>
+                    <td class="p-4 text-right font-mono"><span class="${isBreached ? 'text-red-500 font-bold' : 'text-slate-600'}">${currentPercent.toFixed(1)}%</span></td>
+                    <td class="p-4 text-right font-mono text-slate-600">$${targetPerAsset.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
+                    <td class="p-4 text-right">${actionHtml}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // 更新状态卡片
+            const statusCard = document.getElementById('status-card');
+            const statusTitle = document.getElementById('status-title');
+            const statusDesc = document.getElementById('status-desc');
+            const statusIcon = document.getElementById('status-icon');
+
+            if (needsRebalance) {
+                statusCard.className = "rounded-2xl p-6 border-l-4 shadow-sm transition-all bg-amber-50 border-amber-500 text-amber-900";
+                statusIcon.innerText = "⚠️";
+                statusTitle.innerText = "建议进行再平衡";
+                statusDesc.innerText = `检测到有资产偏离目标配置超过 ${threshold}% (即 <${25-threshold}% 或 >${25+threshold}%)。`;
+            } else {
+                statusCard.className = "rounded-2xl p-6 border-l-4 shadow-sm transition-all bg-emerald-50 border-emerald-500 text-emerald-900";
+                statusIcon.innerText = "✅";
+                statusTitle.innerText = "投资组合处于健康区间";
+                statusDesc.innerText = `所有资产均在 ${25-threshold}% - ${25+threshold}% 的目标区间内，无需操作。`;
+            }
+        }
+
+        // 绑定事件
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('input', calculate);
+        });
+
+        // 初始计算
+        calculate();
+
+    </script>
+</body>
+</html>
