@@ -12,307 +12,249 @@
 </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <!-- SEO: 核心元数据 -->
     <title>4x25 - Permanent Portfolio & FIRE Calculator</title>
     <meta name="description" content="Free tool for Harry Browne's Permanent Portfolio strategy and the FIRE 4% Rule.">
-    <meta name="keywords" content="Permanent Portfolio, Harry Browne, Rebalancing Calculator, FIRE, 4% Rule, Financial Independence, Asset Allocation, 4x25">
-    <meta name="author" content="4x25">
-    <link rel="canonical" href="https://4x25.org/">
-
-    <!-- SEO: 社交媒体优化 -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://4x25.org/">
-    <meta property="og:title" content="4x25 - Permanent Portfolio & FIRE Calculator">
-    <meta property="og:description" content="Free tool for Harry Browne's Permanent Portfolio strategy and the FIRE 4% Rule.">
-    <meta property="og:image" content="https://4x25.org/og-image.png">
     
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="4x25 - Permanent Portfolio & FIRE Calculator">
-    <meta name="twitter:description" content="Free tool for Harry Browne's Permanent Portfolio strategy and the FIRE 4% Rule.">
-
-    <!-- 样式与脚本 -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Tailwind CSS CDN (Locked Version for Stability) -->
+    <script src="https://cdn.tailwindcss.com/3.4.1"></script>
     
-    <!-- SEO: 结构化数据 (JSON-LD) -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "SoftwareApplication",
-      "name": "4x25 Permanent Portfolio Calculator",
-      "operatingSystem": "Any",
-      "applicationCategory": "FinanceApplication",
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "USD"
-      },
-      "description": "A browser-based calculator for rebalancing Harry Browne's Permanent Portfolio and calculating FIRE withdrawal rates based on the 4% rule."
-    }
-    </script>
-    
-    <!-- SEO: FAQ Schema -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      "mainEntity": [{
-        "@type": "Question",
-        "name": "Why 4x25?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "It's a double meaning: 1. Permanent Portfolio: 4 assets at 25% each. 2. FIRE Movement: The 4% Rule implies saving 25 times your annual expenses."
-        }
-      }, {
-        "@type": "Question",
-        "name": "What is the best rebalancing threshold?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Harry Browne recommended using a 15/35 band. This means you rebalance only when an asset drops below 15% or rises above 35% (which equals a ±10% threshold). This calculator defaults to ±10%, but you can adjust it at the top based on your risk tolerance."
-        }
-      }]
-    }
-    </script>
-
     <style>
         body { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
         .lang-btn.active { background-color: #3b82f6; color: white; border-color: #3b82f6; }
         
-        button:disabled {
-            opacity: 0.3;
-            cursor: not-allowed;
-            pointer-events: none;
-        }
+        button:disabled { opacity: 0.3; cursor: not-allowed; pointer-events: none; }
         
+        /* Remove default arrows for number inputs */
         input[type=number]::-webkit-inner-spin-button, 
-        input[type=number]::-webkit-outer-spin-button { 
-            -webkit-appearance: none; 
-            margin: 0; 
+        input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+
+        .table-cell-truncate { max-width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        
+        /* Animation Classes */
+        .faq-content { transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out, visibility 0.3s; max-height: 0; opacity: 0; visibility: hidden; overflow: hidden; }
+        .faq-content.open { max-height: 500px; opacity: 1; visibility: visible; }
+        .faq-icon { transition: transform 0.3s ease; }
+        .faq-icon.rotate { transform: rotate(180deg); }
+        .modal-overlay { transition: opacity 0.3s ease; }
+        .modal-content { transition: transform 0.3s ease, opacity 0.3s ease; }
+
+        /* Focus Styles */
+        button:focus-visible, input:focus-visible, a:focus-visible {
+            outline: 2px solid #2563eb;
+            outline-offset: 2px;
         }
 
-        .table-cell-truncate {
-            max-width: 120px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+        /* Reduced Motion Preference */
+        @media (prefers-reduced-motion: reduce) {
+            *, ::before, ::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
+            .faq-content { transition: none !important; }
+            .faq-content.open { max-height: auto !important; }
         }
         
-        .sr-only {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            padding: 0;
-            margin: -1px;
-            overflow: hidden;
-            clip: rect(0, 0, 0, 0);
-            white-space: nowrap;
-            border-width: 0;
-        }
-
-        /* FAQ 动画样式 */
-        .faq-content {
-            transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
-            max-height: 0;
-            opacity: 0;
-            overflow: hidden;
-        }
-        .faq-content.open {
-            max-height: 500px;
-            opacity: 1;
-        }
-        .faq-icon {
-            transition: transform 0.3s ease;
-        }
-        .faq-icon.rotate {
-            transform: rotate(180deg);
-        }
-
-        /* Modal 动画 */
-        .modal-overlay {
-            transition: opacity 0.3s ease;
-        }
-        .modal-content {
-            transition: transform 0.3s ease, opacity 0.3s ease;
-        }
+        /* FOUC Prevention */
+        body { opacity: 0; animation: fadeIn 0.3s ease-in forwards; }
+        @keyframes fadeIn { to { opacity: 1; } }
     </style>
 </head>
-<body class="bg-gray-50 text-slate-800 min-h-screen p-4 md:p-8 flex flex-col">
+<body class="bg-gray-50 text-slate-800 min-h-screen flex flex-col">
 
-    <div class="max-w-5xl mx-auto w-full flex-grow">
-        <!-- 头部 -->
-        <header class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div>
-                <h1 class="text-4xl font-extrabold text-slate-900 tracking-tight">4x25</h1>
-                <h2 class="text-slate-500 mt-2 text-lg font-normal" data-i18n="subtitle">Permanent Portfolio Rebalancing Calculator · FIRE 4% Rule</h2>
-            </div>
-            
-            <div class="flex flex-col md:flex-row gap-3 items-end md:items-center">
-                <!-- 语言切换按钮 -->
-                <div class="flex rounded-lg shadow-sm overflow-hidden border border-gray-300 bg-white">
-                    <button onclick="setLanguage('en')" id="btn-en" class="lang-btn px-4 py-2 text-sm font-medium hover:bg-gray-50 transition-colors active" aria-label="Switch to English">EN</button>
-                    <div class="w-px bg-gray-300"></div>
-                    <button onclick="setLanguage('zh')" id="btn-zh" class="lang-btn px-4 py-2 text-sm font-medium hover:bg-gray-50 transition-colors" aria-label="Switch to Chinese">中文</button>
+    <!-- APP Container -->
+    <div id="app" class="flex flex-col min-h-screen p-4 md:p-8 transition-opacity duration-300">
+        <div class="max-w-5xl mx-auto w-full flex-grow">
+            <!-- Header -->
+            <header class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h1 class="text-4xl font-extrabold text-slate-900 tracking-tight">4x25</h1>
+                    <h2 class="text-slate-500 mt-2 text-lg font-normal" data-i18n="subtitle">Permanent Portfolio Rebalancing Calculator · FIRE 4% Rule</h2>
                 </div>
-
-                <div class="bg-white px-2 py-1.5 rounded-lg shadow-sm border border-gray-200 flex items-center gap-2 select-none">
-                    <span class="text-sm font-medium text-gray-500 ml-2" data-i18n="thresholdLabel">Threshold: ±</span>
-                    <div class="flex items-center bg-gray-100 rounded-md p-1">
-                        <button onclick="changeThreshold(-1)" id="btn-minus" class="w-8 h-8 flex items-center justify-center bg-white rounded shadow-sm text-slate-600 hover:text-blue-600 hover:bg-blue-50 transition-all font-bold text-lg" aria-label="Decrease Threshold">-</button>
-                        <div class="w-10 text-center font-bold text-slate-800" id="threshold-display">10</div>
-                        <span class="text-xs font-bold text-slate-400 mr-2">%</span>
-                        <button onclick="changeThreshold(1)" id="btn-plus" class="w-8 h-8 flex items-center justify-center bg-white rounded shadow-sm text-slate-600 hover:text-blue-600 hover:bg-blue-50 transition-all font-bold text-lg" aria-label="Increase Threshold">+</button>
-                    </div>
-                </div>
-            </div>
-        </header>
-
-        <main class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            
-            <!-- 左侧输入 -->
-            <section class="lg:col-span-5 space-y-6">
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-                    <h3 class="text-xl font-bold mb-6 flex items-center gap-2" data-i18n="inputTitle">
-                        💰 Current Holdings
-                    </h3>
-                    <div class="space-y-5" id="inputs-container">
-                        <!-- 输入框由 JS 生成 -->
-                    </div>
-                    <div class="mt-8 pt-6 border-t border-gray-100 flex justify-between items-center overflow-hidden">
-                        <span class="text-gray-500 font-medium whitespace-nowrap mr-2" data-i18n="totalValue">Total Value</span>
-                        <span class="text-2xl font-bold text-slate-900 font-mono truncate" id="total-value">0</span>
-                    </div>
-                </div>
-
-                <!-- 图表 -->
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 h-80 flex flex-col items-center justify-center relative">
-                    <canvas id="myChart" aria-label="Asset Allocation Chart" role="img"></canvas>
-                </div>
-            </section>
-
-            <!-- 右侧结果 -->
-            <section class="lg:col-span-7 space-y-6">
                 
-                <!-- 状态提示 -->
-                <div id="status-card" class="rounded-2xl p-6 border-l-4 shadow-sm transition-all bg-emerald-50 border-emerald-500 text-emerald-900" role="alert">
-                    <div class="flex items-start gap-4">
-                        <div id="status-icon" class="text-2xl" aria-hidden="true">✅</div>
-                        <div>
-                            <h3 class="text-lg font-bold" id="status-title">...</h3>
-                            <p class="mt-1 text-sm" id="status-desc">...</p>
+                <div class="flex flex-col md:flex-row gap-3 items-end md:items-center">
+                    <div class="flex rounded-lg shadow-sm overflow-hidden border border-gray-300 bg-white" role="group" aria-label="Language Selection">
+                        <button type="button" id="btn-en" class="lang-btn px-4 py-2 text-sm font-medium hover:bg-gray-50 transition-colors active" aria-pressed="true">EN</button>
+                        <div class="w-px bg-gray-300"></div>
+                        <button type="button" id="btn-zh" class="lang-btn px-4 py-2 text-sm font-medium hover:bg-gray-50 transition-colors" aria-pressed="false">中文</button>
+                    </div>
+
+                    <div class="bg-white px-2 py-1.5 rounded-lg shadow-sm border border-gray-200 flex items-center gap-2 select-none">
+                        <span class="text-sm font-medium text-gray-500 ml-2" data-i18n="thresholdLabel" id="threshold-label">Threshold: ±</span>
+                        <div class="flex items-center bg-gray-100 rounded-md p-1" role="group" aria-labelledby="threshold-label">
+                            <button type="button" id="btn-minus" aria-label="Decrease threshold" class="w-8 h-8 flex items-center justify-center bg-white rounded shadow-sm text-slate-600 hover:text-blue-600 hover:bg-blue-50 transition-all font-bold text-lg">-</button>
+                            <div class="w-10 text-center font-bold text-slate-800" id="threshold-display" aria-live="polite">10</div>
+                            <span class="text-xs font-bold text-slate-400 mr-2" aria-hidden="true">%</span>
+                            <button type="button" id="btn-plus" aria-label="Increase threshold" class="w-8 h-8 flex items-center justify-center bg-white rounded shadow-sm text-slate-600 hover:text-blue-600 hover:bg-blue-50 transition-all font-bold text-lg">+</button>
                         </div>
                     </div>
                 </div>
+            </header>
 
-                <!-- 表格 -->
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-                    <div class="p-6 border-b border-gray-100 flex justify-between items-center">
-                        <h3 class="text-xl font-bold" data-i18n="rebalanceTitle">🔄 Rebalancing Suggestions</h3>
-                        <span class="text-xs font-mono bg-gray-100 text-gray-600 px-2 py-1 rounded" data-i18n="targetLabel">Target: 25%</span>
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse">
-                            <caption class="sr-only">Asset Rebalancing Table</caption>
-                            <thead>
-                                <tr class="bg-gray-50 text-gray-500 text-sm uppercase tracking-wider">
-                                    <th class="p-4 font-medium whitespace-nowrap" data-i18n="colAsset">Asset</th>
-                                    <th class="p-4 font-medium text-right whitespace-nowrap" data-i18n="colCurrent">Current %</th>
-                                    <th class="p-4 font-medium text-right whitespace-nowrap" data-i18n="colTarget">Target Value</th>
-                                    <th class="p-4 font-medium text-right whitespace-nowrap" data-i18n="colAction">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-gray-100" id="result-body">
-                                <!-- 结果由 JS 生成 -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- FIRE 计算 -->
-                <div class="bg-slate-900 text-white rounded-2xl p-6 shadow-lg overflow-hidden">
-                    <h3 class="text-lg font-bold mb-2" data-i18n="fireTitle">FIRE 4% Rule Preview</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-                        <div class="overflow-hidden">
-                            <p class="text-slate-400 text-sm mb-1" data-i18n="fireYear">Safe Annual Withdrawal</p>
-                            <p class="text-3xl font-mono font-bold text-emerald-400 truncate" id="fire-year">0</p>
+            <main class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                
+                <!-- Left: Inputs -->
+                <section class="lg:col-span-4 space-y-6">
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+                        <h3 class="text-xl font-bold mb-6 flex items-center gap-2" data-i18n="inputTitle">💰 Current Holdings</h3>
+                        <div class="space-y-5" id="inputs-container">
+                            <!-- JS Generated Inputs -->
                         </div>
-                        <div class="overflow-hidden">
-                            <p class="text-slate-400 text-sm mb-1" data-i18n="fireMonth">Safe Monthly Withdrawal</p>
-                            <p class="text-2xl font-mono font-bold text-emerald-400 truncate" id="fire-month">0</p>
+                        <div class="mt-8 pt-6 border-t border-gray-100 flex justify-between items-center overflow-hidden">
+                            <span class="text-gray-500 font-medium whitespace-nowrap mr-2" data-i18n="totalValue">Total Value</span>
+                            <span class="text-2xl font-bold text-slate-900 font-mono truncate" id="total-value">0</span>
                         </div>
                     </div>
-                </div>
 
-                <!-- 4% 法则简介 -->
-                <article class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-                    <h3 class="text-base font-bold text-slate-900 mb-2 flex items-center gap-2">
-                        <span class="text-blue-500" aria-hidden="true">ℹ️</span> <span data-i18n="fireRuleTitle">About the 4% Rule</span>
-                    </h3>
-                    <div class="text-sm text-slate-600 leading-relaxed" data-i18n="fireRuleText">
-                        <!-- 内容由 JS 填充 -->
-                    </div>
-                </article>
-
-            </section>
-        </main>
-
-        <!-- 底部介绍 (SEO 内容区) -->
-        <article class="mt-10 bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
-            <h2 class="text-2xl font-bold text-slate-900 mb-4" data-i18n="introTitle">What is the Permanent Portfolio?</h2>
-            <div class="prose text-slate-600 max-w-none leading-relaxed mb-10" data-i18n="introText">
-                <!-- 内容由 JS 填充 -->
-            </div>
-            
-            <!-- FAQ 区域 -->
-            <div class="border-t border-gray-100 pt-8">
-                <h3 class="text-xl font-bold text-slate-800 mb-6" data-i18n="faqTitle">Frequently Asked Questions (FAQ)</h3>
-                <div id="faq-container" class="space-y-4">
-                     <!-- FAQ 内容由 JS 动态生成 -->
-                </div>
-            </div>
-        </article>
-    </div>
-
-    <!-- 底部 Footer -->
-    <footer class="mt-12 text-center pb-8 px-4 border-t border-gray-100 pt-8">
-        <p class="text-slate-400 text-sm mb-2">
-            &copy; 2026 4x25 · 
-            <!-- 修改点：添加 onclick 事件，样式改为 cursor-pointer -->
-            <button onclick="openPrivacyModal()" class="cursor-pointer hover:text-slate-600 transition-colors underline decoration-slate-300 underline-offset-2" data-i18n="privacy">Privacy Policy</button>
-        </p>
-        <p class="text-slate-400 text-xs max-w-2xl mx-auto leading-relaxed opacity-80" data-i18n="disclaimer">
-            Disclaimer: This tool is for informational purposes only and does not constitute financial advice. Invest at your own risk.
-        </p>
-    </footer>
-
-    <!-- 隐私政策 Modal (新增) -->
-    <div id="privacy-modal" class="fixed inset-0 z-50 hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-        <!-- 背景遮罩 -->
-        <div class="modal-overlay absolute inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity opacity-0" onclick="closePrivacyModal()"></div>
-        
-        <!-- Modal 内容 -->
-        <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-            <div class="modal-content relative transform overflow-hidden rounded-2xl bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
-                <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
-                    <div class="sm:flex sm:items-start">
-                        <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left w-full">
-                            <h3 class="text-xl font-bold leading-6 text-slate-900 mb-4" id="modal-title" data-i18n="privacyTitle">Privacy Policy</h3>
-                            <div class="mt-2 text-sm text-slate-600 space-y-3 leading-relaxed" data-i18n="privacyContent">
-                                <!-- 内容由 JS 填充 -->
+                    <!-- SVG Chart -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 flex flex-col items-center" aria-hidden="true">
+                        <div class="relative w-48 h-48 mb-6">
+                            <svg viewBox="0 0 32 32" class="w-full h-full transform -rotate-90">
+                                <circle r="15.9155" cx="16" cy="16" fill="transparent" stroke="#f3f4f6" stroke-width="6"></circle>
+                                <circle id="chart-stocks" class="chart-segment" r="15.9155" cx="16" cy="16" fill="transparent" stroke="#3B82F6" stroke-width="6" stroke-dasharray="0 100" stroke-dashoffset="0"></circle>
+                                <circle id="chart-bonds" class="chart-segment" r="15.9155" cx="16" cy="16" fill="transparent" stroke="#8B5CF6" stroke-width="6" stroke-dasharray="0 100" stroke-dashoffset="0"></circle>
+                                <circle id="chart-cash" class="chart-segment" r="15.9155" cx="16" cy="16" fill="transparent" stroke="#10B981" stroke-width="6" stroke-dasharray="0 100" stroke-dashoffset="0"></circle>
+                                <circle id="chart-gold" class="chart-segment" r="15.9155" cx="16" cy="16" fill="transparent" stroke="#F59E0B" stroke-width="6" stroke-dasharray="0 100" stroke-dashoffset="0"></circle>
+                            </svg>
+                            <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                <span class="text-slate-300 font-bold text-xs tracking-widest">4x25</span>
+                            </div>
+                        </div>
+                        <div class="w-full px-6 space-y-3">
+                            <div class="flex items-center gap-3">
+                                <span class="w-3 h-3 rounded-full bg-blue-500 flex-shrink-0 shadow-sm"></span>
+                                <span class="text-sm font-medium text-slate-600" data-i18n="stocks">Stocks</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <span class="w-3 h-3 rounded-full bg-violet-500 flex-shrink-0 shadow-sm"></span>
+                                <span class="text-sm font-medium text-slate-600" data-i18n="bonds">Bonds</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <span class="w-3 h-3 rounded-full bg-emerald-500 flex-shrink-0 shadow-sm"></span>
+                                <span class="text-sm font-medium text-slate-600" data-i18n="cash">Cash</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <span class="w-3 h-3 rounded-full bg-amber-500 flex-shrink-0 shadow-sm"></span>
+                                <span class="text-sm font-medium text-slate-600" data-i18n="gold">Gold</span>
                             </div>
                         </div>
                     </div>
+                </section>
+
+                <!-- Right: Results -->
+                <section class="lg:col-span-8 space-y-6">
+                    
+                    <!-- Status Card -->
+                    <div id="status-card" class="rounded-2xl p-6 border-l-4 shadow-sm transition-all bg-blue-50 border-blue-500 text-blue-900" role="status" aria-live="polite">
+                        <div class="flex items-start gap-4">
+                            <div id="status-icon" class="text-2xl" aria-hidden="true">👋</div>
+                            <div>
+                                <h3 class="text-lg font-bold" id="status-title">...</h3>
+                                <p class="mt-1 text-sm" id="status-desc">...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Table -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                        <div class="p-6 border-b border-gray-100 flex justify-between items-center">
+                            <h3 class="text-xl font-bold" data-i18n="rebalanceTitle">🔄 Rebalancing Suggestions</h3>
+                            <span class="text-xs font-mono bg-gray-100 text-gray-600 px-2 py-1 rounded" data-i18n="targetLabel">Target: 25%</span>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-gray-50 text-gray-500 text-sm uppercase tracking-wider">
+                                        <th class="p-3 font-medium whitespace-nowrap text-left" data-i18n="colAsset" scope="col">Asset</th>
+                                        <th class="p-3 font-medium whitespace-nowrap text-left" data-i18n="colCurrent" scope="col">Current %</th>
+                                        <th class="p-3 font-medium whitespace-nowrap text-left" data-i18n="colTarget" scope="col">Target Value</th>
+                                        <th class="p-3 font-medium whitespace-nowrap text-left" data-i18n="colAction" scope="col">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-100" id="result-body">
+                                    <!-- JS Generated Rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- FIRE Calc -->
+                    <div class="bg-slate-900 text-white rounded-2xl p-6 shadow-lg overflow-hidden">
+                        <h3 class="text-lg font-bold mb-2" data-i18n="fireTitle">FIRE 4% Rule Preview</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                            <div class="overflow-hidden">
+                                <p class="text-slate-400 text-sm mb-1" data-i18n="fireYear">Safe Annual Withdrawal</p>
+                                <p class="text-3xl font-mono font-bold text-emerald-400 truncate" id="fire-year">0</p>
+                            </div>
+                            <div class="overflow-hidden">
+                                <p class="text-slate-400 text-sm mb-1" data-i18n="fireMonth">Safe Monthly Withdrawal</p>
+                                <p class="text-2xl font-mono font-bold text-emerald-400 truncate" id="fire-month">0</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4% Rule Info -->
+                    <article class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+                        <h3 class="text-base font-bold text-slate-900 mb-2 flex items-center gap-2">
+                            <span class="text-blue-500" aria-hidden="true">ℹ️</span> <span data-i18n="fireRuleTitle">About the 4% Rule</span>
+                        </h3>
+                        <div class="text-sm text-slate-600 leading-relaxed" data-i18n="fireRuleText" data-i18n-html="true"></div>
+                    </article>
+
+                </section>
+            </main>
+
+            <!-- Intro & FAQ -->
+            <article class="mt-10 bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+                <h2 class="text-2xl font-bold text-slate-900 mb-4" data-i18n="introTitle">What is the Permanent Portfolio?</h2>
+                <div class="prose text-slate-600 max-w-none leading-relaxed mb-10" data-i18n="introText" data-i18n-html="true"></div>
+                
+                <div class="border-t border-gray-100 pt-8">
+                    <h3 class="text-xl font-bold text-slate-800 mb-6" data-i18n="faqTitle">Frequently Asked Questions (FAQ)</h3>
+                    <div id="faq-container" class="space-y-4"></div>
+                </div>
+            </article>
+        </div>
+
+        <!-- Footer -->
+        <footer class="mt-12 text-center pb-8 px-4 border-t border-gray-100 pt-8">
+            <p class="text-slate-400 text-sm mb-2">
+                &copy; 2026 4x25 · <button type="button" id="btn-privacy" class="cursor-pointer hover:text-slate-600 transition-colors underline decoration-slate-300 underline-offset-2" data-i18n="privacy">Privacy Policy</button>
+            </p>
+            <p class="text-slate-400 text-xs max-w-2xl mx-auto leading-relaxed opacity-80" data-i18n="disclaimer">
+                Disclaimer: This tool is for informational purposes only.
+            </p>
+        </footer>
+    </div>
+
+    <!-- Privacy Modal -->
+    <div id="privacy-modal" class="fixed inset-0 z-50 hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <div class="modal-overlay absolute inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity opacity-0"></div>
+        <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+            <div class="modal-content relative transform overflow-hidden rounded-2xl bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" id="modal-panel">
+                <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+                    <h3 class="text-xl font-bold leading-6 text-slate-900 mb-4" id="modal-title" data-i18n="privacyTitle">Privacy Policy</h3>
+                    <div class="mt-2 text-sm text-slate-600 space-y-3 leading-relaxed" data-i18n="privacyContent" data-i18n-html="true"></div>
                 </div>
                 <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-                    <button type="button" onclick="closePrivacyModal()" class="inline-flex w-full justify-center rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 sm:ml-3 sm:w-auto transition-colors" data-i18n="closeBtn">Close</button>
+                    <button type="button" id="modal-close-btn" class="inline-flex w-full justify-center rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 sm:ml-3 sm:w-auto transition-colors" data-i18n="closeBtn">Close</button>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // --- 国际化配置 (i18n) ---
+        // --- Constants & Config ---
+        // Clean Code: Extract magic number
+        const TARGET_PERCENT = 25; 
+        const MIN_THRESHOLD = 5;
+        const MAX_THRESHOLD = 15;
+        const MAX_DIGITS = 12;
+
         let currentLang = 'en'; 
+        let currentThreshold = 10;
+        let isScheduled = false;
 
         const translations = {
             zh: {
@@ -322,7 +264,7 @@
                 inputTitle: "💰 当前持仓输入",
                 totalValue: "总资产价值",
                 rebalanceTitle: "🔄 再平衡操作建议",
-                targetLabel: "目标占比: 25%",
+                targetLabel: `目标占比: ${TARGET_PERCENT}%`,
                 colAsset: "资产",
                 colCurrent: "当前占比",
                 colTarget: "目标金额",
@@ -337,6 +279,8 @@
                 buy: "买入",
                 sell: "卖出",
                 hold: "保持", 
+                statusEmptyTitle: "请输入持仓金额",
+                statusEmptyDesc: "请在左侧输入各项资产的当前价值以开始计算。",
                 statusHealthyTitle: "投资组合处于健康区间",
                 statusHealthyDesc: "所有资产均在目标区间内，无需操作。",
                 statusActionTitle: "建议进行再平衡",
@@ -344,41 +288,16 @@
                 fireRuleTitle: "关于 4% 法则",
                 fireRuleText: "源自<b>三一学院研究</b>。核心观点：若每年提取初始资金的 <b>4%</b> 作为生活费（并随通胀调整），资金大概率能维持 30 年以上。这意味着：当<b>总资产 = 年支出 × 25</b> 时，理论上已达成财务自由。",
                 introTitle: "什么是永久投资组合？",
-                introText: `
-                    <p class="mb-4">永久投资组合（Permanent Portfolio）是由哈利·布朗（Harry Browne）提出的投资策略，旨在无论经济状况如何（繁荣、通缩、通胀或滞胀），都能保护并增值你的财富。</p>
-                    <p class="mb-4">其核心理念极其简单：将资产平分为四等份（各25%）：<strong>股票</strong>（应对繁荣）、<strong>长期国债</strong>（应对通缩）、<strong>现金/短债</strong>（应对衰退/紧缩）、<strong>黄金</strong>（应对通胀）。</p>
-                    <p>你只需要每年检查一次，如果某项资产占比偏离 25% 太多（例如超过设定的阈值），就进行“再平衡”：卖出涨得多的，买入跌得多的，使其回到 25%。</p>
-                `,
+                introText: `<p class="mb-4">永久投资组合（Permanent Portfolio）是由哈利·布朗（Harry Browne）提出的投资策略，旨在无论经济状况如何（繁荣、通缩、通胀或滞胀），都能保护并增值你的财富。</p><p class="mb-4">其核心理念极其简单：将资产平分为四等份（各${TARGET_PERCENT}%）：<strong>股票</strong>（应对繁荣）、<strong>长期国债</strong>（应对通缩）、<strong>现金/短债</strong>（应对衰退/紧缩）、<strong>黄金</strong>（应对通胀）。</p><p>你只需要每年检查一次，如果某项资产占比偏离 ${TARGET_PERCENT}% 太多（例如超过设定的阈值），就进行“再平衡”：卖出涨得多的，买入跌得多的，使其回到 ${TARGET_PERCENT}%。</p>`,
                 faqTitle: "常见问题 (FAQ)",
                 faqData: [
-                    {
-                        question: "为什么叫 4x25?",
-                        answer: `
-                            <p class="mb-2">这是一个双关含义：</p>
-                            <ul class="list-decimal list-inside space-y-1 ml-1">
-                                <li><strong>永久投资组合：</strong>4种资产，各占 25%。</li>
-                                <li><strong>FIRE 运动：</strong>4% 法则，意味着你需要存够年支出的 25 倍。</li>
-                            </ul>
-                        `
-                    },
-                    {
-                        question: "再平衡的阈值设为多少比较好?",
-                        answer: `
-                            <p>哈利·布朗建议使用 <strong>15/35 频带</strong>，即当某项资产跌破 15% 或涨超 35% 时触发再平衡（相当于 ±10% 的阈值）。</p>
-                            <p class="mt-2">本计算器默认设置为 ±10%，你可以根据自己的风险偏好在顶部调整。</p>
-                        `
-                    }
+                    { question: "为什么叫 4x25?", answer: `<p class="mb-2">这是一个双关含义：</p><ul class="list-decimal list-inside space-y-1 ml-1"><li><strong>永久投资组合：</strong>4种资产，各占 ${TARGET_PERCENT}%。</li><li><strong>FIRE 运动：</strong>4% 法则，意味着你需要存够年支出的 25 倍。</li></ul>` },
+                    { question: "再平衡的阈值设为多少比较好?", answer: `<p>哈利·布朗建议使用 <strong>15/35 频带</strong>，即当某项资产跌破 15% 或涨超 35% 时触发再平衡（相当于 ±10% 的阈值）。</p><p class="mt-2">本计算器默认设置为 ±10%，你可以根据自己的风险偏好在顶部调整。</p>` }
                 ],
                 privacy: "隐私政策",
                 disclaimer: "免责声明：本工具仅供参考，不构成任何财务建议。投资有风险，入市需谨慎。",
-                // 新增隐私政策内容
                 privacyTitle: "隐私政策",
-                privacyContent: `
-                    <p><strong>1. 数据安全与本地计算</strong><br>本网站是一个纯前端应用。所有计算均在您的浏览器本地完成。我们没有后端服务器，也不会收集、存储或传输您的任何财务数据。</p>
-                    <p><strong>2. Cookie 使用</strong><br>本网站不使用任何用于追踪个人身份的 Cookie。</p>
-                    <p><strong>3. 第三方服务</strong><br>本网站可能使用基础的流量统计服务（如 Google Analytics）以优化用户体验，这些服务仅收集匿名数据（如访问量、浏览器类型），不包含个人财务信息。</p>
-                    <p class="text-xs text-gray-400 mt-4">最后更新日期：2026年1月3日</p>
-                `,
+                privacyContent: `<p><strong>1. 数据安全与本地计算</strong><br>本网站是一个纯前端应用。所有计算均在您的浏览器本地完成。我们没有后端服务器，也不会收集、存储或传输您的任何财务数据。</p><p><strong>2. Cookie 使用</strong><br>本网站不使用任何用于追踪个人身份的 Cookie。</p><p class="text-xs text-gray-400 mt-4">最后更新日期：2026年1月4日</p>`,
                 closeBtn: "关闭"
             },
             en: {
@@ -388,7 +307,7 @@
                 inputTitle: "💰 Current Holdings",
                 totalValue: "Total Value",
                 rebalanceTitle: "🔄 Rebalancing Suggestions",
-                targetLabel: "Target: 25%",
+                targetLabel: `Target: ${TARGET_PERCENT}%`,
                 colAsset: "Asset",
                 colCurrent: "Current %",
                 colTarget: "Target Value",
@@ -403,6 +322,8 @@
                 buy: "Buy",
                 sell: "Sell",
                 hold: "Hold",
+                statusEmptyTitle: "Enter Your Holdings",
+                statusEmptyDesc: "Please input the current value of your assets to get started.",
                 statusHealthyTitle: "Portfolio is Healthy",
                 statusHealthyDesc: "All assets are within the target allocation range.",
                 statusActionTitle: "Rebalancing Recommended",
@@ -410,41 +331,16 @@
                 fireRuleTitle: "About the 4% Rule",
                 fireRuleText: "Derived from the <b>Trinity Study</b>. It suggests that if you withdraw <b>4%</b> of your portfolio annually (adjusted for inflation), your money has a high probability of lasting 30+ years. You are 'FIRE' when <b>Assets = 25 × Annual Expenses</b>.",
                 introTitle: "What is the Permanent Portfolio?",
-                introText: `
-                    <p class="mb-4">The Permanent Portfolio is an investment strategy invented by Harry Browne, designed to preserve and grow your wealth under any economic condition—whether it's prosperity, deflation, inflation, or stagflation.</p>
-                    <p class="mb-4">The core concept is simple: divide your assets equally into four parts (25% each): <strong>Stocks</strong> (for prosperity), <strong>Long-Term Bonds</strong> (for deflation), <strong>Cash</strong> (for recession), and <strong>Gold</strong> (for inflation).</p>
-                    <p>You simply check it once a year. If an asset deviates too far from 25% (beyond your set threshold), you "rebalance": sell the winners and buy the losers to get back to 25%.</p>
-                `,
+                introText: `<p class="mb-4">The Permanent Portfolio is an investment strategy invented by Harry Browne, designed to preserve and grow your wealth under any condition.</p><p class="mb-4">The core concept is simple: divide your assets equally into four parts (${TARGET_PERCENT}% each): <strong>Stocks</strong>, <strong>Long-Term Bonds</strong>, <strong>Cash</strong>, and <strong>Gold</strong>.</p><p>You simply check it once a year. If an asset deviates too far from ${TARGET_PERCENT}% (beyond your set threshold), you "rebalance": sell the winners and buy the losers to get back to ${TARGET_PERCENT}%.</p>`,
                 faqTitle: "Frequently Asked Questions (FAQ)",
                 faqData: [
-                    {
-                        question: "Why 4x25?",
-                        answer: `
-                            <p class="mb-2">It's a double meaning:</p>
-                            <ul class="list-decimal list-inside space-y-1 ml-1">
-                                <li><strong>Permanent Portfolio:</strong> 4 assets at 25% each.</li>
-                                <li><strong>FIRE Movement:</strong> The 4% Rule implies saving 25 times your annual expenses.</li>
-                            </ul>
-                        `
-                    },
-                    {
-                        question: "What is the best rebalancing threshold?",
-                        answer: `
-                            <p>Harry Browne recommended using a <strong>15/35 band</strong>. This means you rebalance only when an asset drops below 15% or rises above 35% (which equals a ±10% threshold).</p>
-                            <p class="mt-2">This calculator defaults to ±10%, but you can adjust it at the top based on your risk tolerance.</p>
-                        `
-                    }
+                    { question: "Why 4x25?", answer: `<p class="mb-2">It's a double meaning:</p><ul class="list-decimal list-inside space-y-1 ml-1"><li><strong>Permanent Portfolio:</strong> 4 assets at ${TARGET_PERCENT}% each.</li><li><strong>FIRE Movement:</strong> The 4% Rule implies saving 25 times your annual expenses.</li></ul>` },
+                    { question: "What is the best rebalancing threshold?", answer: `<p>Harry Browne recommended using a <strong>15/35 band</strong>. This means you rebalance only when an asset drops below 15% or rises above 35% (which equals a ±10% threshold).</p><p class="mt-2">This calculator defaults to ±10%, but you can adjust it at the top based on your risk tolerance.</p>` }
                 ],
                 privacy: "Privacy Policy",
                 disclaimer: "Disclaimer: This tool is for informational purposes only and does not constitute financial advice. Invest at your own risk.",
-                // New Privacy Content
                 privacyTitle: "Privacy Policy",
-                privacyContent: `
-                    <p><strong>1. Data Security & Local Processing</strong><br>This is a client-side application. All calculations are performed locally in your browser. We do not have a backend server, and we do not collect, store, or transmit any of your financial data.</p>
-                    <p><strong>2. Cookies</strong><br>This website does not use cookies for tracking personal identities.</p>
-                    <p><strong>3. Third-Party Services</strong><br>We may use basic analytics services (like Google Analytics) to improve user experience. These services only collect anonymous data (e.g., visitor counts, browser types) and do not access your financial inputs.</p>
-                    <p class="text-xs text-gray-400 mt-4">Last Updated: January 3, 2026</p>
-                `,
+                privacyContent: `<p><strong>1. Data Security & Local Processing</strong><br>This is a client-side application. All calculations are performed locally in your browser. We do not have a backend server, and we do not collect, store, or transmit any of your financial data.</p><p><strong>2. Cookies</strong><br>This website does not use cookies for tracking personal identities.</p><p class="text-xs text-gray-400 mt-4">Last Updated: January 4, 2026</p>`,
                 closeBtn: "Close"
             }
         };
@@ -456,173 +352,212 @@
             { key: 'gold', color: '#F59E0B', value: 0 }
         ];
 
-        let currentThreshold = 10;
-        const MIN_THRESHOLD = 5;
-        const MAX_THRESHOLD = 15;
-        const MAX_DIGITS = 12;
-
-        // --- 初始化 ---
-
-        const ctx = document.getElementById('myChart').getContext('2d');
-        let myChart = new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: [], 
-                datasets: [{
-                    data: assetsConfig.map(a => a.value),
-                    backgroundColor: assetsConfig.map(a => a.color),
-                    borderWidth: 0
-                }]
+        const formatters = {
+            zh: {
+                standard: new Intl.NumberFormat('zh-CN', { maximumFractionDigits: 0 }),
+                compact: new Intl.NumberFormat('zh-CN', { notation: "compact", maximumFractionDigits: 2 })
             },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
-        });
-
-        const inputsContainer = document.getElementById('inputs-container');
-        assetsConfig.forEach((asset, index) => {
-            const div = document.createElement('div');
-            const initialValue = asset.value === 0 ? '' : asset.value;
-            
-            div.innerHTML = `
-                <label class="block text-sm font-medium text-gray-700 mb-1.5" id="label-${asset.key}" for="input-${asset.key}"></label>
-                <div class="relative">
-                    <span class="currency-symbol absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold select-none"></span>
-                    <input type="number" id="input-${asset.key}" step="1" min="0" placeholder="0" data-index="${index}" value="${initialValue}" 
-                        oninput="if(this.value.length > ${MAX_DIGITS}) this.value = this.value.slice(0, ${MAX_DIGITS});"
-                        onkeypress="return event.charCode >= 48 && event.charCode <= 57"
-                        class="asset-input w-full pl-8 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none font-mono text-lg placeholder-gray-300 transition-shadow">
-                </div>
-            `;
-            inputsContainer.appendChild(div);
-        });
-
-        // --- 核心逻辑 ---
-
-        function changeThreshold(delta) {
-            const newValue = currentThreshold + delta;
-            if (newValue >= MIN_THRESHOLD && newValue <= MAX_THRESHOLD) {
-                currentThreshold = newValue;
-                updateThresholdUI();
-                calculate();
+            en: {
+                standard: new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }),
+                compact: new Intl.NumberFormat('en-US', { notation: "compact", maximumFractionDigits: 2 })
             }
-        }
+        };
 
-        function updateThresholdUI() {
-            document.getElementById('threshold-display').innerText = currentThreshold;
-            document.getElementById('btn-minus').disabled = (currentThreshold <= MIN_THRESHOLD);
-            document.getElementById('btn-plus').disabled = (currentThreshold >= MAX_THRESHOLD);
-        }
+        // --- DOM Elements Cache ---
+        let domElements = {};
+        let assetDomElements = {};
 
-        function toggleFaq(index) {
-            const content = document.getElementById(`faq-content-${index}`);
-            const icon = document.getElementById(`faq-icon-${index}`);
-            
-            if (content.classList.contains('open')) {
-                content.classList.remove('open');
-                icon.classList.remove('rotate');
-            } else {
-                content.classList.add('open');
-                icon.classList.add('rotate');
-            }
-        }
+        // --- Initialization ---
+        function init() {
+            const inputsContainer = document.getElementById('inputs-container');
+            const resultBody = document.getElementById('result-body');
 
-        // --- Modal 逻辑 ---
-        function openPrivacyModal() {
-            const modal = document.getElementById('privacy-modal');
-            const overlay = modal.querySelector('.modal-overlay');
-            const content = modal.querySelector('.modal-content');
-            
-            modal.classList.remove('hidden');
-            // 简单的动画延迟，让 display:block 生效后再加 opacity
-            setTimeout(() => {
-                overlay.classList.remove('opacity-0');
-                content.classList.remove('opacity-0', 'translate-y-4', 'sm:translate-y-0', 'sm:scale-95');
-                content.classList.add('opacity-100', 'translate-y-0', 'sm:scale-100');
-            }, 10);
-        }
+            // Best Practice: Use DocumentFragment for batch DOM insertion
+            const inputsFragment = document.createDocumentFragment();
+            const rowsFragment = document.createDocumentFragment();
 
-        function closePrivacyModal() {
-            const modal = document.getElementById('privacy-modal');
-            const overlay = modal.querySelector('.modal-overlay');
-            const content = modal.querySelector('.modal-content');
-
-            overlay.classList.add('opacity-0');
-            content.classList.remove('opacity-100', 'translate-y-0', 'sm:scale-100');
-            content.classList.add('opacity-0', 'translate-y-4', 'sm:translate-y-0', 'sm:scale-95');
-
-            setTimeout(() => {
-                modal.classList.add('hidden');
-            }, 300); // 等待过渡结束
-        }
-
-        // 监听 ESC 键关闭 Modal
-        document.addEventListener('keydown', function(event) {
-            if (event.key === "Escape") {
-                closePrivacyModal();
-            }
-        });
-
-        function setLanguage(lang) {
-            currentLang = lang;
-            document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
-            
-            document.getElementById('btn-zh').classList.toggle('active', lang === 'zh');
-            document.getElementById('btn-en').classList.toggle('active', lang === 'en');
-
-            // 更新常规文本
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                const key = el.getAttribute('data-i18n');
-                if (translations[lang][key]) {
-                    if (['introText', 'fireRuleText', 'privacyContent'].includes(key)) {
-                        el.innerHTML = translations[lang][key];
-                    } else {
-                        el.innerText = translations[lang][key];
-                    }
-                }
-            });
-
-            // 专门处理 FAQ 生成
-            const faqContainer = document.getElementById('faq-container');
-            faqContainer.innerHTML = ''; 
-            const faqData = translations[lang].faqData;
-            
-            faqData.forEach((item, index) => {
-                const faqItem = document.createElement('div');
-                faqItem.className = 'border border-gray-200 rounded-xl overflow-hidden bg-white';
-                faqItem.innerHTML = `
-                    <button onclick="toggleFaq(${index})" class="w-full flex justify-between items-center p-4 bg-gray-50 hover:bg-gray-100 transition-colors text-left focus:outline-none">
-                        <span class="font-bold text-slate-800 text-sm md:text-base">${item.question}</span>
-                        <svg id="faq-icon-${index}" class="faq-icon w-5 h-5 text-slate-400 flex-shrink-0 ml-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                        </svg>
-                    </button>
-                    <div id="faq-content-${index}" class="faq-content bg-white">
-                        <div class="p-4 text-sm text-slate-600 leading-relaxed border-t border-gray-100">
-                            ${item.answer}
-                        </div>
+            assetsConfig.forEach((asset, index) => {
+                const div = document.createElement('div');
+                const initialValue = asset.value === 0 ? '' : asset.value;
+                
+                // Note: Added 'asset-input' class for specific selection
+                div.innerHTML = `
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5" id="label-${asset.key}" for="input-${asset.key}"></label>
+                    <div class="relative">
+                        <span class="currency-symbol absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold select-none" aria-hidden="true"></span>
+                        <input type="text" inputmode="numeric" pattern="[0-9]*"
+                            id="input-${asset.key}" placeholder="0" data-index="${index}" value="${initialValue}" 
+                            class="asset-input w-full pl-8 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none font-mono text-lg placeholder-gray-300 transition-shadow">
                     </div>
                 `;
-                faqContainer.appendChild(faqItem);
+                inputsFragment.appendChild(div);
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-gray-50 transition-colors";
+                tr.innerHTML = `
+                    <td class="p-3 text-left">
+                        <div class="flex items-center gap-3">
+                            <div class="w-3 h-3 rounded-full flex-shrink-0" style="background-color:${asset.color}" aria-hidden="true"></div>
+                            <span class="font-medium text-slate-700 whitespace-nowrap" id="name-${asset.key}"></span>
+                        </div>
+                    </td>
+                    <td class="p-3 text-left font-mono">
+                        <span id="percent-${asset.key}" class="text-slate-600">0.0%</span>
+                    </td>
+                    <td class="p-3 text-left font-mono text-slate-600 table-cell-truncate" id="target-${asset.key}">0</td>
+                    <td class="p-3 text-left" id="action-${asset.key}">
+                        <!-- Default state is now a dash -->
+                        <span class="text-gray-300 text-lg font-bold select-none">-</span>
+                    </td>
+                `;
+                rowsFragment.appendChild(tr);
             });
 
-            const symbol = translations[lang].symbol;
-            document.querySelectorAll('.currency-symbol').forEach(el => {
-                el.innerText = symbol;
-            });
+            inputsContainer.appendChild(inputsFragment);
+            resultBody.appendChild(rowsFragment);
 
-            if (lang === 'en') {
-                document.title = "4x25 - Permanent Portfolio & FIRE Calculator";
-            } else {
-                document.title = "4x25 - 永久投资组合再平衡计算器 & FIRE 4%法则工具";
-            }
+            // --- Cache DOM Elements (Renamed for clarity) ---
+            domElements = {
+                totalValue: document.getElementById('total-value'),
+                fireYear: document.getElementById('fire-year'),
+                fireMonth: document.getElementById('fire-month'),
+                statusCard: document.getElementById('status-card'),
+                statusTitle: document.getElementById('status-title'),
+                statusDesc: document.getElementById('status-desc'),
+                statusIcon: document.getElementById('status-icon'),
+                thresholdDisplay: document.getElementById('threshold-display'),
+                btnMinus: document.getElementById('btn-minus'),
+                btnPlus: document.getElementById('btn-plus'),
+                btnEn: document.getElementById('btn-en'),
+                btnZh: document.getElementById('btn-zh'),
+                faqContainer: document.getElementById('faq-container'),
+                currencySymbols: document.querySelectorAll('.currency-symbol'),
+                i18nElements: document.querySelectorAll('[data-i18n]'),
+                // Clean Code: Specific naming to avoid shadowing
+                privacyModalEl: document.getElementById('privacy-modal'),
+                modalOverlayEl: document.querySelector('.modal-overlay'),
+                modalCloseBtnEl: document.getElementById('modal-close-btn'),
+                modalContentEl: document.querySelector('.modal-content'),
+                appContainer: document.getElementById('app') 
+            };
 
-            calculate();
+            assetDomElements = Object.fromEntries(
+                assetsConfig.map(a => [a.key, {
+                    input: document.getElementById(`input-${a.key}`),
+                    label: document.getElementById(`label-${a.key}`),
+                    name: document.getElementById(`name-${a.key}`),
+                    percent: document.getElementById(`percent-${a.key}`),
+                    target: document.getElementById(`target-${a.key}`),
+                    action: document.getElementById(`action-${a.key}`),
+                    chart: document.getElementById(`chart-${a.key}`)
+                }])
+            );
+
+            bindEvents();
+            setLanguage('en');
+            updateThresholdUI();
         }
 
-        function formatNumberCompact(num, lang, symbol) {
-            if (num > 1000000000) { 
-                return symbol + new Intl.NumberFormat(lang === 'zh' ? 'zh-CN' : 'en-US', { notation: "compact", maximumFractionDigits: 2 }).format(num);
+        function bindEvents() {
+            domElements.btnEn.addEventListener('click', () => setLanguage('en'));
+            domElements.btnZh.addEventListener('click', () => setLanguage('zh'));
+
+            domElements.btnMinus.addEventListener('click', () => changeThreshold(-1));
+            domElements.btnPlus.addEventListener('click', () => changeThreshold(1));
+
+            document.getElementById('btn-privacy').addEventListener('click', function() { openPrivacyModal(this); });
+            domElements.modalCloseBtnEl.addEventListener('click', closePrivacyModal);
+            domElements.modalOverlayEl.addEventListener('click', closePrivacyModal);
+            
+            domElements.privacyModalEl.addEventListener('keydown', function(e) {
+                if (e.key === 'Tab' || e.keyCode === 9) {
+                    const focusableElements = domElements.privacyModalEl.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+                    const firstElement = focusableElements[0];
+                    const lastElement = focusableElements[focusableElements.length - 1];
+
+                    if (e.shiftKey) { 
+                        if (document.activeElement === firstElement) {
+                            e.preventDefault();
+                            lastElement.focus();
+                        }
+                    } else { 
+                        if (document.activeElement === lastElement) {
+                            e.preventDefault();
+                            firstElement.focus();
+                        }
+                    }
+                }
+                if (e.key === "Escape") closePrivacyModal();
+            });
+
+            Object.values(assetDomElements).forEach(assetDom => {
+                assetDom.input.addEventListener('input', handleInput);
+            });
+
+            domElements.faqContainer.addEventListener('click', (e) => {
+                const btn = e.target.closest('button[data-faq-toggle]');
+                if (btn) {
+                    const index = btn.getAttribute('data-index');
+                    toggleFaq(index);
+                }
+            });
+        }
+
+        // --- Logic Functions ---
+
+        function scheduleCalculate() {
+            if (isScheduled) return;
+            isScheduled = true;
+            requestAnimationFrame(() => {
+                calculate();
+                isScheduled = false;
+            });
+        }
+
+        function sanitizeInput(value) {
+            let clean = value.replace(/[^\d]/g, '');
+            if (clean.length > 1 && clean.startsWith('0')) {
+                clean = clean.replace(/^0+/, '');
             }
-            return symbol + Math.round(num).toLocaleString(undefined, {maximumFractionDigits: 0});
+            if (clean.length > MAX_DIGITS) {
+                clean = clean.slice(0, MAX_DIGITS);
+            }
+            return clean;
+        }
+
+        function handleInput(e) {
+            const val = e.target.value;
+            const clean = sanitizeInput(val);
+            
+            if (val !== clean) {
+                const start = e.target.selectionStart;
+                const end = e.target.selectionEnd;
+                const oldLen = val.length;
+                
+                e.target.value = clean;
+                
+                const newLen = clean.length;
+                if (start && end) {
+                    e.target.setSelectionRange(start - (oldLen - newLen), end - (oldLen - newLen));
+                }
+            }
+            scheduleCalculate();
+        }
+
+        function updateChart(total) {
+            let accumulatedPercent = 0;
+            assetsConfig.forEach(asset => {
+                const circle = assetDomElements[asset.key].chart;
+                if (total === 0) {
+                    circle.style.strokeDasharray = `0 100`;
+                    circle.style.strokeDashoffset = 0;
+                    return;
+                }
+                const percent = (asset.value / total) * 100;
+                circle.style.strokeDasharray = `${percent} 100`;
+                circle.style.strokeDashoffset = -accumulatedPercent;
+                accumulatedPercent += percent;
+            });
         }
 
         function calculate() {
@@ -630,100 +565,218 @@
             const sym = t.symbol;
             let total = 0;
             
-            document.querySelectorAll('.asset-input').forEach((input, idx) => {
-                let val = parseInt(input.value);
+            assetsConfig.forEach((asset) => {
+                let valStr = assetDomElements[asset.key].input.value;
+                let val = parseInt(valStr.replace(/[^\d]/g, ''), 10);
                 if (isNaN(val)) val = 0;
-                
-                assetsConfig[idx].value = val;
+                asset.value = val;
                 total += val;
-                document.getElementById(`label-${assetsConfig[idx].key}`).innerText = t[assetsConfig[idx].key];
             });
 
-            document.getElementById('total-value').innerText = formatNumberCompact(total, currentLang, sym);
-            
-            document.getElementById('fire-year').innerText = formatNumberCompact(total * 0.04, currentLang, sym);
-            document.getElementById('fire-month').innerText = formatNumberCompact(total * 0.04 / 12, currentLang, sym);
+            domElements.totalValue.textContent = formatNumberCompact(total, currentLang, sym);
+            domElements.fireYear.textContent = formatNumberCompact(total * 0.04, currentLang, sym);
+            domElements.fireMonth.textContent = formatNumberCompact(total * 0.04 / 12, currentLang, sym);
 
-            myChart.data.labels = assetsConfig.map(a => t[a.key]);
-            myChart.data.datasets[0].data = assetsConfig.map(a => a.value);
-            myChart.update();
+            updateChart(total);
+
+            const baseTarget = Math.floor(total / 4);
+            const remainder = total % 4;
+            const targets = assetsConfig.map((_, index) => {
+                return baseTarget + (index < remainder ? 1 : 0);
+            });
 
             let globalNeedsRebalance = false;
-            const targetPerAsset = Math.round(total / 4);
 
-            assetsConfig.forEach(asset => {
+            assetsConfig.forEach((asset, index) => {
                 const currentPercent = total === 0 ? 0 : (asset.value / total) * 100;
-                const isBreached = currentPercent > (25 + currentThreshold) || currentPercent < (25 - currentThreshold);
+                // Clean Code: Use constant instead of magic number 25
+                const isBreached = total > 0 && (currentPercent > (TARGET_PERCENT + currentThreshold) || currentPercent < (TARGET_PERCENT - currentThreshold));
                 if (isBreached) globalNeedsRebalance = true;
             });
 
-            const tbody = document.getElementById('result-body');
-            tbody.innerHTML = '';
-
-            assetsConfig.forEach(asset => {
+            assetsConfig.forEach((asset, index) => {
                 const currentPercent = total === 0 ? 0 : (asset.value / total) * 100;
-                const diff = targetPerAsset - asset.value;
-                const isBreached = currentPercent > (25 + currentThreshold) || currentPercent < (25 - currentThreshold);
-
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-gray-50 transition-colors";
+                const targetValue = targets[index];
+                const diff = targetValue - asset.value;
+                // Clean Code: Use constant
+                const isBreached = total > 0 && (currentPercent > (TARGET_PERCENT + currentThreshold) || currentPercent < (TARGET_PERCENT - currentThreshold));
                 
-                let actionHtml = '';
+                const el = assetDomElements[asset.key];
 
-                if (globalNeedsRebalance && total > 0) {
+                el.percent.textContent = currentPercent.toFixed(1) + '%';
+                el.percent.className = isBreached ? 'text-red-500 font-bold' : 'text-slate-600';
+
+                const targetText = formatNumberCompact(targetValue, currentLang, sym);
+                el.target.textContent = targetText;
+                el.target.title = targetText;
+
+                let actionHtml = '';
+                
+                // --- MODIFIED LOGIC START ---
+                if (total === 0) {
+                    // Show a dash for empty state
+                    actionHtml = `<span class="text-gray-300 text-lg font-bold select-none">-</span>`;
+                } else if (globalNeedsRebalance) {
                     if (Math.abs(diff) > 0) {
                         const type = diff > 0 ? t.buy : t.sell;
                         const colorClass = diff > 0 ? 'bg-blue-50 text-blue-700' : 'bg-orange-50 text-orange-700';
-                        actionHtml = `<div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-bold ${colorClass} whitespace-nowrap">
-                            ${type} <span class="font-mono ml-1">${formatNumberCompact(Math.abs(diff), currentLang, '')}</span>
-                        </div>`;
+                        actionHtml = `<div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-bold ${colorClass} whitespace-nowrap">${type} <span class="font-mono ml-1">${formatNumberCompact(Math.abs(diff), currentLang, '')}</span></div>`;
                     } else {
                         actionHtml = `<span class="text-gray-400 text-sm font-medium">${t.hold}</span>`;
                     }
                 } else {
                     actionHtml = `<span class="text-gray-400 text-sm font-medium bg-gray-100 px-3 py-1 rounded-full">${t.hold}</span>`;
                 }
-
-                const targetDisplay = formatNumberCompact(targetPerAsset, currentLang, sym);
-
-                tr.innerHTML = `
-                    <td class="p-4"><div class="flex items-center gap-3"><div class="w-3 h-3 rounded-full flex-shrink-0" style="background-color:${asset.color}"></div><span class="font-medium text-slate-700 whitespace-nowrap">${t[asset.key]}</span></div></td>
-                    <td class="p-4 text-right font-mono"><span class="${isBreached ? 'text-red-500 font-bold' : 'text-slate-600'}">${currentPercent.toFixed(1)}%</span></td>
-                    <td class="p-4 text-right font-mono text-slate-600 table-cell-truncate" title="${targetDisplay}">${targetDisplay}</td>
-                    <td class="p-4 text-right">${actionHtml}</td>
-                `;
-                tbody.appendChild(tr);
+                // --- MODIFIED LOGIC END ---
+                
+                if (el.action.innerHTML !== actionHtml) {
+                    el.action.innerHTML = actionHtml;
+                }
             });
 
-            const statusCard = document.getElementById('status-card');
-            const statusTitle = document.getElementById('status-title');
-            const statusDesc = document.getElementById('status-desc');
-            const statusIcon = document.getElementById('status-icon');
-
-            if (globalNeedsRebalance && total > 0) {
-                statusCard.className = "rounded-2xl p-6 border-l-4 shadow-sm transition-all bg-amber-50 border-amber-500 text-amber-900";
-                statusIcon.innerText = "⚠️";
-                statusTitle.innerText = t.statusActionTitle;
-                statusDesc.innerText = t.statusActionDesc
-                    .replace('{threshold}', currentThreshold)
-                    .replace('{min}', 25 - currentThreshold)
-                    .replace('{max}', 25 + currentThreshold);
+            if (total === 0) {
+                domElements.statusCard.className = "rounded-2xl p-6 border-l-4 shadow-sm transition-all bg-blue-50 border-blue-500 text-blue-900";
+                domElements.statusIcon.textContent = "👋";
+                domElements.statusTitle.textContent = t.statusEmptyTitle;
+                domElements.statusDesc.textContent = t.statusEmptyDesc;
+            } else if (globalNeedsRebalance) {
+                domElements.statusCard.className = "rounded-2xl p-6 border-l-4 shadow-sm transition-all bg-amber-50 border-amber-500 text-amber-900";
+                domElements.statusIcon.textContent = "⚠️";
+                domElements.statusTitle.textContent = t.statusActionTitle;
+                // Clean Code: Use constant
+                domElements.statusDesc.textContent = t.statusActionDesc.replace('{threshold}', currentThreshold).replace('{min}', TARGET_PERCENT - currentThreshold).replace('{max}', TARGET_PERCENT + currentThreshold);
             } else {
-                statusCard.className = "rounded-2xl p-6 border-l-4 shadow-sm transition-all bg-emerald-50 border-emerald-500 text-emerald-900";
-                statusIcon.innerText = "✅";
-                statusTitle.innerText = t.statusHealthyTitle;
-                statusDesc.innerText = t.statusHealthyDesc;
+                domElements.statusCard.className = "rounded-2xl p-6 border-l-4 shadow-sm transition-all bg-emerald-50 border-emerald-500 text-emerald-900";
+                domElements.statusIcon.textContent = "✅";
+                domElements.statusTitle.textContent = t.statusHealthyTitle;
+                domElements.statusDesc.textContent = t.statusHealthyDesc;
             }
         }
 
-        document.querySelectorAll('input').forEach(input => {
-            input.addEventListener('input', calculate);
-        });
+        function changeThreshold(delta) {
+            const newValue = currentThreshold + delta;
+            if (newValue >= MIN_THRESHOLD && newValue <= MAX_THRESHOLD) {
+                currentThreshold = newValue;
+                updateThresholdUI();
+                scheduleCalculate();
+            }
+        }
+        function updateThresholdUI() {
+            domElements.thresholdDisplay.textContent = currentThreshold;
+            domElements.btnMinus.disabled = (currentThreshold <= MIN_THRESHOLD);
+            domElements.btnPlus.disabled = (currentThreshold >= MAX_THRESHOLD);
+        }
 
-        // 初始化：默认设置为英文 'en'
-        setLanguage('en');
-        updateThresholdUI();
+        function toggleFaq(index) {
+            const content = document.getElementById(`faq-content-${index}`);
+            const icon = document.getElementById(`faq-icon-${index}`);
+            const button = document.getElementById(`faq-btn-${index}`);
+            
+            const isOpen = content.classList.contains('open');
+            
+            if (isOpen) {
+                content.classList.remove('open');
+                icon.classList.remove('rotate');
+                button.setAttribute('aria-expanded', 'false');
+                content.setAttribute('aria-hidden', 'true');
+            } else {
+                content.classList.add('open');
+                icon.classList.add('rotate');
+                button.setAttribute('aria-expanded', 'true');
+                content.setAttribute('aria-hidden', 'false');
+            }
+        }
 
+        let lastFocusedElement;
+        let prevBodyOverflow = '';
+
+        function openPrivacyModal(triggerElement) {
+            lastFocusedElement = triggerElement; 
+            prevBodyOverflow = document.body.style.overflow;
+            document.body.style.overflow = 'hidden';
+            
+            domElements.privacyModalEl.classList.remove('hidden');
+            domElements.appContainer.setAttribute('aria-hidden', 'true');
+            domElements.appContainer.inert = true; 
+
+            setTimeout(() => {
+                domElements.modalOverlayEl.classList.remove('opacity-0');
+                domElements.modalContentEl.classList.remove('opacity-0', 'translate-y-4', 'sm:translate-y-0', 'sm:scale-95');
+                domElements.modalContentEl.classList.add('opacity-100', 'translate-y-0', 'sm:scale-100');
+                domElements.modalCloseBtnEl.focus();
+            }, 10);
+        }
+
+        function closePrivacyModal() {
+            domElements.modalOverlayEl.classList.add('opacity-0');
+            domElements.modalContentEl.classList.remove('opacity-100', 'translate-y-0', 'sm:scale-100');
+            domElements.modalContentEl.classList.add('opacity-0', 'translate-y-4', 'sm:translate-y-0', 'sm:scale-95');
+            
+            document.body.style.overflow = prevBodyOverflow;
+            
+            domElements.appContainer.setAttribute('aria-hidden', 'false');
+            domElements.appContainer.inert = false;
+
+            setTimeout(() => { 
+                domElements.privacyModalEl.classList.add('hidden');
+                if (lastFocusedElement) lastFocusedElement.focus();
+            }, 300);
+        }
+
+        function setLanguage(lang) {
+            currentLang = lang;
+            document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
+            
+            domElements.btnZh.classList.toggle('active', lang === 'zh');
+            domElements.btnEn.classList.toggle('active', lang === 'en');
+            domElements.btnZh.setAttribute('aria-pressed', lang === 'zh');
+            domElements.btnEn.setAttribute('aria-pressed', lang === 'en');
+            
+            const dict = translations[lang];
+
+            domElements.i18nElements.forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (Object.prototype.hasOwnProperty.call(dict, key)) {
+                    const value = dict[key];
+                    if (el.dataset.i18nHtml === 'true') {
+                        el.innerHTML = value;
+                    } else {
+                        el.textContent = value;
+                    }
+                }
+            });
+
+            assetsConfig.forEach(asset => {
+                assetDomElements[asset.key].label.textContent = translations[lang][asset.key];
+                assetDomElements[asset.key].name.textContent = translations[lang][asset.key];
+            });
+
+            // Use DocumentFragment for FAQ re-render as well
+            domElements.faqContainer.innerHTML = ''; 
+            const faqFragment = document.createDocumentFragment();
+            translations[lang].faqData.forEach((item, index) => {
+                const faqItem = document.createElement('div');
+                faqItem.className = 'border border-gray-200 rounded-xl overflow-hidden bg-white';
+                faqItem.innerHTML = `<button type="button" id="faq-btn-${index}" data-faq-toggle="true" data-index="${index}" aria-expanded="false" aria-controls="faq-content-${index}" class="w-full flex justify-between items-center p-4 bg-gray-50 hover:bg-gray-100 transition-colors text-left focus:outline-none"><span class="font-bold text-slate-800 text-sm md:text-base">${item.question}</span><svg id="faq-icon-${index}" class="faq-icon w-5 h-5 text-slate-400 flex-shrink-0 ml-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg></button><div id="faq-content-${index}" class="faq-content bg-white" role="region" aria-labelledby="faq-btn-${index}" aria-hidden="true"><div class="p-4 text-sm text-slate-600 leading-relaxed border-t border-gray-100">${item.answer}</div></div>`;
+                faqFragment.appendChild(faqItem);
+            });
+            domElements.faqContainer.appendChild(faqFragment);
+
+            const symbol = translations[lang].symbol;
+            domElements.currencySymbols.forEach(el => { el.textContent = symbol; });
+            document.title = lang === 'en' ? "4x25 - Permanent Portfolio & FIRE Calculator" : "4x25 - 永久投资组合再平衡计算器 & FIRE 4%法则工具";
+            scheduleCalculate(); 
+        }
+
+        function formatNumberCompact(num, lang, symbol) {
+            const useCompact = num > 1000000000; 
+            const formatter = useCompact ? formatters[lang].compact : formatters[lang].standard;
+            const valueToFormat = useCompact ? num : Math.round(num);
+            return symbol + formatter.format(valueToFormat);
+        }
+
+        // Start
+        init();
     </script>
 </body>
 </html>
