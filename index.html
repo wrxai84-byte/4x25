@@ -15,22 +15,22 @@
     <title>4x25 - Permanent Portfolio & FIRE Calculator</title>
     <meta name="description" content="Free tool for Harry Browne's Permanent Portfolio strategy and the FIRE 4% Rule.">
     
-    <!-- Tailwind CSS CDN (Locked Version for Stability) -->
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com/3.4.1"></script>
     
     <style>
-        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+        /* 使用 Inter 字体，增加 font-feature-settings 优化数字显示 */
+        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; font-feature-settings: "tnum"; }
         .lang-btn.active { background-color: #3b82f6; color: white; border-color: #3b82f6; }
         
         button:disabled { opacity: 0.3; cursor: not-allowed; pointer-events: none; }
         
-        /* Remove default arrows for number inputs */
         input[type=number]::-webkit-inner-spin-button, 
         input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
 
         .table-cell-truncate { max-width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         
-        /* Animation Classes */
         .faq-content { transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out, visibility 0.3s; max-height: 0; opacity: 0; visibility: hidden; overflow: hidden; }
         .faq-content.open { max-height: 500px; opacity: 1; visibility: visible; }
         .faq-icon { transition: transform 0.3s ease; }
@@ -38,13 +38,17 @@
         .modal-overlay { transition: opacity 0.3s ease; }
         .modal-content { transition: transform 0.3s ease, opacity 0.3s ease; }
 
-        /* Focus Styles */
         button:focus-visible, input:focus-visible, a:focus-visible {
             outline: 2px solid #2563eb;
             outline-offset: 2px;
         }
+        
+        @keyframes spin-once { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .animate-spin-once { animation: spin-once 0.5s ease-in-out; }
 
-        /* Reduced Motion Preference */
+        body { opacity: 0; animation: fadeIn 0.3s ease-in forwards; }
+        @keyframes fadeIn { to { opacity: 1; } }
+
         @media (prefers-reduced-motion: reduce) {
             *, ::before, ::after {
                 animation-duration: 0.01ms !important;
@@ -53,35 +57,37 @@
                 scroll-behavior: auto !important;
             }
             .faq-content { transition: none !important; }
-            .faq-content.open { max-height: auto !important; }
         }
-        
-        /* FOUC Prevention */
-        body { opacity: 0; animation: fadeIn 0.3s ease-in forwards; }
-        @keyframes fadeIn { to { opacity: 1; } }
     </style>
 </head>
 <body class="bg-gray-50 text-slate-800 min-h-screen flex flex-col">
 
-    <!-- APP Container -->
+    <!-- Main App Container -->
     <div id="app" class="flex flex-col min-h-screen p-4 md:p-8 transition-opacity duration-300">
         <div class="max-w-5xl mx-auto w-full flex-grow">
             <!-- Header -->
-            <header class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
-                    <h1 class="text-4xl font-extrabold text-slate-900 tracking-tight">4x25</h1>
-                    <h2 class="text-slate-500 mt-2 text-lg font-normal" data-i18n="subtitle">Permanent Portfolio Rebalancing Calculator · FIRE 4% Rule</h2>
+            <header class="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-gray-100 pb-6">
+                <div class="flex flex-col justify-center">
+                    <!-- Logo -->
+                    <h1 class="flex items-center tracking-tighter select-none group cursor-default">
+                        <span class="text-5xl md:text-6xl font-black text-slate-900 tracking-tight">4</span>
+                        <span class="text-3xl md:text-4xl font-bold text-blue-500 mx-1 opacity-80 group-hover:opacity-100 transition-opacity">×</span>
+                        <span class="text-5xl md:text-6xl font-black text-slate-900 tracking-tight">25</span>
+                    </h1>
+                    
+                    <h2 class="text-slate-500 mt-3 text-base md:text-lg font-medium" data-i18n="subtitle">Permanent Portfolio Rebalancing Calculator · FIRE 4% Rule</h2>
                 </div>
                 
                 <div class="flex flex-col md:flex-row gap-3 items-end md:items-center">
+                    <!-- Language Switcher -->
                     <div class="flex rounded-lg shadow-sm overflow-hidden border border-gray-300 bg-white" role="group" aria-label="Language Selection">
-                        <button type="button" id="btn-en" class="lang-btn px-4 py-2 text-sm font-medium hover:bg-gray-50 transition-colors active" aria-pressed="true">EN</button>
+                        <button type="button" id="btn-en" class="lang-btn px-4 py-3 text-sm font-bold hover:bg-gray-50 transition-colors active" aria-pressed="true">EN</button>
                         <div class="w-px bg-gray-300"></div>
-                        <button type="button" id="btn-zh" class="lang-btn px-4 py-2 text-sm font-medium hover:bg-gray-50 transition-colors" aria-pressed="false">中文</button>
+                        <button type="button" id="btn-zh" class="lang-btn px-4 py-3 text-sm font-bold hover:bg-gray-50 transition-colors" aria-pressed="false">中文</button>
                     </div>
 
                     <div class="bg-white px-2 py-1.5 rounded-lg shadow-sm border border-gray-200 flex items-center gap-2 select-none">
-                        <span class="text-sm font-medium text-gray-500 ml-2" data-i18n="thresholdLabel" id="threshold-label">Threshold: ±</span>
+                        <span class="text-sm font-bold text-gray-500 ml-2" data-i18n="thresholdLabel" id="threshold-label">Threshold: ±</span>
                         <div class="flex items-center bg-gray-100 rounded-md p-1" role="group" aria-labelledby="threshold-label">
                             <button type="button" id="btn-minus" aria-label="Decrease threshold" class="w-8 h-8 flex items-center justify-center bg-white rounded shadow-sm text-slate-600 hover:text-blue-600 hover:bg-blue-50 transition-all font-bold text-lg">-</button>
                             <div class="w-10 text-center font-bold text-slate-800" id="threshold-display" aria-live="polite">10</div>
@@ -117,27 +123,12 @@
                                 <circle id="chart-cash" class="chart-segment" r="15.9155" cx="16" cy="16" fill="transparent" stroke="#10B981" stroke-width="6" stroke-dasharray="0 100" stroke-dashoffset="0"></circle>
                                 <circle id="chart-gold" class="chart-segment" r="15.9155" cx="16" cy="16" fill="transparent" stroke="#F59E0B" stroke-width="6" stroke-dasharray="0 100" stroke-dashoffset="0"></circle>
                             </svg>
-                            <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
-                                <span class="text-slate-300 font-bold text-xs tracking-widest">4x25</span>
+                            <div class="absolute inset-0 flex items-center justify-center pointer-events-none flex-col">
+                                <span class="text-slate-900 font-black text-xl tracking-tight">4<span class="text-blue-500 mx-px">×</span>25</span>
                             </div>
                         </div>
-                        <div class="w-full px-6 space-y-3">
-                            <div class="flex items-center gap-3">
-                                <span class="w-3 h-3 rounded-full bg-blue-500 flex-shrink-0 shadow-sm"></span>
-                                <span class="text-sm font-medium text-slate-600" data-i18n="stocks">Stocks</span>
-                            </div>
-                            <div class="flex items-center gap-3">
-                                <span class="w-3 h-3 rounded-full bg-violet-500 flex-shrink-0 shadow-sm"></span>
-                                <span class="text-sm font-medium text-slate-600" data-i18n="bonds">Bonds</span>
-                            </div>
-                            <div class="flex items-center gap-3">
-                                <span class="w-3 h-3 rounded-full bg-emerald-500 flex-shrink-0 shadow-sm"></span>
-                                <span class="text-sm font-medium text-slate-600" data-i18n="cash">Cash</span>
-                            </div>
-                            <div class="flex items-center gap-3">
-                                <span class="w-3 h-3 rounded-full bg-amber-500 flex-shrink-0 shadow-sm"></span>
-                                <span class="text-sm font-medium text-slate-600" data-i18n="gold">Gold</span>
-                            </div>
+                        <div class="w-full px-6 space-y-3" id="legend-container">
+                            <!-- Legend generated by JS -->
                         </div>
                     </div>
                 </section>
@@ -148,10 +139,11 @@
                     <!-- Status Card -->
                     <div id="status-card" class="rounded-2xl p-6 border-l-4 shadow-sm transition-all bg-blue-50 border-blue-500 text-blue-900" role="status" aria-live="polite">
                         <div class="flex items-start gap-4">
-                            <div id="status-icon" class="text-2xl" aria-hidden="true">👋</div>
+                            <div id="status-icon" class="text-2xl" aria-hidden="true">🧮</div>
                             <div>
                                 <h3 class="text-lg font-bold" id="status-title">...</h3>
                                 <p class="mt-1 text-sm" id="status-desc">...</p>
+                                <p class="mt-2 text-xs opacity-75 hidden" id="status-note"></p>
                             </div>
                         </div>
                     </div>
@@ -166,7 +158,7 @@
                             <table class="w-full text-left border-collapse">
                                 <thead>
                                     <tr class="bg-gray-50 text-gray-500 text-sm uppercase tracking-wider">
-                                        <th class="p-3 font-medium whitespace-nowrap text-left" data-i18n="colAsset" scope="col">Asset</th>
+                                        <th class="p-3 font-medium whitespace-nowrap text-left pl-4" data-i18n="colAsset" scope="col">Asset</th>
                                         <th class="p-3 font-medium whitespace-nowrap text-left" data-i18n="colCurrent" scope="col">Current %</th>
                                         <th class="p-3 font-medium whitespace-nowrap text-left" data-i18n="colTarget" scope="col">Target Value</th>
                                         <th class="p-3 font-medium whitespace-nowrap text-left" data-i18n="colAction" scope="col">Action</th>
@@ -176,6 +168,12 @@
                                     <!-- JS Generated Rows -->
                                 </tbody>
                             </table>
+                        </div>
+                        
+                        <!-- NEW FOOTER FOR TAX/FEE DISCLAIMER -->
+                        <div class="bg-gray-50 px-6 py-3 border-t border-gray-100 text-xs text-slate-500 flex items-start gap-2 leading-relaxed">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 flex-shrink-0 opacity-70 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                            <span data-i18n="rebalanceNote">Note: Suggested actions are theoretical and do not account for transaction fees or tax implications.</span>
                         </div>
                     </div>
 
@@ -201,6 +199,82 @@
                         </h3>
                         <div class="text-sm text-slate-600 leading-relaxed" data-i18n="fireRuleText" data-i18n-html="true"></div>
                     </article>
+
+                    <!-- Wealth Projection Mini Calculator -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
+                            <h3 class="text-xl font-bold flex items-center gap-2">
+                                <span class="text-purple-500">📈</span> <span data-i18n="projTitle">Wealth Projection</span>
+                            </h3>
+                            
+                            <!-- Toggle: Saving vs Spending -->
+                            <div class="flex bg-gray-100 p-1 rounded-lg self-start sm:self-auto">
+                                <button type="button" id="mode-saving" class="px-3 py-1.5 text-xs font-bold rounded-md shadow-sm bg-white text-emerald-600 transition-all">
+                                    <span data-i18n="modeSaving">Saving</span>
+                                </button>
+                                <button type="button" id="mode-spending" class="px-3 py-1.5 text-xs font-bold rounded-md text-gray-500 hover:text-gray-700 transition-all">
+                                    <span data-i18n="modeSpending">Spending</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Inputs -->
+                            <div class="space-y-4">
+                                <div>
+                                    <div class="flex justify-between items-center mb-1">
+                                        <label class="block text-xs font-bold text-gray-500 uppercase" data-i18n="projCurrent">Current Assets</label>
+                                        <!-- Sync Button -->
+                                        <button type="button" id="btn-sync-proj" class="text-xs text-blue-500 hover:text-blue-700 flex items-center gap-1 opacity-0 transition-opacity" title="Sync with Total Value">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>
+                                            <span data-i18n="syncBtn">Sync</span>
+                                        </button>
+                                    </div>
+                                    <div class="relative">
+                                        <span class="currency-symbol absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-sm"></span>
+                                        <input type="text" id="proj-principal" maxlength="12" class="w-full pl-7 pr-3 py-2 bg-gray-50 border border-gray-200 rounded-lg font-mono text-sm focus:ring-2 focus:ring-purple-500 outline-none placeholder-gray-300" placeholder="0">
+                                    </div>
+                                </div>
+                                
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1" data-i18n="projRate">Return % (0-100)</label>
+                                        <div class="relative">
+                                            <input type="text" inputmode="decimal" id="proj-rate" value="6.8" class="w-full pl-3 pr-6 py-2 bg-gray-50 border border-gray-200 rounded-lg font-mono text-sm focus:ring-2 focus:ring-purple-500 outline-none">
+                                            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-xs">%</span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1" data-i18n="projYears">Years (1-100)</label>
+                                        <input type="number" id="proj-years" value="10" min="1" max="100" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg font-mono text-sm focus:ring-2 focus:ring-purple-500 outline-none">
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1" id="proj-flow-label" data-i18n="projContribution">Annual Contribution</label>
+                                    <div class="relative">
+                                        <span class="currency-symbol absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-sm"></span>
+                                        <input type="text" id="proj-flow" maxlength="12" class="w-full pl-7 pr-3 py-2 bg-gray-50 border border-gray-200 rounded-lg font-mono text-sm focus:ring-2 focus:ring-purple-500 outline-none placeholder-gray-300" placeholder="0">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Result -->
+                            <div class="bg-purple-50 rounded-xl p-5 flex flex-col justify-center items-center text-center border border-purple-100 overflow-hidden">
+                                <p class="text-purple-600 font-medium text-sm mb-2" data-i18n="projResultLabel">Future Total Assets</p>
+                                <p class="text-3xl md:text-4xl font-bold text-slate-900 font-mono tracking-tight break-all w-full" id="proj-result">0</p>
+                                <div class="mt-4 text-xs text-purple-400 font-medium bg-white px-3 py-1 rounded-full shadow-sm max-w-full">
+                                    <span data-i18n="projGain">Total Gain</span>: <span id="proj-gain" class="font-mono break-all">0</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- DISCLAIMER FOOTER -->
+                        <div class="mt-6 pt-4 border-t border-gray-50 text-xs text-slate-400 flex items-start gap-1.5 leading-relaxed">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 flex-shrink-0 opacity-70" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                            <span data-i18n="projNote">Note: Projections are nominal values and do not account for inflation or deflation effects.</span>
+                        </div>
+                    </div>
 
                 </section>
             </main>
@@ -238,545 +312,710 @@
                     <div class="mt-2 text-sm text-slate-600 space-y-3 leading-relaxed" data-i18n="privacyContent" data-i18n-html="true"></div>
                 </div>
                 <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-                    <button type="button" id="modal-close-btn" class="inline-flex w-full justify-center rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 sm:ml-3 sm:w-auto transition-colors" data-i18n="closeBtn">Close</button>
+                    <button type="button" id="modal-close-btn" class="inline-flex w-full justify-center rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-50 sm:ml-3 sm:w-auto transition-colors" data-i18n="closeBtn">Close</button>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // --- Constants & Config ---
-        // Clean Code: Extract magic number
-        const TARGET_PERCENT = 25; 
-        const MIN_THRESHOLD = 5;
-        const MAX_THRESHOLD = 15;
-        const MAX_DIGITS = 12;
+        /**
+         * 4x25 Application
+         * Architecture: App.State -> App.Logic -> App.UI -> App.Utils
+         */
+        const App = (() => {
 
-        let currentLang = 'en'; 
-        let currentThreshold = 10;
-        let isScheduled = false;
-
-        const translations = {
-            zh: {
-                symbol: '¥', 
-                subtitle: "永久投资组合再平衡计算器 · FIRE 4% 法则", 
-                thresholdLabel: "再平衡阈值: ±",
-                inputTitle: "💰 当前持仓输入",
-                totalValue: "总资产价值",
-                rebalanceTitle: "🔄 再平衡操作建议",
-                targetLabel: `目标占比: ${TARGET_PERCENT}%`,
-                colAsset: "资产",
-                colCurrent: "当前占比",
-                colTarget: "目标金额",
-                colAction: "操作",
-                fireTitle: "FIRE 4% 法则预览",
-                fireYear: "可支持年支出",
-                fireMonth: "可支持月支出",
-                stocks: "股票 (Stocks)",
-                bonds: "长期国债 (Bonds)",
-                cash: "现金/短债 (Cash)",
-                gold: "黄金 (Gold)",
-                buy: "买入",
-                sell: "卖出",
-                hold: "保持", 
-                statusEmptyTitle: "请输入持仓金额",
-                statusEmptyDesc: "请在左侧输入各项资产的当前价值以开始计算。",
-                statusHealthyTitle: "投资组合处于健康区间",
-                statusHealthyDesc: "所有资产均在目标区间内，无需操作。",
-                statusActionTitle: "建议进行再平衡",
-                statusActionDesc: "检测到有资产偏离目标配置超过 {threshold}% (即 <{min}% 或 >{max}%)。",
-                fireRuleTitle: "关于 4% 法则",
-                fireRuleText: "源自<b>三一学院研究</b>。核心观点：若每年提取初始资金的 <b>4%</b> 作为生活费（并随通胀调整），资金大概率能维持 30 年以上。这意味着：当<b>总资产 = 年支出 × 25</b> 时，理论上已达成财务自由。",
-                introTitle: "什么是永久投资组合？",
-                introText: `<p class="mb-4">永久投资组合（Permanent Portfolio）是由哈利·布朗（Harry Browne）提出的投资策略，旨在无论经济状况如何（繁荣、通缩、通胀或滞胀），都能保护并增值你的财富。</p><p class="mb-4">其核心理念极其简单：将资产平分为四等份（各${TARGET_PERCENT}%）：<strong>股票</strong>（应对繁荣）、<strong>长期国债</strong>（应对通缩）、<strong>现金/短债</strong>（应对衰退/紧缩）、<strong>黄金</strong>（应对通胀）。</p><p>你只需要每年检查一次，如果某项资产占比偏离 ${TARGET_PERCENT}% 太多（例如超过设定的阈值），就进行“再平衡”：卖出涨得多的，买入跌得多的，使其回到 ${TARGET_PERCENT}%。</p>`,
-                faqTitle: "常见问题 (FAQ)",
-                faqData: [
-                    { question: "为什么叫 4x25?", answer: `<p class="mb-2">这是一个双关含义：</p><ul class="list-decimal list-inside space-y-1 ml-1"><li><strong>永久投资组合：</strong>4种资产，各占 ${TARGET_PERCENT}%。</li><li><strong>FIRE 运动：</strong>4% 法则，意味着你需要存够年支出的 25 倍。</li></ul>` },
-                    { question: "再平衡的阈值设为多少比较好?", answer: `<p>哈利·布朗建议使用 <strong>15/35 频带</strong>，即当某项资产跌破 15% 或涨超 35% 时触发再平衡（相当于 ±10% 的阈值）。</p><p class="mt-2">本计算器默认设置为 ±10%，你可以根据自己的风险偏好在顶部调整。</p>` }
-                ],
-                privacy: "隐私政策",
-                disclaimer: "免责声明：本工具仅供参考，不构成任何财务建议。投资有风险，入市需谨慎。",
-                privacyTitle: "隐私政策",
-                privacyContent: `<p><strong>1. 数据安全与本地计算</strong><br>本网站是一个纯前端应用。所有计算均在您的浏览器本地完成。我们没有后端服务器，也不会收集、存储或传输您的任何财务数据。</p><p><strong>2. Cookie 使用</strong><br>本网站不使用任何用于追踪个人身份的 Cookie。</p><p class="text-xs text-gray-400 mt-4">最后更新日期：2026年1月4日</p>`,
-                closeBtn: "关闭"
-            },
-            en: {
-                symbol: '$', 
-                subtitle: "Permanent Portfolio Rebalancing Calculator · FIRE 4% Rule",
-                thresholdLabel: "Threshold: ±",
-                inputTitle: "💰 Current Holdings",
-                totalValue: "Total Value",
-                rebalanceTitle: "🔄 Rebalancing Suggestions",
-                targetLabel: `Target: ${TARGET_PERCENT}%`,
-                colAsset: "Asset",
-                colCurrent: "Current %",
-                colTarget: "Target Value",
-                colAction: "Action",
-                fireTitle: "FIRE 4% Rule Preview",
-                fireYear: "Safe Annual Withdrawal",
-                fireMonth: "Safe Monthly Withdrawal",
-                stocks: "Stocks",
-                bonds: "Long-Term Bonds",
-                cash: "Cash / T-Bills",
-                gold: "Gold",
-                buy: "Buy",
-                sell: "Sell",
-                hold: "Hold",
-                statusEmptyTitle: "Enter Your Holdings",
-                statusEmptyDesc: "Please input the current value of your assets to get started.",
-                statusHealthyTitle: "Portfolio is Healthy",
-                statusHealthyDesc: "All assets are within the target allocation range.",
-                statusActionTitle: "Rebalancing Recommended",
-                statusActionDesc: "Assets detected deviating by more than {threshold}% (i.e., <{min}% or >{max}%).",
-                fireRuleTitle: "About the 4% Rule",
-                fireRuleText: "Derived from the <b>Trinity Study</b>. It suggests that if you withdraw <b>4%</b> of your portfolio annually (adjusted for inflation), your money has a high probability of lasting 30+ years. You are 'FIRE' when <b>Assets = 25 × Annual Expenses</b>.",
-                introTitle: "What is the Permanent Portfolio?",
-                introText: `<p class="mb-4">The Permanent Portfolio is an investment strategy invented by Harry Browne, designed to preserve and grow your wealth under any condition.</p><p class="mb-4">The core concept is simple: divide your assets equally into four parts (${TARGET_PERCENT}% each): <strong>Stocks</strong>, <strong>Long-Term Bonds</strong>, <strong>Cash</strong>, and <strong>Gold</strong>.</p><p>You simply check it once a year. If an asset deviates too far from ${TARGET_PERCENT}% (beyond your set threshold), you "rebalance": sell the winners and buy the losers to get back to ${TARGET_PERCENT}%.</p>`,
-                faqTitle: "Frequently Asked Questions (FAQ)",
-                faqData: [
-                    { question: "Why 4x25?", answer: `<p class="mb-2">It's a double meaning:</p><ul class="list-decimal list-inside space-y-1 ml-1"><li><strong>Permanent Portfolio:</strong> 4 assets at ${TARGET_PERCENT}% each.</li><li><strong>FIRE Movement:</strong> The 4% Rule implies saving 25 times your annual expenses.</li></ul>` },
-                    { question: "What is the best rebalancing threshold?", answer: `<p>Harry Browne recommended using a <strong>15/35 band</strong>. This means you rebalance only when an asset drops below 15% or rises above 35% (which equals a ±10% threshold).</p><p class="mt-2">This calculator defaults to ±10%, but you can adjust it at the top based on your risk tolerance.</p>` }
-                ],
-                privacy: "Privacy Policy",
-                disclaimer: "Disclaimer: This tool is for informational purposes only and does not constitute financial advice. Invest at your own risk.",
-                privacyTitle: "Privacy Policy",
-                privacyContent: `<p><strong>1. Data Security & Local Processing</strong><br>This is a client-side application. All calculations are performed locally in your browser. We do not have a backend server, and we do not collect, store, or transmit any of your financial data.</p><p><strong>2. Cookies</strong><br>This website does not use cookies for tracking personal identities.</p><p class="text-xs text-gray-400 mt-4">Last Updated: January 4, 2026</p>`,
-                closeBtn: "Close"
-            }
-        };
-
-        const assetsConfig = [
-            { key: 'stocks', color: '#3B82F6', value: 0 },
-            { key: 'bonds', color: '#8B5CF6', value: 0 },
-            { key: 'cash', color: '#10B981', value: 0 },
-            { key: 'gold', color: '#F59E0B', value: 0 }
-        ];
-
-        const formatters = {
-            zh: {
-                standard: new Intl.NumberFormat('zh-CN', { maximumFractionDigits: 0 }),
-                compact: new Intl.NumberFormat('zh-CN', { notation: "compact", maximumFractionDigits: 2 })
-            },
-            en: {
-                standard: new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }),
-                compact: new Intl.NumberFormat('en-US', { notation: "compact", maximumFractionDigits: 2 })
-            }
-        };
-
-        // --- DOM Elements Cache ---
-        let domElements = {};
-        let assetDomElements = {};
-
-        // --- Initialization ---
-        function init() {
-            const inputsContainer = document.getElementById('inputs-container');
-            const resultBody = document.getElementById('result-body');
-
-            // Best Practice: Use DocumentFragment for batch DOM insertion
-            const inputsFragment = document.createDocumentFragment();
-            const rowsFragment = document.createDocumentFragment();
-
-            assetsConfig.forEach((asset, index) => {
-                const div = document.createElement('div');
-                const initialValue = asset.value === 0 ? '' : asset.value;
-                
-                // Note: Added 'asset-input' class for specific selection
-                div.innerHTML = `
-                    <label class="block text-sm font-medium text-gray-700 mb-1.5" id="label-${asset.key}" for="input-${asset.key}"></label>
-                    <div class="relative">
-                        <span class="currency-symbol absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold select-none" aria-hidden="true"></span>
-                        <input type="text" inputmode="numeric" pattern="[0-9]*"
-                            id="input-${asset.key}" placeholder="0" data-index="${index}" value="${initialValue}" 
-                            class="asset-input w-full pl-8 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none font-mono text-lg placeholder-gray-300 transition-shadow">
-                    </div>
-                `;
-                inputsFragment.appendChild(div);
-
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-gray-50 transition-colors";
-                tr.innerHTML = `
-                    <td class="p-3 text-left">
-                        <div class="flex items-center gap-3">
-                            <div class="w-3 h-3 rounded-full flex-shrink-0" style="background-color:${asset.color}" aria-hidden="true"></div>
-                            <span class="font-medium text-slate-700 whitespace-nowrap" id="name-${asset.key}"></span>
-                        </div>
-                    </td>
-                    <td class="p-3 text-left font-mono">
-                        <span id="percent-${asset.key}" class="text-slate-600">0.0%</span>
-                    </td>
-                    <td class="p-3 text-left font-mono text-slate-600 table-cell-truncate" id="target-${asset.key}">0</td>
-                    <td class="p-3 text-left" id="action-${asset.key}">
-                        <!-- Default state is now a dash -->
-                        <span class="text-gray-300 text-lg font-bold select-none">-</span>
-                    </td>
-                `;
-                rowsFragment.appendChild(tr);
-            });
-
-            inputsContainer.appendChild(inputsFragment);
-            resultBody.appendChild(rowsFragment);
-
-            // --- Cache DOM Elements (Renamed for clarity) ---
-            domElements = {
-                totalValue: document.getElementById('total-value'),
-                fireYear: document.getElementById('fire-year'),
-                fireMonth: document.getElementById('fire-month'),
-                statusCard: document.getElementById('status-card'),
-                statusTitle: document.getElementById('status-title'),
-                statusDesc: document.getElementById('status-desc'),
-                statusIcon: document.getElementById('status-icon'),
-                thresholdDisplay: document.getElementById('threshold-display'),
-                btnMinus: document.getElementById('btn-minus'),
-                btnPlus: document.getElementById('btn-plus'),
-                btnEn: document.getElementById('btn-en'),
-                btnZh: document.getElementById('btn-zh'),
-                faqContainer: document.getElementById('faq-container'),
-                currencySymbols: document.querySelectorAll('.currency-symbol'),
-                i18nElements: document.querySelectorAll('[data-i18n]'),
-                // Clean Code: Specific naming to avoid shadowing
-                privacyModalEl: document.getElementById('privacy-modal'),
-                modalOverlayEl: document.querySelector('.modal-overlay'),
-                modalCloseBtnEl: document.getElementById('modal-close-btn'),
-                modalContentEl: document.querySelector('.modal-content'),
-                appContainer: document.getElementById('app') 
+            // --- 1. CONFIG & DATA ---
+            const Config = {
+                TARGET_PERCENT: 25,
+                MIN_THRESHOLD: 5,
+                MAX_THRESHOLD: 15,
+                MAX_DIGITS: 12,
+                ASSETS: [
+                    { key: 'stocks', color: '#3B82F6', tailwindColor: 'bg-blue-500' },
+                    { key: 'bonds', color: '#8B5CF6', tailwindColor: 'bg-violet-500' },
+                    { key: 'cash', color: '#10B981', tailwindColor: 'bg-emerald-500' },
+                    { key: 'gold', color: '#F59E0B', tailwindColor: 'bg-amber-500' }
+                ]
             };
 
-            assetDomElements = Object.fromEntries(
-                assetsConfig.map(a => [a.key, {
-                    input: document.getElementById(`input-${a.key}`),
-                    label: document.getElementById(`label-${a.key}`),
-                    name: document.getElementById(`name-${a.key}`),
-                    percent: document.getElementById(`percent-${a.key}`),
-                    target: document.getElementById(`target-${a.key}`),
-                    action: document.getElementById(`action-${a.key}`),
-                    chart: document.getElementById(`chart-${a.key}`)
-                }])
-            );
-
-            bindEvents();
-            setLanguage('en');
-            updateThresholdUI();
-        }
-
-        function bindEvents() {
-            domElements.btnEn.addEventListener('click', () => setLanguage('en'));
-            domElements.btnZh.addEventListener('click', () => setLanguage('zh'));
-
-            domElements.btnMinus.addEventListener('click', () => changeThreshold(-1));
-            domElements.btnPlus.addEventListener('click', () => changeThreshold(1));
-
-            document.getElementById('btn-privacy').addEventListener('click', function() { openPrivacyModal(this); });
-            domElements.modalCloseBtnEl.addEventListener('click', closePrivacyModal);
-            domElements.modalOverlayEl.addEventListener('click', closePrivacyModal);
-            
-            domElements.privacyModalEl.addEventListener('keydown', function(e) {
-                if (e.key === 'Tab' || e.keyCode === 9) {
-                    const focusableElements = domElements.privacyModalEl.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
-                    const firstElement = focusableElements[0];
-                    const lastElement = focusableElements[focusableElements.length - 1];
-
-                    if (e.shiftKey) { 
-                        if (document.activeElement === firstElement) {
-                            e.preventDefault();
-                            lastElement.focus();
+            const Translations = {
+                zh: {
+                    currencyCode: 'CNY',
+                    subtitle: "永久投资组合再平衡计算器 · FIRE 4% 法则", 
+                    thresholdLabel: "再平衡阈值: ±",
+                    inputTitle: "💰 当前持仓输入",
+                    totalValue: "总资产价值",
+                    rebalanceTitle: "🔄 再平衡操作建议",
+                    targetLabel: `目标占比: ${Config.TARGET_PERCENT}%`,
+                    colAsset: "资产",
+                    colCurrent: "当前占比",
+                    colTarget: "目标金额",
+                    colAction: "操作",
+                    fireTitle: "FIRE 4% 法则预览",
+                    fireYear: "可支持年支出",
+                    fireMonth: "可支持月支出",
+                    stocks: "股票 (Stocks)",
+                    bonds: "长期国债 (Bonds)",
+                    cash: "现金/短债 (Cash)",
+                    gold: "黄金 (Gold)",
+                    buy: "买入",
+                    sell: "卖出",
+                    hold: "保持", 
+                    statusEmptyTitle: "请输入持仓金额",
+                    statusEmptyDesc: "请在左侧输入各项资产的当前价值以开始计算。未填写的项目将默认为 0。",
+                    statusHealthyTitle: "投资组合处于健康区间",
+                    statusHealthyDesc: "所有资产均在目标区间内，无需操作。",
+                    statusActionTitle: "建议进行再平衡",
+                    statusActionDesc: "检测到有资产偏离目标配置超过 {threshold}% (即 <{min}% 或 >{max}%)。",
+                    statusActionNote: "说明：默认策略为将所有资产回归至各 25%。",
+                    fireRuleTitle: "关于 4% 法则",
+                    fireRuleText: "源自<b>三一学院研究</b>。核心观点：若每年提取初始资金的 <b>4%</b> 作为生活费（并随通胀调整），资金大概率能维持 30 年以上。这意味着：当<b>总资产 = 年支出 × 25</b> 时，理论上已达成财务自由。",
+                    introTitle: "什么是永久投资组合？",
+                    introText: `<p class="mb-4">永久投资组合（Permanent Portfolio）是由哈利·布朗（Harry Browne）提出的投资策略，旨在无论经济状况如何（繁荣、通缩、通胀或滞胀），都能保护并增值你的财富。</p><p class="mb-4">其核心理念极其简单：将资产平分为四等份（各${Config.TARGET_PERCENT}%）：<strong>股票</strong>（应对繁荣）、<strong>长期国债</strong>（应对通缩）、<strong>现金/短债</strong>（应对衰退/紧缩）、<strong>黄金</strong>（应对通胀）。</p><p>你只需要每年检查一次，如果某项资产占比偏离 ${Config.TARGET_PERCENT}% 太多（例如超过设定的阈值），就进行“再平衡”：卖出涨得多的，买入跌得多的，使其回到 ${Config.TARGET_PERCENT}%。</p>`,
+                    faqTitle: "常见问题 (FAQ)",
+                    faqData: [
+                        { 
+                            question: "为什么叫 4x25?", 
+                            answer: [
+                                "这是一个双关含义：",
+                                "1. 永久投资组合：4种资产，各占 25%。",
+                                "2. FIRE 运动：4% 法则，意味着你需要存够年支出的 25 倍。"
+                            ]
+                        },
+                        { 
+                            question: "再平衡的阈值设为多少比较好?", 
+                            answer: [
+                                "哈利·布朗建议使用 15/35 频带，即当某项资产跌破 15% 或涨超 35% 时触发再平衡（相当于 ±10% 的阈值）。",
+                                "本计算器默认设置为 ±10%，你可以根据自己的风险偏好在顶部调整。"
+                            ]
                         }
-                    } else { 
-                        if (document.activeElement === lastElement) {
-                            e.preventDefault();
-                            firstElement.focus();
+                    ],
+                    privacy: "隐私政策",
+                    disclaimer: "免责声明：本工具仅供参考，不构成任何财务建议。",
+                    privacyTitle: "隐私政策",
+                    privacyContent: `<p><strong>1. 数据安全（本地计算）</strong><br>本网站是一个纯前端应用。所有财务计算均在您的浏览器本地完成。我们没有后端服务器，也不会收集、存储或传输您的任何财务数据。</p><p><strong>2. 统计分析与 Cookie</strong><br>我们使用 Google Analytics（谷歌分析）来收集匿名的网站访问统计数据（如访问量、停留时间），以帮助我们改进网站。这可能会在您的设备上存储 Cookie。请放心，您的具体财务输入数据绝不会被发送给 Google。</p><p class="text-xs text-gray-400 mt-4">最后更新日期：2026年1月4日</p>`,
+                    closeBtn: "关闭",
+                    projTitle: "财富增长推演",
+                    modeSaving: "定投积累",
+                    modeSpending: "提款消费",
+                    projCurrent: "当前总资产",
+                    projRate: "年化收益率 (0-100)",
+                    projYears: "推演年限 (1-100)",
+                    projContribution: "每年定投金额",
+                    projExpense: "每年计划开销",
+                    projResultLabel: "未来总资产",
+                    projGain: "累计收益",
+                    syncBtn: "重置同步",
+                    projNote: "注：推演结果为名义金额，未扣除通货膨胀/通缩对购买力的实际影响。",
+                    rebalanceNote: "注：建议操作金额为理论值，未考虑交易手续费及税务（如资本利得税）影响。"
+                },
+                en: {
+                    currencyCode: 'USD',
+                    subtitle: "Permanent Portfolio Rebalancing Calculator · FIRE 4% Rule",
+                    thresholdLabel: "Threshold: ±",
+                    inputTitle: "💰 Current Holdings",
+                    totalValue: "Total Value",
+                    rebalanceTitle: "🔄 Rebalancing Suggestions",
+                    targetLabel: `Target: ${Config.TARGET_PERCENT}%`,
+                    colAsset: "Asset",
+                    colCurrent: "Current %",
+                    colTarget: "Target Value",
+                    colAction: "Action",
+                    fireTitle: "FIRE 4% Rule Preview",
+                    fireYear: "Safe Annual Withdrawal",
+                    fireMonth: "Safe Monthly Withdrawal",
+                    stocks: "Stocks",
+                    bonds: "Long-Term Bonds",
+                    cash: "Cash / T-Bills",
+                    gold: "Gold",
+                    buy: "Buy",
+                    sell: "Sell",
+                    hold: "Hold",
+                    statusEmptyTitle: "Enter Your Holdings",
+                    statusEmptyDesc: "Please input the current value of your assets. Empty fields will be treated as 0.",
+                    statusHealthyTitle: "Portfolio is Healthy",
+                    statusHealthyDesc: "All assets are within the target allocation range.",
+                    statusActionTitle: "Rebalancing Recommended",
+                    statusActionDesc: "Assets detected deviating by more than {threshold}% (i.e., <{min}% or >{max}%).",
+                    statusActionNote: "Note: Defaults to rebalancing to 25% each.",
+                    fireRuleTitle: "About the 4% Rule",
+                    fireRuleText: "Derived from the <b>Trinity Study</b>. It suggests that if you withdraw <b>4%</b> of your portfolio annually (adjusted for inflation), your money has a high probability of lasting 30+ years. You are 'FIRE' when <b>Assets = 25 × Annual Expenses</b>.",
+                    introTitle: "What is the Permanent Portfolio?",
+                    introText: `<p class="mb-4">The Permanent Portfolio is an investment strategy invented by Harry Browne, designed to preserve and grow your wealth under any condition.</p><p class="mb-4">The core concept is simple: divide your assets equally into four parts (${Config.TARGET_PERCENT}% each): <strong>Stocks</strong>, <strong>Long-Term Bonds</strong>, <strong>Cash</strong>, and <strong>Gold</strong>.</p><p>You simply check it once a year. If an asset deviates too far from ${Config.TARGET_PERCENT}% (beyond your set threshold), you "rebalance": sell the winners and buy the losers to get back to ${Config.TARGET_PERCENT}%.</p>`,
+                    faqTitle: "Frequently Asked Questions (FAQ)",
+                    faqData: [
+                        { 
+                            question: "Why 4x25?", 
+                            answer: [
+                                "It's a double meaning:",
+                                "1. Permanent Portfolio: 4 assets at 25% each.",
+                                "2. FIRE Movement: The 4% Rule implies saving 25 times your annual expenses."
+                            ]
+                        },
+                        { 
+                            question: "What is the best rebalancing threshold?", 
+                            answer: [
+                                "Harry Browne recommended using a 15/35 band. This means you rebalance only when an asset drops below 15% or rises above 35% (which equals a ±10% threshold).",
+                                "This calculator defaults to ±10%, but you can adjust it at the top based on your risk tolerance."
+                            ]
                         }
+                    ],
+                    privacy: "Privacy Policy",
+                    disclaimer: "Disclaimer: This tool is for informational purposes only and does not constitute financial advice.",
+                    privacyTitle: "Privacy Policy",
+                    privacyContent: `<p><strong>1. Data Security (Local Processing)</strong><br>This is a client-side application. All financial calculations are performed locally in your browser. We do not have a backend server, and we do not collect, store, or transmit any of your financial data.</p><p><strong>2. Analytics & Cookies</strong><br>We use Google Analytics to collect anonymous usage statistics (e.g., page views) to help us improve the website. This service uses cookies. Your personal financial inputs are <strong>never</strong> sent to Google.</p><p class="text-xs text-gray-400 mt-4">Last Updated: January 4, 2026</p>`,
+                    closeBtn: "Close",
+                    projTitle: "Wealth Projection",
+                    modeSaving: "Saving",
+                    modeSpending: "Spending",
+                    projCurrent: "Current Assets",
+                    projRate: "Return % (0-100)",
+                    projYears: "Years (1-100)",
+                    projContribution: "Annual Contribution",
+                    projExpense: "Annual Expense",
+                    projResultLabel: "Future Total Assets",
+                    projGain: "Total Gain",
+                    syncBtn: "Sync",
+                    projNote: "Note: Projections are nominal values and do not account for inflation or deflation effects.",
+                    rebalanceNote: "Note: Suggested actions are theoretical and do not account for transaction fees or tax implications."
+                }
+            };
+
+            // --- 2. UTILS ---
+            const Utils = {
+                sanitizeInput: (value) => {
+                    let clean = value.replace(/[^\d]/g, '');
+                    if (clean.length > 1 && clean.startsWith('0')) clean = clean.replace(/^0+/, '');
+                    if (clean.length > Config.MAX_DIGITS) clean = clean.slice(0, Config.MAX_DIGITS);
+                    return clean;
+                },
+                formatMoney: (num, lang, isCompact, includeCurrency = true) => {
+                    const currencyCode = Translations[lang].currencyCode;
+                    const locale = lang === 'zh' ? 'zh-CN' : 'en-US';
+                    
+                    if (Math.abs(num) > 1e15) {
+                        return new Intl.NumberFormat(locale, {
+                            style: includeCurrency ? 'currency' : 'decimal',
+                            currency: currencyCode,
+                            notation: 'scientific',
+                            maximumFractionDigits: 2
+                        }).format(num);
                     }
+
+                    const useCompact = isCompact && Math.abs(num) > 1000000; 
+                    return new Intl.NumberFormat(locale, {
+                        style: includeCurrency ? 'currency' : 'decimal',
+                        currency: currencyCode,
+                        notation: useCompact ? 'compact' : 'standard',
+                        maximumFractionDigits: useCompact ? 2 : 0
+                    }).format(num);
+                },
+                setText: (el, text) => { if (el && el.textContent !== text) el.textContent = text; },
+                setUnsafeHtml: (el, html) => { if (el && el.innerHTML !== html) el.innerHTML = html; },
+                setClass: (el, cls) => { if (el && el.className !== cls) el.className = cls; }
+            };
+
+            // --- 3. STATE MANAGEMENT ---
+            const State = {
+                lang: 'en',
+                threshold: 10,
+                holdings: { stocks: 0, bonds: 0, cash: 0, gold: 0 },
+                projection: {
+                    mode: 'saving',
+                    isManual: false,
+                    principal: '',
+                    rate: '6.8',
+                    years: 10,
+                    flow: ''
+                },
+                setLang(l) { this.lang = l; UI.renderAll(); },
+                setThreshold(t) { 
+                    if (t >= Config.MIN_THRESHOLD && t <= Config.MAX_THRESHOLD) {
+                        this.threshold = t; 
+                        UI.updateThresholdDisplay();
+                        this.triggerCalc();
+                    }
+                },
+                updateHolding(key, valueStr) {
+                    const val = parseInt(valueStr.replace(/[^\d]/g, ''), 10);
+                    this.holdings[key] = isNaN(val) ? 0 : val;
+                    this.triggerCalc();
+                },
+                setProjMode(mode) {
+                    this.projection.mode = mode;
+                    UI.renderProjectionUI();
+                    this.triggerCalc();
+                },
+                syncProjPrincipal() {
+                    this.projection.isManual = false;
+                    this.triggerCalc();
+                },
+                triggerCalc() {
+                    requestAnimationFrame(() => {
+                        const results = Logic.calculatePortfolio(this.holdings, this.threshold);
+                        UI.renderResults(results);
+                        
+                        if (!this.projection.isManual) {
+                            this.projection.principal = results.total > 0 ? String(results.total) : '';
+                            UI.updateProjPrincipalInput(this.projection.principal);
+                        }
+                        
+                        const projResults = Logic.calculateProjection(
+                            this.projection.principal, 
+                            this.projection.rate, 
+                            this.projection.years, 
+                            this.projection.flow, 
+                            this.projection.mode
+                        );
+                        UI.renderProjectionResult(projResults);
+                    });
                 }
-                if (e.key === "Escape") closePrivacyModal();
-            });
+            };
 
-            Object.values(assetDomElements).forEach(assetDom => {
-                assetDom.input.addEventListener('input', handleInput);
-            });
+            // --- 4. CORE LOGIC ---
+            const Logic = {
+                calculatePortfolio: (holdings, threshold) => {
+                    const total = Object.values(holdings).reduce((a, b) => a + b, 0);
+                    const baseTarget = Math.floor(total / 4);
+                    const remainder = total % 4;
+                    const assetKeys = Config.ASSETS.map(a => a.key);
+                    
+                    let globalBreach = false;
+                    const assetsData = assetKeys.map((key, index) => {
+                        const value = holdings[key];
+                        const target = baseTarget + (index < remainder ? 1 : 0);
+                        const percent = total === 0 ? 0 : (value / total) * 100;
+                        const diff = target - value;
+                        const isBreached = total > 0 && (percent > (Config.TARGET_PERCENT + threshold) || percent < (Config.TARGET_PERCENT - threshold));
+                        if (isBreached) globalBreach = true;
 
-            domElements.faqContainer.addEventListener('click', (e) => {
-                const btn = e.target.closest('button[data-faq-toggle]');
-                if (btn) {
-                    const index = btn.getAttribute('data-index');
-                    toggleFaq(index);
-                }
-            });
-        }
+                        return { key, value, target, percent, diff, isBreached };
+                    });
 
-        // --- Logic Functions ---
+                    return { total, assetsData, globalBreach };
+                },
 
-        function scheduleCalculate() {
-            if (isScheduled) return;
-            isScheduled = true;
-            requestAnimationFrame(() => {
-                calculate();
-                isScheduled = false;
-            });
-        }
+                calculateProjection: (principalStr, rateStr, yearsStr, flowStr, mode) => {
+                    const principal = parseFloat(String(principalStr).replace(/[^\d]/g, '')) || 0;
+                    let rawRate = parseFloat(rateStr);
+                    if (isNaN(rawRate)) rawRate = 0;
+                    if (rawRate > 100) rawRate = 100;
+                    if (rawRate < 0) rawRate = 0;
+                    const rate = rawRate / 100;
+                    
+                    let years = parseFloat(yearsStr) || 0;
+                    if (years > 100) years = 100;
+                    if (years < 1 && yearsStr !== '') years = 1;
 
-        function sanitizeInput(value) {
-            let clean = value.replace(/[^\d]/g, '');
-            if (clean.length > 1 && clean.startsWith('0')) {
-                clean = clean.replace(/^0+/, '');
-            }
-            if (clean.length > MAX_DIGITS) {
-                clean = clean.slice(0, MAX_DIGITS);
-            }
-            return clean;
-        }
+                    let flow = parseFloat(String(flowStr).replace(/[^\d]/g, '')) || 0;
+                    if (mode === 'spending') flow = -flow;
 
-        function handleInput(e) {
-            const val = e.target.value;
-            const clean = sanitizeInput(val);
-            
-            if (val !== clean) {
-                const start = e.target.selectionStart;
-                const end = e.target.selectionEnd;
-                const oldLen = val.length;
-                
-                e.target.value = clean;
-                
-                const newLen = clean.length;
-                if (start && end) {
-                    e.target.setSelectionRange(start - (oldLen - newLen), end - (oldLen - newLen));
-                }
-            }
-            scheduleCalculate();
-        }
-
-        function updateChart(total) {
-            let accumulatedPercent = 0;
-            assetsConfig.forEach(asset => {
-                const circle = assetDomElements[asset.key].chart;
-                if (total === 0) {
-                    circle.style.strokeDasharray = `0 100`;
-                    circle.style.strokeDashoffset = 0;
-                    return;
-                }
-                const percent = (asset.value / total) * 100;
-                circle.style.strokeDasharray = `${percent} 100`;
-                circle.style.strokeDashoffset = -accumulatedPercent;
-                accumulatedPercent += percent;
-            });
-        }
-
-        function calculate() {
-            const t = translations[currentLang];
-            const sym = t.symbol;
-            let total = 0;
-            
-            assetsConfig.forEach((asset) => {
-                let valStr = assetDomElements[asset.key].input.value;
-                let val = parseInt(valStr.replace(/[^\d]/g, ''), 10);
-                if (isNaN(val)) val = 0;
-                asset.value = val;
-                total += val;
-            });
-
-            domElements.totalValue.textContent = formatNumberCompact(total, currentLang, sym);
-            domElements.fireYear.textContent = formatNumberCompact(total * 0.04, currentLang, sym);
-            domElements.fireMonth.textContent = formatNumberCompact(total * 0.04 / 12, currentLang, sym);
-
-            updateChart(total);
-
-            const baseTarget = Math.floor(total / 4);
-            const remainder = total % 4;
-            const targets = assetsConfig.map((_, index) => {
-                return baseTarget + (index < remainder ? 1 : 0);
-            });
-
-            let globalNeedsRebalance = false;
-
-            assetsConfig.forEach((asset, index) => {
-                const currentPercent = total === 0 ? 0 : (asset.value / total) * 100;
-                // Clean Code: Use constant instead of magic number 25
-                const isBreached = total > 0 && (currentPercent > (TARGET_PERCENT + currentThreshold) || currentPercent < (TARGET_PERCENT - currentThreshold));
-                if (isBreached) globalNeedsRebalance = true;
-            });
-
-            assetsConfig.forEach((asset, index) => {
-                const currentPercent = total === 0 ? 0 : (asset.value / total) * 100;
-                const targetValue = targets[index];
-                const diff = targetValue - asset.value;
-                // Clean Code: Use constant
-                const isBreached = total > 0 && (currentPercent > (TARGET_PERCENT + currentThreshold) || currentPercent < (TARGET_PERCENT - currentThreshold));
-                
-                const el = assetDomElements[asset.key];
-
-                el.percent.textContent = currentPercent.toFixed(1) + '%';
-                el.percent.className = isBreached ? 'text-red-500 font-bold' : 'text-slate-600';
-
-                const targetText = formatNumberCompact(targetValue, currentLang, sym);
-                el.target.textContent = targetText;
-                el.target.title = targetText;
-
-                let actionHtml = '';
-                
-                // --- MODIFIED LOGIC START ---
-                if (total === 0) {
-                    // Show a dash for empty state
-                    actionHtml = `<span class="text-gray-300 text-lg font-bold select-none">-</span>`;
-                } else if (globalNeedsRebalance) {
-                    if (Math.abs(diff) > 0) {
-                        const type = diff > 0 ? t.buy : t.sell;
-                        const colorClass = diff > 0 ? 'bg-blue-50 text-blue-700' : 'bg-orange-50 text-orange-700';
-                        actionHtml = `<div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-bold ${colorClass} whitespace-nowrap">${type} <span class="font-mono ml-1">${formatNumberCompact(Math.abs(diff), currentLang, '')}</span></div>`;
+                    let futureValue = 0;
+                    if (rate === 0) {
+                        futureValue = principal + (flow * years);
                     } else {
-                        actionHtml = `<span class="text-gray-400 text-sm font-medium">${t.hold}</span>`;
+                        const fvPrincipal = principal * Math.pow(1 + rate, years);
+                        const fvAnnuityEOY = flow * (Math.pow(1 + rate, years) - 1) / rate;
+                        const fvAnnuityAvg = fvAnnuityEOY * (1 + rate / 2);
+                        futureValue = fvPrincipal + fvAnnuityAvg;
                     }
-                } else {
-                    actionHtml = `<span class="text-gray-400 text-sm font-medium bg-gray-100 px-3 py-1 rounded-full">${t.hold}</span>`;
+                    if (futureValue < 0) futureValue = 0;
+                    const totalInvested = principal + (flow * years);
+                    const gain = futureValue - totalInvested;
+
+                    return { futureValue, gain };
                 }
-                // --- MODIFIED LOGIC END ---
+            };
+
+            // --- 5. UI LAYER ---
+            const UI = {
+                els: {},
                 
-                if (el.action.innerHTML !== actionHtml) {
-                    el.action.innerHTML = actionHtml;
-                }
-            });
+                init() {
+                    this.cacheDOM();
+                    this.bindEvents();
+                    this.renderInputs();
+                    this.renderLegend();
+                    this.renderAll();
+                },
 
-            if (total === 0) {
-                domElements.statusCard.className = "rounded-2xl p-6 border-l-4 shadow-sm transition-all bg-blue-50 border-blue-500 text-blue-900";
-                domElements.statusIcon.textContent = "👋";
-                domElements.statusTitle.textContent = t.statusEmptyTitle;
-                domElements.statusDesc.textContent = t.statusEmptyDesc;
-            } else if (globalNeedsRebalance) {
-                domElements.statusCard.className = "rounded-2xl p-6 border-l-4 shadow-sm transition-all bg-amber-50 border-amber-500 text-amber-900";
-                domElements.statusIcon.textContent = "⚠️";
-                domElements.statusTitle.textContent = t.statusActionTitle;
-                // Clean Code: Use constant
-                domElements.statusDesc.textContent = t.statusActionDesc.replace('{threshold}', currentThreshold).replace('{min}', TARGET_PERCENT - currentThreshold).replace('{max}', TARGET_PERCENT + currentThreshold);
-            } else {
-                domElements.statusCard.className = "rounded-2xl p-6 border-l-4 shadow-sm transition-all bg-emerald-50 border-emerald-500 text-emerald-900";
-                domElements.statusIcon.textContent = "✅";
-                domElements.statusTitle.textContent = t.statusHealthyTitle;
-                domElements.statusDesc.textContent = t.statusHealthyDesc;
-            }
-        }
+                cacheDOM() {
+                    this.els = {
+                        inputsContainer: document.getElementById('inputs-container'),
+                        resultBody: document.getElementById('result-body'),
+                        legendContainer: document.getElementById('legend-container'),
+                        totalValue: document.getElementById('total-value'),
+                        fireYear: document.getElementById('fire-year'),
+                        fireMonth: document.getElementById('fire-month'),
+                        statusCard: document.getElementById('status-card'),
+                        statusIcon: document.getElementById('status-icon'),
+                        statusTitle: document.getElementById('status-title'),
+                        statusDesc: document.getElementById('status-desc'),
+                        statusNote: document.getElementById('status-note'),
+                        thresholdDisplay: document.getElementById('threshold-display'),
+                        btnMinus: document.getElementById('btn-minus'),
+                        btnPlus: document.getElementById('btn-plus'),
+                        btnEn: document.getElementById('btn-en'),
+                        btnZh: document.getElementById('btn-zh'),
+                        faqContainer: document.getElementById('faq-container'),
+                        currencySymbols: document.querySelectorAll('.currency-symbol'),
+                        i18nElements: document.querySelectorAll('[data-i18n]'),
+                        privacyModal: document.getElementById('privacy-modal'),
+                        modalOverlay: document.querySelector('.modal-overlay'),
+                        modalCloseBtn: document.getElementById('modal-close-btn'),
+                        modalContent: document.querySelector('.modal-content'),
+                        appContainer: document.getElementById('app'),
+                        projPrincipal: document.getElementById('proj-principal'),
+                        projRate: document.getElementById('proj-rate'),
+                        projYears: document.getElementById('proj-years'),
+                        projFlow: document.getElementById('proj-flow'),
+                        projResult: document.getElementById('proj-result'),
+                        projGain: document.getElementById('proj-gain'),
+                        projFlowLabel: document.getElementById('proj-flow-label'),
+                        modeSavingBtn: document.getElementById('mode-saving'),
+                        modeSpendingBtn: document.getElementById('mode-spending'),
+                        btnSyncProj: document.getElementById('btn-sync-proj')
+                    };
+                },
 
-        function changeThreshold(delta) {
-            const newValue = currentThreshold + delta;
-            if (newValue >= MIN_THRESHOLD && newValue <= MAX_THRESHOLD) {
-                currentThreshold = newValue;
-                updateThresholdUI();
-                scheduleCalculate();
-            }
-        }
-        function updateThresholdUI() {
-            domElements.thresholdDisplay.textContent = currentThreshold;
-            domElements.btnMinus.disabled = (currentThreshold <= MIN_THRESHOLD);
-            domElements.btnPlus.disabled = (currentThreshold >= MAX_THRESHOLD);
-        }
+                bindEvents() {
+                    this.els.btnEn.onclick = () => State.setLang('en');
+                    this.els.btnZh.onclick = () => State.setLang('zh');
+                    this.els.btnMinus.onclick = () => State.setThreshold(State.threshold - 1);
+                    this.els.btnPlus.onclick = () => State.setThreshold(State.threshold + 1);
+                    
+                    document.getElementById('btn-privacy').onclick = (e) => this.openModal(e.target);
+                    this.els.modalCloseBtn.onclick = () => this.closeModal();
+                    this.els.modalOverlay.onclick = () => this.closeModal();
+                    this.els.privacyModal.onkeydown = (e) => { if(e.key === "Escape") this.closeModal(); };
 
-        function toggleFaq(index) {
-            const content = document.getElementById(`faq-content-${index}`);
-            const icon = document.getElementById(`faq-icon-${index}`);
-            const button = document.getElementById(`faq-btn-${index}`);
-            
-            const isOpen = content.classList.contains('open');
-            
-            if (isOpen) {
-                content.classList.remove('open');
-                icon.classList.remove('rotate');
-                button.setAttribute('aria-expanded', 'false');
-                content.setAttribute('aria-hidden', 'true');
-            } else {
-                content.classList.add('open');
-                icon.classList.add('rotate');
-                button.setAttribute('aria-expanded', 'true');
-                content.setAttribute('aria-hidden', 'false');
-            }
-        }
+                    this.els.faqContainer.onclick = (e) => {
+                        const btn = e.target.closest('button[data-faq-toggle]');
+                        if (btn) this.toggleFaq(btn);
+                    };
 
-        let lastFocusedElement;
-        let prevBodyOverflow = '';
+                    this.els.projPrincipal.oninput = (e) => {
+                        State.projection.isManual = true;
+                        this.els.btnSyncProj.classList.remove('opacity-0');
+                        e.target.value = Utils.sanitizeInput(e.target.value);
+                        State.projection.principal = e.target.value;
+                        State.triggerCalc();
+                    };
+                    this.els.btnSyncProj.onclick = () => {
+                        State.syncProjPrincipal();
+                        this.els.btnSyncProj.classList.add('opacity-0');
+                        const svg = this.els.btnSyncProj.querySelector('svg');
+                        svg.classList.add('animate-spin-once');
+                        setTimeout(() => svg.classList.remove('animate-spin-once'), 500);
+                    };
+                    this.els.projFlow.oninput = (e) => {
+                        e.target.value = Utils.sanitizeInput(e.target.value);
+                        State.projection.flow = e.target.value;
+                        State.triggerCalc();
+                    };
+                    this.els.projRate.oninput = (e) => {
+                        State.projection.rate = e.target.value;
+                        State.triggerCalc();
+                    };
+                    this.els.projYears.oninput = (e) => {
+                        State.projection.years = e.target.value;
+                        State.triggerCalc();
+                    };
+                    this.els.modeSavingBtn.onclick = () => State.setProjMode('saving');
+                    this.els.modeSpendingBtn.onclick = () => State.setProjMode('spending');
+                },
 
-        function openPrivacyModal(triggerElement) {
-            lastFocusedElement = triggerElement; 
-            prevBodyOverflow = document.body.style.overflow;
-            document.body.style.overflow = 'hidden';
-            
-            domElements.privacyModalEl.classList.remove('hidden');
-            domElements.appContainer.setAttribute('aria-hidden', 'true');
-            domElements.appContainer.inert = true; 
+                renderInputs() {
+                    const fragment = document.createDocumentFragment();
+                    Config.ASSETS.forEach(asset => {
+                        const div = document.createElement('div');
+                        div.innerHTML = `
+                            <label class="block text-sm font-medium text-gray-700 mb-1.5" id="label-${asset.key}" for="input-${asset.key}"></label>
+                            <div class="relative">
+                                <span class="currency-symbol absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold select-none"></span>
+                                <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="12"
+                                    id="input-${asset.key}" placeholder="0" 
+                                    class="asset-input w-full pl-8 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none font-mono text-lg placeholder-gray-300 transition-shadow">
+                            </div>
+                        `;
+                        fragment.appendChild(div);
+                    });
+                    this.els.inputsContainer.appendChild(fragment);
 
-            setTimeout(() => {
-                domElements.modalOverlayEl.classList.remove('opacity-0');
-                domElements.modalContentEl.classList.remove('opacity-0', 'translate-y-4', 'sm:translate-y-0', 'sm:scale-95');
-                domElements.modalContentEl.classList.add('opacity-100', 'translate-y-0', 'sm:scale-100');
-                domElements.modalCloseBtnEl.focus();
-            }, 10);
-        }
+                    Config.ASSETS.forEach(asset => {
+                        const input = document.getElementById(`input-${asset.key}`);
+                        input.oninput = (e) => {
+                            const clean = Utils.sanitizeInput(e.target.value);
+                            if (e.target.value !== clean) e.target.value = clean;
+                            State.updateHolding(asset.key, clean);
+                        };
+                    });
+                },
 
-        function closePrivacyModal() {
-            domElements.modalOverlayEl.classList.add('opacity-0');
-            domElements.modalContentEl.classList.remove('opacity-100', 'translate-y-0', 'sm:scale-100');
-            domElements.modalContentEl.classList.add('opacity-0', 'translate-y-4', 'sm:translate-y-0', 'sm:scale-95');
-            
-            document.body.style.overflow = prevBodyOverflow;
-            
-            domElements.appContainer.setAttribute('aria-hidden', 'false');
-            domElements.appContainer.inert = false;
+                renderLegend() {
+                    const fragment = document.createDocumentFragment();
+                    Config.ASSETS.forEach(asset => {
+                        const div = document.createElement('div');
+                        div.className = "flex items-center gap-3";
+                        div.innerHTML = `
+                            <span class="w-3 h-3 rounded-full ${asset.tailwindColor} flex-shrink-0 shadow-sm"></span>
+                            <span class="text-sm font-medium text-slate-600" id="legend-${asset.key}"></span>
+                        `;
+                        fragment.appendChild(div);
+                    });
+                    this.els.legendContainer.appendChild(fragment);
+                },
 
-            setTimeout(() => { 
-                domElements.privacyModalEl.classList.add('hidden');
-                if (lastFocusedElement) lastFocusedElement.focus();
-            }, 300);
-        }
+                renderResults(data) {
+                    const t = Translations[State.lang];
+                    const { total, assetsData, globalBreach } = data;
 
-        function setLanguage(lang) {
-            currentLang = lang;
-            document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
-            
-            domElements.btnZh.classList.toggle('active', lang === 'zh');
-            domElements.btnEn.classList.toggle('active', lang === 'en');
-            domElements.btnZh.setAttribute('aria-pressed', lang === 'zh');
-            domElements.btnEn.setAttribute('aria-pressed', lang === 'en');
-            
-            const dict = translations[lang];
+                    Utils.setText(this.els.totalValue, Utils.formatMoney(total, State.lang, true));
+                    Utils.setText(this.els.fireYear, Utils.formatMoney(total * 0.04, State.lang, true));
+                    Utils.setText(this.els.fireMonth, Utils.formatMoney(total * 0.04 / 12, State.lang, true));
 
-            domElements.i18nElements.forEach(el => {
-                const key = el.getAttribute('data-i18n');
-                if (Object.prototype.hasOwnProperty.call(dict, key)) {
-                    const value = dict[key];
-                    if (el.dataset.i18nHtml === 'true') {
-                        el.innerHTML = value;
+                    let statusClass, icon, title, desc, showNote;
+                    const allZero = total === 0; 
+
+                    if (allZero) {
+                        statusClass = "bg-blue-50 border-blue-500 text-blue-900";
+                        icon = "🧮";
+                        title = t.statusEmptyTitle;
+                        desc = t.statusEmptyDesc;
+                        showNote = false;
+                    } else if (globalBreach) {
+                        statusClass = "bg-amber-50 border-amber-500 text-amber-900";
+                        icon = "⚠️";
+                        title = t.statusActionTitle;
+                        desc = t.statusActionDesc.replace('{threshold}', State.threshold)
+                                .replace('{min}', Config.TARGET_PERCENT - State.threshold)
+                                .replace('{max}', Config.TARGET_PERCENT + State.threshold);
+                        showNote = true;
                     } else {
-                        el.textContent = value;
+                        statusClass = "bg-emerald-50 border-emerald-500 text-emerald-900";
+                        icon = "✅";
+                        title = t.statusHealthyTitle;
+                        desc = t.statusHealthyDesc;
+                        showNote = false;
                     }
+                    
+                    Utils.setClass(this.els.statusCard, `rounded-2xl p-6 border-l-4 shadow-sm transition-all ${statusClass}`);
+                    Utils.setText(this.els.statusIcon, icon);
+                    Utils.setText(this.els.statusTitle, title);
+                    Utils.setText(this.els.statusDesc, desc);
+                    Utils.setText(this.els.statusNote, t.statusActionNote);
+                    Utils.setClass(this.els.statusNote, showNote ? "mt-2 text-xs opacity-75" : "hidden");
+
+                    this.els.resultBody.innerHTML = '';
+                    let chartOffset = 0;
+
+                    assetsData.forEach(asset => {
+                        const circle = document.getElementById(`chart-${asset.key}`);
+                        if (allZero) {
+                            circle.style.strokeDasharray = `0 100`;
+                        } else {
+                            circle.style.strokeDasharray = `${asset.percent} 100`;
+                            circle.style.strokeDashoffset = -chartOffset;
+                            chartOffset += asset.percent;
+                        }
+
+                        const tr = document.createElement('tr');
+                        tr.className = "hover:bg-gray-50 transition-colors";
+                        
+                        let actionHtml = '';
+                        if (allZero) {
+                            actionHtml = `<span class="text-gray-300 text-lg font-bold select-none">-</span>`;
+                        } else if (globalBreach) {
+                            if (Math.abs(asset.diff) > 0) {
+                                const type = asset.diff > 0 ? t.buy : t.sell;
+                                const colorClass = asset.diff > 0 ? 'bg-blue-50 text-blue-700' : 'bg-orange-50 text-orange-700';
+                                actionHtml = `<div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-bold ${colorClass} whitespace-nowrap">${type} <span class="font-mono ml-1">${Utils.formatMoney(Math.abs(asset.diff), State.lang, true, false)}</span></div>`;
+                            } else {
+                                actionHtml = `<span class="text-gray-400 text-sm font-medium pl-1">${t.hold}</span>`;
+                            }
+                        } else {
+                            actionHtml = `<span class="text-gray-400 text-sm font-medium pl-1">${t.hold}</span>`;
+                        }
+
+                        const percentClass = asset.isBreached ? 'text-red-500 font-bold' : 'text-slate-600';
+                        const assetConfig = Config.ASSETS.find(a => a.key === asset.key);
+
+                        tr.innerHTML = `
+                            <td class="p-3 text-left pl-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-3 h-3 rounded-full flex-shrink-0" style="background-color:${assetConfig.color}"></div>
+                                    <span class="font-medium text-slate-700 whitespace-nowrap">${t[asset.key]}</span>
+                                </div>
+                            </td>
+                            <td class="p-3 text-left font-mono">
+                                <span class="${percentClass}">${asset.percent.toFixed(1)}%</span>
+                            </td>
+                            <td class="p-3 text-left font-mono text-slate-600 table-cell-truncate" title="${Utils.formatMoney(asset.target, State.lang, true)}">${Utils.formatMoney(asset.target, State.lang, true)}</td>
+                            <td class="p-3 text-left">${actionHtml}</td>
+                        `;
+                        this.els.resultBody.appendChild(tr);
+                    });
+                },
+
+                renderProjectionUI() {
+                    const t = Translations[State.lang];
+                    const mode = State.projection.mode;
+                    
+                    if (mode === 'saving') {
+                        Utils.setClass(this.els.modeSavingBtn, "px-3 py-1.5 text-xs font-bold rounded-md shadow-sm bg-white text-emerald-600 transition-all");
+                        Utils.setClass(this.els.modeSpendingBtn, "px-3 py-1.5 text-xs font-bold rounded-md text-gray-500 hover:text-gray-700 transition-all");
+                        Utils.setText(this.els.projFlowLabel, t.projContribution);
+                    } else {
+                        Utils.setClass(this.els.modeSavingBtn, "px-3 py-1.5 text-xs font-bold rounded-md text-gray-500 hover:text-gray-700 transition-all");
+                        Utils.setClass(this.els.modeSpendingBtn, "px-3 py-1.5 text-xs font-bold rounded-md shadow-sm bg-white text-orange-600 transition-all");
+                        Utils.setText(this.els.projFlowLabel, t.projExpense);
+                    }
+                },
+
+                renderProjectionResult(data) {
+                    Utils.setText(this.els.projResult, Utils.formatMoney(data.futureValue, State.lang, true));
+                    
+                    const gainStr = Utils.formatMoney(Math.abs(data.gain), State.lang, true);
+                    const gainText = (data.gain >= 0 ? '+' : '-') + gainStr;
+                    const gainClass = data.gain >= 0 ? 'font-mono text-emerald-600 break-all' : 'font-mono text-red-500 break-all';
+                    Utils.setText(this.els.projGain, gainText);
+                    Utils.setClass(this.els.projGain, gainClass);
+                },
+
+                updateProjPrincipalInput(val) {
+                    if (this.els.projPrincipal.value !== val) this.els.projPrincipal.value = val;
+                },
+
+                updateThresholdDisplay() {
+                    Utils.setText(this.els.thresholdDisplay, State.threshold);
+                    this.els.btnMinus.disabled = (State.threshold <= Config.MIN_THRESHOLD);
+                    this.els.btnPlus.disabled = (State.threshold >= Config.MAX_THRESHOLD);
+                },
+
+                renderAll() {
+                    const lang = State.lang;
+                    const t = Translations[lang];
+                    
+                    document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
+                    document.title = lang === 'en' ? "4x25 - Permanent Portfolio & FIRE Calculator" : "4x25 - 永久投资组合再平衡计算器 & FIRE 4%法则工具";
+
+                    this.els.i18nElements.forEach(el => {
+                        const key = el.getAttribute('data-i18n');
+                        if (t[key]) {
+                            if (el.dataset.i18nHtml === 'true') {
+                                Utils.setUnsafeHtml(el, t[key]);
+                            } else {
+                                Utils.setText(el, t[key]);
+                            }
+                        }
+                    });
+
+                    Config.ASSETS.forEach(asset => {
+                        Utils.setText(document.getElementById(`label-${asset.key}`), t[asset.key]);
+                        Utils.setText(document.getElementById(`legend-${asset.key}`), t[asset.key]);
+                    });
+
+                    const symbol = new Intl.NumberFormat(lang === 'zh' ? 'zh-CN' : 'en-US', { style: 'currency', currency: t.currencyCode }).formatToParts(0).find(x => x.type === 'currency').value;
+                    this.els.currencySymbols.forEach(el => Utils.setText(el, symbol));
+
+                    this.els.faqContainer.innerHTML = '';
+                    const faqFragment = document.createDocumentFragment();
+                    
+                    t.faqData.forEach((item, index) => {
+                        const container = document.createElement('div');
+                        container.className = 'border border-gray-200 rounded-xl overflow-hidden bg-white';
+                        
+                        const btn = document.createElement('button');
+                        btn.type = 'button';
+                        btn.className = 'w-full flex justify-between items-center p-4 bg-gray-50 hover:bg-gray-100 transition-colors text-left focus:outline-none';
+                        btn.setAttribute('data-faq-toggle', 'true');
+                        btn.setAttribute('data-index', index);
+                        btn.setAttribute('aria-expanded', 'false');
+                        btn.innerHTML = `<span class="font-bold text-slate-800 text-sm md:text-base">${item.question}</span><svg class="faq-icon w-5 h-5 text-slate-400 flex-shrink-0 ml-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>`;
+                        
+                        const content = document.createElement('div');
+                        content.className = 'faq-content bg-white';
+                        content.id = `faq-content-${index}`;
+                        
+                        const body = document.createElement('div');
+                        body.className = 'p-4 text-sm text-slate-600 leading-relaxed border-t border-gray-100 space-y-2';
+                        
+                        if (Array.isArray(item.answer)) {
+                            item.answer.forEach(paraText => {
+                                const p = document.createElement('p');
+                                p.textContent = paraText;
+                                body.appendChild(p);
+                            });
+                        } else {
+                            body.textContent = item.answer;
+                        }
+
+                        content.appendChild(body);
+                        container.appendChild(btn);
+                        container.appendChild(content);
+                        faqFragment.appendChild(container);
+                    });
+                    this.els.faqContainer.appendChild(faqFragment);
+
+                    Utils.setClass(this.els.btnZh, `lang-btn px-4 py-3 text-sm font-bold hover:bg-gray-50 transition-colors ${lang === 'zh' ? 'active' : ''}`);
+                    Utils.setClass(this.els.btnEn, `lang-btn px-4 py-3 text-sm font-bold hover:bg-gray-50 transition-colors ${lang === 'en' ? 'active' : ''}`);
+
+                    this.renderProjectionUI();
+                    this.updateThresholdDisplay();
+                    State.triggerCalc();
+                },
+
+                toggleFaq(btn) {
+                    const content = btn.nextElementSibling;
+                    const icon = btn.querySelector('.faq-icon');
+                    const isOpen = content.classList.contains('open');
+                    
+                    if (isOpen) {
+                        content.classList.remove('open');
+                        icon.classList.remove('rotate');
+                        btn.setAttribute('aria-expanded', 'false');
+                    } else {
+                        content.classList.add('open');
+                        icon.classList.add('rotate');
+                        btn.setAttribute('aria-expanded', 'true');
+                    }
+                },
+
+                openModal(triggerElement) {
+                    this.lastFocusedElement = triggerElement;
+                    document.body.style.overflow = 'hidden';
+                    this.els.privacyModal.classList.remove('hidden');
+                    this.els.appContainer.setAttribute('aria-hidden', 'true');
+                    this.els.appContainer.inert = true;
+                    
+                    setTimeout(() => {
+                        this.els.modalOverlay.classList.remove('opacity-0');
+                        this.els.modalContent.classList.remove('opacity-0', 'translate-y-4', 'sm:translate-y-0', 'sm:scale-95');
+                        this.els.modalContent.classList.add('opacity-100', 'translate-y-0', 'sm:scale-100');
+                        this.els.modalCloseBtn.focus();
+                    }, 10);
+                },
+
+                closeModal() {
+                    this.els.modalOverlay.classList.add('opacity-0');
+                    this.els.modalContent.classList.remove('opacity-100', 'translate-y-0', 'sm:scale-100');
+                    this.els.modalContent.classList.add('opacity-0', 'translate-y-4', 'sm:translate-y-0', 'sm:scale-95');
+                    document.body.style.overflow = '';
+                    this.els.appContainer.setAttribute('aria-hidden', 'false');
+                    this.els.appContainer.inert = false;
+
+                    setTimeout(() => { 
+                        this.els.privacyModal.classList.add('hidden');
+                        if (this.lastFocusedElement) this.lastFocusedElement.focus();
+                    }, 300);
                 }
-            });
+            };
 
-            assetsConfig.forEach(asset => {
-                assetDomElements[asset.key].label.textContent = translations[lang][asset.key];
-                assetDomElements[asset.key].name.textContent = translations[lang][asset.key];
-            });
+            return { init: () => UI.init() };
+        })();
 
-            // Use DocumentFragment for FAQ re-render as well
-            domElements.faqContainer.innerHTML = ''; 
-            const faqFragment = document.createDocumentFragment();
-            translations[lang].faqData.forEach((item, index) => {
-                const faqItem = document.createElement('div');
-                faqItem.className = 'border border-gray-200 rounded-xl overflow-hidden bg-white';
-                faqItem.innerHTML = `<button type="button" id="faq-btn-${index}" data-faq-toggle="true" data-index="${index}" aria-expanded="false" aria-controls="faq-content-${index}" class="w-full flex justify-between items-center p-4 bg-gray-50 hover:bg-gray-100 transition-colors text-left focus:outline-none"><span class="font-bold text-slate-800 text-sm md:text-base">${item.question}</span><svg id="faq-icon-${index}" class="faq-icon w-5 h-5 text-slate-400 flex-shrink-0 ml-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg></button><div id="faq-content-${index}" class="faq-content bg-white" role="region" aria-labelledby="faq-btn-${index}" aria-hidden="true"><div class="p-4 text-sm text-slate-600 leading-relaxed border-t border-gray-100">${item.answer}</div></div>`;
-                faqFragment.appendChild(faqItem);
-            });
-            domElements.faqContainer.appendChild(faqFragment);
-
-            const symbol = translations[lang].symbol;
-            domElements.currencySymbols.forEach(el => { el.textContent = symbol; });
-            document.title = lang === 'en' ? "4x25 - Permanent Portfolio & FIRE Calculator" : "4x25 - 永久投资组合再平衡计算器 & FIRE 4%法则工具";
-            scheduleCalculate(); 
-        }
-
-        function formatNumberCompact(num, lang, symbol) {
-            const useCompact = num > 1000000000; 
-            const formatter = useCompact ? formatters[lang].compact : formatters[lang].standard;
-            const valueToFormat = useCompact ? num : Math.round(num);
-            return symbol + formatter.format(valueToFormat);
-        }
-
-        // Start
-        init();
+        document.addEventListener('DOMContentLoaded', App.init);
     </script>
 </body>
 </html>
