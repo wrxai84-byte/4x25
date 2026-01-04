@@ -170,7 +170,7 @@
                             </table>
                         </div>
                         
-                        <!-- NEW FOOTER FOR TAX/FEE DISCLAIMER -->
+                        <!-- FOOTER FOR TAX/FEE DISCLAIMER -->
                         <div class="bg-gray-50 px-6 py-3 border-t border-gray-100 text-xs text-slate-500 flex items-start gap-2 leading-relaxed">
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 flex-shrink-0 opacity-70 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
                             <span data-i18n="rebalanceNote">Note: Suggested actions are theoretical and do not account for transaction fees or tax implications.</span>
@@ -204,7 +204,7 @@
                     <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
                             <h3 class="text-xl font-bold flex items-center gap-2">
-                                <span class="text-purple-500">📈</span> <span data-i18n="projTitle">Wealth Projection</span>
+                                <span class="text-purple-500">📈</span> <span data-i18n="projTitle">Wealth Simulation</span>
                             </h3>
                             
                             <!-- Toggle: Saving vs Spending -->
@@ -232,7 +232,7 @@
                                     </div>
                                     <div class="relative">
                                         <span class="currency-symbol absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-sm"></span>
-                                        <input type="text" id="proj-principal" maxlength="12" class="w-full pl-7 pr-3 py-2 bg-gray-50 border border-gray-200 rounded-lg font-mono text-sm focus:ring-2 focus:ring-purple-500 outline-none placeholder-gray-300" placeholder="0">
+                                        <input type="text" id="proj-principal" maxlength="8" class="w-full pl-7 pr-3 py-2 bg-gray-50 border border-gray-200 rounded-lg font-mono text-sm focus:ring-2 focus:ring-purple-500 outline-none placeholder-gray-300" placeholder="0">
                                     </div>
                                 </div>
                                 
@@ -254,7 +254,7 @@
                                     <label class="block text-xs font-bold text-gray-500 uppercase mb-1" id="proj-flow-label" data-i18n="projContribution">Annual Contribution</label>
                                     <div class="relative">
                                         <span class="currency-symbol absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-sm"></span>
-                                        <input type="text" id="proj-flow" maxlength="12" class="w-full pl-7 pr-3 py-2 bg-gray-50 border border-gray-200 rounded-lg font-mono text-sm focus:ring-2 focus:ring-purple-500 outline-none placeholder-gray-300" placeholder="0">
+                                        <input type="text" id="proj-flow" maxlength="8" class="w-full pl-7 pr-3 py-2 bg-gray-50 border border-gray-200 rounded-lg font-mono text-sm focus:ring-2 focus:ring-purple-500 outline-none placeholder-gray-300" placeholder="0">
                                     </div>
                                 </div>
                             </div>
@@ -330,7 +330,7 @@
                 TARGET_PERCENT: 25,
                 MIN_THRESHOLD: 5,
                 MAX_THRESHOLD: 15,
-                MAX_DIGITS: 12,
+                MAX_DIGITS: 8, // Limit to 8 digits (99,999,999)
                 ASSETS: [
                     { key: 'stocks', color: '#3B82F6', tailwindColor: 'bg-blue-500' },
                     { key: 'bonds', color: '#8B5CF6', tailwindColor: 'bg-violet-500' },
@@ -396,7 +396,7 @@
                     privacyTitle: "隐私政策",
                     privacyContent: `<p><strong>1. 数据安全（本地计算）</strong><br>本网站是一个纯前端应用。所有财务计算均在您的浏览器本地完成。我们没有后端服务器，也不会收集、存储或传输您的任何财务数据。</p><p><strong>2. 统计分析与 Cookie</strong><br>我们使用 Google Analytics（谷歌分析）来收集匿名的网站访问统计数据（如访问量、停留时间），以帮助我们改进网站。这可能会在您的设备上存储 Cookie。请放心，您的具体财务输入数据绝不会被发送给 Google。</p><p class="text-xs text-gray-400 mt-4">最后更新日期：2026年1月4日</p>`,
                     closeBtn: "关闭",
-                    projTitle: "财富增长推演",
+                    projTitle: "财富变化推演", // CHANGED: from 财富增长推演
                     modeSaving: "定投积累",
                     modeSpending: "提款消费",
                     projCurrent: "当前总资产",
@@ -466,7 +466,7 @@
                     privacyTitle: "Privacy Policy",
                     privacyContent: `<p><strong>1. Data Security (Local Processing)</strong><br>This is a client-side application. All financial calculations are performed locally in your browser. We do not have a backend server, and we do not collect, store, or transmit any of your financial data.</p><p><strong>2. Analytics & Cookies</strong><br>We use Google Analytics to collect anonymous usage statistics (e.g., page views) to help us improve the website. This service uses cookies. Your personal financial inputs are <strong>never</strong> sent to Google.</p><p class="text-xs text-gray-400 mt-4">Last Updated: January 4, 2026</p>`,
                     closeBtn: "Close",
-                    projTitle: "Wealth Projection",
+                    projTitle: "Wealth Simulation", // CHANGED: from Wealth Projection
                     modeSaving: "Saving",
                     modeSpending: "Spending",
                     projCurrent: "Current Assets",
@@ -734,7 +734,7 @@
                             <label class="block text-sm font-medium text-gray-700 mb-1.5" id="label-${asset.key}" for="input-${asset.key}"></label>
                             <div class="relative">
                                 <span class="currency-symbol absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold select-none"></span>
-                                <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="12"
+                                <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="${Config.MAX_DIGITS}"
                                     id="input-${asset.key}" placeholder="0" 
                                     class="asset-input w-full pl-8 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none font-mono text-lg placeholder-gray-300 transition-shadow">
                             </div>
