@@ -1,64 +1,31 @@
 <!DOCTYPE html>
 <html lang="en" prefix="og: http://ogp.me/ns#">
 <head>
-    <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-8GJYYGEB88"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-8GJYYGEB88');
-</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-8GJYYGEB88"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-8GJYYGEB88');
+    </script>
+
     <!-- ==========================================
-       SEO OPTIMIZATION START
+       SEO OPTIMIZATION
     ========================================== -->
     <title>4x25 Strategy & FIRE Tool | 永久投资组合计算器</title>
-    <meta name="description" content="Free Permanent Portfolio Rebalancing Tool & FIRE Calculator. Visualize asset allocation (Stocks, Bonds, Cash, Gold) and calculate safe withdrawal rates based on the 4% rule.">
-    <meta name="keywords" content="Permanent Portfolio, Harry Browne, FIRE Calculator, Asset Allocation, Rebalancing Tool, 4% Rule, Financial Independence, 永久投资组合, 资产配置, 再平衡计算器">
-    <meta name="author" content="4x25 Tools">
-    <meta name="robots" content="index, follow">
-    <meta property="og:title" content="4x25 Strategy & FIRE Tool">
-    <meta property="og:description" content="Secure, client-side calculator for the Permanent Portfolio strategy and FIRE planning.">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://your-domain.com/">
-    <meta property="og:image" content="https://your-domain.com/social-preview.jpg">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="4x25 Strategy & FIRE Tool">
-    <meta name="twitter:description" content="Master your asset allocation with the Permanent Portfolio calculator.">
-
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebApplication",
-      "name": "4x25 Strategy & FIRE Tool",
-      "url": "https://your-domain.com",
-      "description": "A financial calculator for the Permanent Portfolio investment strategy and FIRE (Financial Independence, Retire Early) planning.",
-      "applicationCategory": "FinanceApplication",
-      "operatingSystem": "Any",
-      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-      "featureList": "Asset Allocation Rebalancing, FIRE 4% Rule Calculator, Wealth Projection",
-      "author": { "@type": "Organization", "name": "4x25 Tools" }
-    }
-    </script>
-    <!-- ==========================================
-       SEO OPTIMIZATION END
-    ========================================== -->
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <meta name="description" content="Free Permanent Portfolio Rebalancing Tool & FIRE Calculator. Visualize asset allocation and live gold prices.">
     <script src="https://cdn.tailwindcss.com/3.4.1"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     
     <style>
         body { font-family: 'Inter', system-ui, -apple-system, sans-serif; font-feature-settings: "tnum"; }
         .lang-btn.active { background-color: #3b82f6; color: white; border-color: #3b82f6; }
         button:disabled { opacity: 0.3; cursor: not-allowed; pointer-events: none; }
-        input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-        input[type=number] { -moz-appearance: textfield; }
         .table-cell-truncate { max-width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .faq-content { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.3s ease-out, opacity 0.3s ease-out; opacity: 0; visibility: hidden; }
         .faq-content.open { grid-template-rows: 1fr; opacity: 1; visibility: visible; }
@@ -73,7 +40,14 @@
         @keyframes fadeIn { to { opacity: 1; } }
         .season-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
         .season-card:hover { transform: translateY(-2px); box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
-        @media (prefers-reduced-motion: reduce) { *, ::before, ::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+        
+        /* Pulse animation for live indicator */
+        .live-dot { animation: pulse-red 2s infinite; }
+        @keyframes pulse-red {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
     </style>
 </head>
 <body class="bg-gray-50 text-slate-800 min-h-screen flex flex-col">
@@ -141,7 +115,7 @@
                         <div class="w-full px-6 space-y-3" id="legend-container"></div>
                     </div>
 
-                    <!-- Seasons (UPDATED ICONS) -->
+                    <!-- Seasons -->
                     <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
                         <h3 class="text-base font-bold text-slate-900 mb-4 flex items-center gap-2">
                             <span class="text-xl">🧭</span> <span data-i18n="seasonTitle">Economic Seasons</span>
@@ -159,13 +133,13 @@
                                 <span class="text-xs font-bold text-violet-400 uppercase tracking-wide mb-0.5" data-i18n="seasonDeflation">Deflation</span>
                                 <span class="text-sm font-bold text-violet-700" data-i18n="seasonBonds">Bonds</span>
                             </div>
-                            <!-- Cash (UPDATED ICON) -->
+                            <!-- Cash -->
                             <div class="season-card bg-emerald-50 border border-emerald-100 rounded-xl p-3 flex flex-col items-center text-center cursor-default">
                                 <span class="text-xl mb-1">💵</span>
                                 <span class="text-xs font-bold text-emerald-400 uppercase tracking-wide mb-0.5" data-i18n="seasonRecession">Recession</span>
                                 <span class="text-sm font-bold text-emerald-700" data-i18n="seasonCash">Cash</span>
                             </div>
-                            <!-- Gold (UPDATED ICON) -->
+                            <!-- Gold -->
                             <div class="season-card bg-amber-50 border border-amber-100 rounded-xl p-3 flex flex-col items-center text-center cursor-default">
                                 <span class="text-xl mb-1">🪙</span>
                                 <span class="text-xs font-bold text-amber-400 uppercase tracking-wide mb-0.5" data-i18n="seasonInflation">Inflation</span>
@@ -297,6 +271,44 @@
                             <span data-i18n="projNote">Note: Projections are nominal values and do not account for inflation or deflation effects.</span>
                         </div>
                     </div>
+
+                    <!-- NEW: Live Market Data (Gold) -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 relative overflow-hidden">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-bold flex items-center gap-2">
+                                <span class="text-amber-500">🪙</span> <span data-i18n="marketTitle">Live Market Data</span>
+                            </h3>
+                            <div class="flex items-center gap-2">
+                                <span class="relative flex h-2.5 w-2.5">
+                                  <span class="live-dot absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                  <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
+                                </span>
+                                <span class="text-xs font-bold text-red-500 uppercase tracking-wider" data-i18n="liveTag">Live</span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex flex-col sm:flex-row items-center justify-between bg-amber-50 rounded-xl p-4 border border-amber-100">
+                            <div class="flex items-center gap-3 mb-2 sm:mb-0">
+                                <div class="bg-white p-2 rounded-lg shadow-sm">
+                                    <span class="text-2xl">🥇</span>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-bold text-amber-900" data-i18n="goldSpot">Gold (PAXG)</p>
+                                    <p class="text-xs text-amber-600/80">USD / Ounce</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-2xl font-mono font-bold text-slate-900" id="market-gold-price">---</p>
+                                <p class="text-xs font-bold flex items-center justify-end gap-1" id="market-gold-change">
+                                    <span>--%</span>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="mt-3 text-[10px] text-gray-400 text-right">
+                            <span data-i18n="marketSource">Data source: Binance API (PAXG/USDT)</span>
+                        </div>
+                    </div>
+
                 </section>
             </main>
 
@@ -455,7 +467,11 @@
                     seasonInflation: "通胀期",
                     seasonGold: "黄金 (Gold)",
                     rule72Title: "72法则",
-                    rule72Desc: "按 6.8% 年化收益率计算，您的资产约每 10.6 年翻一番。"
+                    rule72Desc: "按 6.8% 年化收益率计算，您的资产约每 10.6 年翻一番。",
+                    marketTitle: "实时行情",
+                    goldSpot: "黄金价格 (PAXG)",
+                    marketSource: "数据来源: 币安 API (PAXG/USDT)",
+                    liveTag: "实时"
                 },
                 en: {
                     currencyCode: 'USD',
@@ -563,7 +579,11 @@
                     seasonInflation: "Inflation",
                     seasonGold: "Gold",
                     rule72Title: "Rule of 72",
-                    rule72Desc: "At 6.8% return, your assets double every ~10.6 years."
+                    rule72Desc: "At 6.8% return, your assets double every ~10.6 years.",
+                    marketTitle: "Live Market Data",
+                    goldSpot: "Gold Price (PAXG)",
+                    marketSource: "Data source: Binance API (PAXG/USDT)",
+                    liveTag: "Live"
                 }
             };
 
@@ -638,7 +658,7 @@
                 projection: { mode: 'saving', principal: '', rate: '6.8', years: 10, flow: '' },
                 debouncedCalc: null,
                 init() { this.debouncedCalc = Utils.debounce(() => { this.performCalculation(); }, Config.DEBOUNCE_DELAY); },
-                setLang(l) { this.lang = l; UI.renderAll(); },
+                setLang(l) { this.lang = l; UI.renderAll(); Market.updateDisplay(); },
                 setThreshold(t) { if (t >= Config.MIN_THRESHOLD && t <= Config.MAX_THRESHOLD) { this.threshold = t; UI.updateThresholdDisplay(); this.triggerCalc(); } },
                 updateHolding(key, valueStr) { const val = parseInt(valueStr.replace(/[^\d]/g, ''), 10); this.holdings[key] = isNaN(val) ? 0 : val; this.triggerCalc(); },
                 setProjMode(mode) { this.projection.mode = mode; UI.renderProjectionUI(); this.triggerCalc(); },
@@ -697,11 +717,66 @@
                 }
             };
 
+            // Market Data Module
+            const Market = {
+                els: { price: null, change: null },
+                data: { gold: { price: 0, change: 0 } },
+                interval: null,
+                init() {
+                    this.els.price = document.getElementById('market-gold-price');
+                    this.els.change = document.getElementById('market-gold-change');
+                    this.fetchData();
+                    this.interval = setInterval(() => this.fetchData(), 5000); // Fetch every 5 seconds
+                },
+                async fetchData() {
+                    try {
+                        // Using Binance API for PAXG/USDT as a proxy for Gold Price
+                        const res = await fetch('https://api.binance.com/api/v3/ticker/24hr?symbol=PAXGUSDT');
+                        if (!res.ok) throw new Error('Network response was not ok');
+                        const json = await res.json();
+                        this.data.gold.price = parseFloat(json.lastPrice);
+                        this.data.gold.change = parseFloat(json.priceChangePercent);
+                        this.updateDisplay();
+                    } catch (error) {
+                        console.warn('Market data fetch failed:', error);
+                    }
+                },
+                updateDisplay() {
+                    if (!this.els.price) return;
+                    const { price, change } = this.data.gold;
+                    
+                    // Format Price
+                    this.els.price.textContent = price > 0 
+                        ? `$${price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` 
+                        : '---';
+
+                    // Format Change with Dynamic Color Logic
+                    const isPositive = change >= 0;
+                    let colorClass;
+                    
+                    if (State.lang === 'zh') {
+                        // Chinese Convention: Red is Up, Green is Down
+                        colorClass = isPositive ? 'text-red-500' : 'text-emerald-500';
+                    } else {
+                        // Western Convention: Green is Up, Red is Down
+                        colorClass = isPositive ? 'text-emerald-500' : 'text-red-500';
+                    }
+
+                    const icon = isPositive ? '▲' : '▼';
+                    
+                    this.els.change.className = `text-xs font-bold flex items-center justify-end gap-1 ${colorClass}`;
+                    this.els.change.innerHTML = change !== 0 
+                        ? `<span>${icon} ${Math.abs(change).toFixed(2)}%</span>` 
+                        : '<span>--%</span>';
+                }
+            };
+
             const UI = {
                 els: { assetInputs: {}, assetLabels: {}, assetLegends: {}, chartCircles: {} },
                 lastFocusedElement: null,
                 init() {
                     State.init(); this.cacheDOM(); this.renderInputs(); this.cacheDynamicDOM(); this.renderLegend(); this.cacheLegendDOM(); this.bindEvents(); this.renderAll();
+                    Market.init(); // Initialize Market Data
                 },
                 cacheDOM() {
                     this.els = { ...this.els,
