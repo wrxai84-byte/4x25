@@ -43,9 +43,6 @@
             outline-offset: 2px;
         }
         
-        @keyframes spin-once { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .animate-spin-once { animation: spin-once 0.5s ease-in-out; }
-
         body { opacity: 0; animation: fadeIn 0.3s ease-in forwards; }
         @keyframes fadeIn { to { opacity: 1; } }
 
@@ -222,13 +219,8 @@
                             <!-- Inputs -->
                             <div class="space-y-4">
                                 <div>
-                                    <div class="flex justify-between items-center mb-1">
+                                    <div class="mb-1">
                                         <label class="block text-xs font-bold text-gray-500 uppercase" data-i18n="projCurrent">Current Assets</label>
-                                        <!-- Sync Button -->
-                                        <button type="button" id="btn-sync-proj" class="text-xs text-blue-500 hover:text-blue-700 flex items-center gap-1 opacity-0 transition-opacity" title="Sync with Total Value">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>
-                                            <span data-i18n="syncBtn">Sync</span>
-                                        </button>
                                     </div>
                                     <div class="relative">
                                         <span class="currency-symbol absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-sm"></span>
@@ -240,13 +232,15 @@
                                     <div>
                                         <label class="block text-xs font-bold text-gray-500 uppercase mb-1" data-i18n="projRate">Return % (0-100)</label>
                                         <div class="relative">
-                                            <input type="text" inputmode="decimal" id="proj-rate" value="6.8" class="w-full pl-3 pr-6 py-2 bg-gray-50 border border-gray-200 rounded-lg font-mono text-sm focus:ring-2 focus:ring-purple-500 outline-none">
+                                            <!-- Placeholder 0 -->
+                                            <input type="text" inputmode="decimal" id="proj-rate" value="6.8" placeholder="0" class="w-full pl-3 pr-6 py-2 bg-gray-50 border border-gray-200 rounded-lg font-mono text-sm focus:ring-2 focus:ring-purple-500 outline-none placeholder-gray-300">
                                             <span class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-xs">%</span>
                                         </div>
                                     </div>
                                     <div>
                                         <label class="block text-xs font-bold text-gray-500 uppercase mb-1" data-i18n="projYears">Years (1-100)</label>
-                                        <input type="number" id="proj-years" value="10" min="1" max="100" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg font-mono text-sm focus:ring-2 focus:ring-purple-500 outline-none">
+                                        <!-- Placeholder 1 -->
+                                        <input type="text" inputmode="numeric" id="proj-years" value="10" placeholder="1" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg font-mono text-sm focus:ring-2 focus:ring-purple-500 outline-none placeholder-gray-300">
                                     </div>
                                 </div>
 
@@ -372,7 +366,7 @@
                     fireRuleTitle: "关于 4% 法则",
                     fireRuleText: "源自<b>三一学院研究</b>。核心观点：若每年提取初始资金的 <b>4%</b> 作为生活费（并随通胀调整），资金大概率能维持 30 年以上。这意味着：当<b>总资产 = 年支出 × 25</b> 时，理论上已达成财务自由。",
                     introTitle: "什么是永久投资组合？",
-                    introText: `<p class="mb-4">永久投资组合（Permanent Portfolio）是由哈利·布朗（Harry Browne）提出的投资策略，旨在无论经济状况如何（繁荣、通缩、通胀或滞胀），都能保护并增值你的财富。</p><p class="mb-4">其核心理念极其简单：将资产平分为四等份（各${Config.TARGET_PERCENT}%）：<strong>股票</strong>（应对繁荣）、<strong>长期国债</strong>（应对通缩）、<strong>现金/短债</strong>（应对衰退/紧缩）、<strong>黄金</strong>（应对通胀）。</p><p>你只需要每年检查一次，如果某项资产占比偏离 ${Config.TARGET_PERCENT}% 太多（例如超过设定的阈值），就进行“再平衡”：卖出涨得多的，买入跌得多的，使其回到 ${Config.TARGET_PERCENT}%。</p>`,
+                    introText: `<p class="mb-4">永久投资组合（Permanent Portfolio）是由哈利·布朗（Harry Browne）提出的投资策略，旨在无论经济状况如何（繁荣、通缩、通胀或滞胀），都能保护并增值你的财富。</p><p class="mb-4">其核心理念极其简单：将资产平分为四等份（各${Config.TARGET_PERCENT}%）：<strong>股票</strong>（应对繁荣）、<strong>长期国债</strong>（应对通缩）、<strong>现金/短债</strong>（应对衰退/紧缩）、<strong>黄金</strong>（应对通胀）。</p><p>你只需要定期检查，如果某项资产占比偏离 ${Config.TARGET_PERCENT}% 太多（例如超过设定的阈值），就进行“再平衡”：卖出涨得多的，买入跌得多的，使其回到 ${Config.TARGET_PERCENT}%。</p>`,
                     faqTitle: "常见问题 (FAQ)",
                     faqData: [
                         { 
@@ -381,6 +375,14 @@
                                 "这是一个双关含义：",
                                 "1. 永久投资组合：4种资产，各占 25%。",
                                 "2. FIRE 运动：4% 法则，意味着你需要存够年支出的 25 倍。"
+                            ]
+                        },
+                        {
+                            question: "历史年化收益率大概是多少？",
+                            answer: [
+                                "虽然《永久投资组合》一书（克雷格·罗兰等著）指出该策略在过去 40 年（基于美国市场）的年化回报率约为 9-10%。",
+                                "但考虑到未来的不确定性及不同的经济周期，我们认为 6% - 8% 是一个更务实、更稳健的长期预期区间。",
+                                "因此，本计算器默认采用 6.8% 进行推演——我们在追求增长之前，首先要确保预期的安全性。"
                             ]
                         },
                         { 
@@ -396,7 +398,7 @@
                     privacyTitle: "隐私政策",
                     privacyContent: `<p><strong>1. 数据安全（本地计算）</strong><br>本网站是一个纯前端应用。所有财务计算均在您的浏览器本地完成。我们没有后端服务器，也不会收集、存储或传输您的任何财务数据。</p><p><strong>2. 统计分析与 Cookie</strong><br>我们使用 Google Analytics（谷歌分析）来收集匿名的网站访问统计数据（如访问量、停留时间），以帮助我们改进网站。这可能会在您的设备上存储 Cookie。请放心，您的具体财务输入数据绝不会被发送给 Google。</p><p class="text-xs text-gray-400 mt-4">最后更新日期：2026年1月4日</p>`,
                     closeBtn: "关闭",
-                    projTitle: "财富变化推演", // CHANGED: from 财富增长推演
+                    projTitle: "财富变化推演",
                     modeSaving: "定投积累",
                     modeSpending: "提款消费",
                     projCurrent: "当前总资产",
@@ -406,7 +408,6 @@
                     projExpense: "每年计划开销",
                     projResultLabel: "未来总资产",
                     projGain: "累计收益",
-                    syncBtn: "重置同步",
                     projNote: "注：推演结果为名义金额，未扣除通货膨胀/通缩对购买力的实际影响。",
                     rebalanceNote: "注：建议操作金额为理论值，未考虑交易手续费及税务（如资本利得税）影响。"
                 },
@@ -442,7 +443,7 @@
                     fireRuleTitle: "About the 4% Rule",
                     fireRuleText: "Derived from the <b>Trinity Study</b>. It suggests that if you withdraw <b>4%</b> of your portfolio annually (adjusted for inflation), your money has a high probability of lasting 30+ years. You are 'FIRE' when <b>Assets = 25 × Annual Expenses</b>.",
                     introTitle: "What is the Permanent Portfolio?",
-                    introText: `<p class="mb-4">The Permanent Portfolio is an investment strategy invented by Harry Browne, designed to preserve and grow your wealth under any condition.</p><p class="mb-4">The core concept is simple: divide your assets equally into four parts (${Config.TARGET_PERCENT}% each): <strong>Stocks</strong>, <strong>Long-Term Bonds</strong>, <strong>Cash</strong>, and <strong>Gold</strong>.</p><p>You simply check it once a year. If an asset deviates too far from ${Config.TARGET_PERCENT}% (beyond your set threshold), you "rebalance": sell the winners and buy the losers to get back to ${Config.TARGET_PERCENT}%.</p>`,
+                    introText: `<p class="mb-4">The Permanent Portfolio is an investment strategy invented by Harry Browne, designed to preserve and grow your wealth under any condition.</p><p class="mb-4">The core concept is simple: divide your assets equally into four parts (${Config.TARGET_PERCENT}% each): <strong>Stocks</strong>, <strong>Long-Term Bonds</strong>, <strong>Cash</strong>, and <strong>Gold</strong>.</p><p>You simply check it regularly. If an asset deviates too far from ${Config.TARGET_PERCENT}% (beyond your set threshold), you "rebalance": sell the winners and buy the losers to get back to ${Config.TARGET_PERCENT}%.</p>`,
                     faqTitle: "Frequently Asked Questions (FAQ)",
                     faqData: [
                         { 
@@ -451,6 +452,14 @@
                                 "It's a double meaning:",
                                 "1. Permanent Portfolio: 4 assets at 25% each.",
                                 "2. FIRE Movement: The 4% Rule implies saving 25 times your annual expenses."
+                            ]
+                        },
+                        {
+                            question: "What is the historical annual return?",
+                            answer: [
+                                "Books on the Permanent Portfolio (like Craig Rowland's) cite historical returns of around 9-10% (based on 40 years of US market data).",
+                                "However, past performance does not guarantee future results. A range of 6-8% is generally considered a more realistic and conservative estimate for long-term planning.",
+                                "This calculator defaults to 6.8% to prioritize safety in your projections."
                             ]
                         },
                         { 
@@ -466,7 +475,7 @@
                     privacyTitle: "Privacy Policy",
                     privacyContent: `<p><strong>1. Data Security (Local Processing)</strong><br>This is a client-side application. All financial calculations are performed locally in your browser. We do not have a backend server, and we do not collect, store, or transmit any of your financial data.</p><p><strong>2. Analytics & Cookies</strong><br>We use Google Analytics to collect anonymous usage statistics (e.g., page views) to help us improve the website. This service uses cookies. Your personal financial inputs are <strong>never</strong> sent to Google.</p><p class="text-xs text-gray-400 mt-4">Last Updated: January 4, 2026</p>`,
                     closeBtn: "Close",
-                    projTitle: "Wealth Simulation", // CHANGED: from Wealth Projection
+                    projTitle: "Wealth Simulation",
                     modeSaving: "Saving",
                     modeSpending: "Spending",
                     projCurrent: "Current Assets",
@@ -476,7 +485,6 @@
                     projExpense: "Annual Expense",
                     projResultLabel: "Future Total Assets",
                     projGain: "Total Gain",
-                    syncBtn: "Sync",
                     projNote: "Note: Projections are nominal values and do not account for inflation or deflation effects.",
                     rebalanceNote: "Note: Suggested actions are theoretical and do not account for transaction fees or tax implications."
                 }
@@ -488,6 +496,21 @@
                     let clean = value.replace(/[^\d]/g, '');
                     if (clean.length > 1 && clean.startsWith('0')) clean = clean.replace(/^0+/, '');
                     if (clean.length > Config.MAX_DIGITS) clean = clean.slice(0, Config.MAX_DIGITS);
+                    return clean;
+                },
+                sanitizeInteger: (value, max) => {
+                    let clean = value.replace(/\D/g, ''); 
+                    if (clean.length > 1 && clean.startsWith('0')) clean = clean.replace(/^0+/, '');
+                    if (clean === '') return '';
+                    if (parseInt(clean) > max) return String(max);
+                    return clean;
+                },
+                sanitizeDecimal: (value, maxVal) => {
+                    let clean = value.replace(/[^0-9.]/g, '');
+                    const parts = clean.split('.');
+                    if (parts.length > 2) clean = parts[0] + '.' + parts.slice(1).join('');
+                    if (parts.length === 2 && parts[1].length > 1) clean = parts[0] + '.' + parts[1].substring(0, 1);
+                    if (parseFloat(clean) > maxVal) return String(maxVal);
                     return clean;
                 },
                 formatMoney: (num, lang, isCompact, includeCurrency = true) => {
@@ -523,7 +546,6 @@
                 holdings: { stocks: 0, bonds: 0, cash: 0, gold: 0 },
                 projection: {
                     mode: 'saving',
-                    isManual: false,
                     principal: '',
                     rate: '6.8',
                     years: 10,
@@ -547,20 +569,13 @@
                     UI.renderProjectionUI();
                     this.triggerCalc();
                 },
-                syncProjPrincipal() {
-                    this.projection.isManual = false;
-                    this.triggerCalc();
-                },
                 triggerCalc() {
                     requestAnimationFrame(() => {
+                        // 1. Calculate Portfolio (Top Section)
                         const results = Logic.calculatePortfolio(this.holdings, this.threshold);
                         UI.renderResults(results);
                         
-                        if (!this.projection.isManual) {
-                            this.projection.principal = results.total > 0 ? String(results.total) : '';
-                            UI.updateProjPrincipalInput(this.projection.principal);
-                        }
-                        
+                        // 2. Calculate Projection (Bottom Section)
                         const projResults = Logic.calculateProjection(
                             this.projection.principal, 
                             this.projection.rate, 
@@ -597,16 +612,25 @@
                 },
 
                 calculateProjection: (principalStr, rateStr, yearsStr, flowStr, mode) => {
+                    // STRICT CHECK: If critical inputs (Rate or Years) are empty, return 0.
+                    // This prevents confusion where user deletes inputs but sees a result based on default/placeholder values.
+                    if (rateStr === '' || yearsStr === '') {
+                        return { futureValue: 0, gain: 0 };
+                    }
+
                     const principal = parseFloat(String(principalStr).replace(/[^\d]/g, '')) || 0;
+                    
+                    // Parse Rate
                     let rawRate = parseFloat(rateStr);
                     if (isNaN(rawRate)) rawRate = 0;
                     if (rawRate > 100) rawRate = 100;
                     if (rawRate < 0) rawRate = 0;
                     const rate = rawRate / 100;
                     
+                    // Parse Years
                     let years = parseFloat(yearsStr) || 0;
                     if (years > 100) years = 100;
-                    if (years < 1 && yearsStr !== '') years = 1;
+                    // If years is 0 (but not empty string, which is caught above), calculation proceeds as 0 years.
 
                     let flow = parseFloat(String(flowStr).replace(/[^\d]/g, '')) || 0;
                     if (mode === 'spending') flow = -flow;
@@ -675,7 +699,6 @@
                         projFlowLabel: document.getElementById('proj-flow-label'),
                         modeSavingBtn: document.getElementById('mode-saving'),
                         modeSpendingBtn: document.getElementById('mode-spending'),
-                        btnSyncProj: document.getElementById('btn-sync-proj')
                     };
                 },
 
@@ -696,32 +719,30 @@
                     };
 
                     this.els.projPrincipal.oninput = (e) => {
-                        State.projection.isManual = true;
-                        this.els.btnSyncProj.classList.remove('opacity-0');
                         e.target.value = Utils.sanitizeInput(e.target.value);
                         State.projection.principal = e.target.value;
                         State.triggerCalc();
                     };
-                    this.els.btnSyncProj.onclick = () => {
-                        State.syncProjPrincipal();
-                        this.els.btnSyncProj.classList.add('opacity-0');
-                        const svg = this.els.btnSyncProj.querySelector('svg');
-                        svg.classList.add('animate-spin-once');
-                        setTimeout(() => svg.classList.remove('animate-spin-once'), 500);
-                    };
+                    
                     this.els.projFlow.oninput = (e) => {
                         e.target.value = Utils.sanitizeInput(e.target.value);
                         State.projection.flow = e.target.value;
                         State.triggerCalc();
                     };
+                    
                     this.els.projRate.oninput = (e) => {
-                        State.projection.rate = e.target.value;
+                        const clean = Utils.sanitizeDecimal(e.target.value, 100);
+                        if (e.target.value !== clean) e.target.value = clean;
+                        State.projection.rate = clean;
                         State.triggerCalc();
                     };
                     this.els.projYears.oninput = (e) => {
-                        State.projection.years = e.target.value;
+                        const clean = Utils.sanitizeInteger(e.target.value, 100);
+                        if (e.target.value !== clean) e.target.value = clean;
+                        State.projection.years = clean;
                         State.triggerCalc();
                     };
+
                     this.els.modeSavingBtn.onclick = () => State.setProjMode('saving');
                     this.els.modeSpendingBtn.onclick = () => State.setProjMode('spending');
                 },
@@ -881,10 +902,6 @@
                     const gainClass = data.gain >= 0 ? 'font-mono text-emerald-600 break-all' : 'font-mono text-red-500 break-all';
                     Utils.setText(this.els.projGain, gainText);
                     Utils.setClass(this.els.projGain, gainClass);
-                },
-
-                updateProjPrincipalInput(val) {
-                    if (this.els.projPrincipal.value !== val) this.els.projPrincipal.value = val;
                 },
 
                 updateThresholdDisplay() {
