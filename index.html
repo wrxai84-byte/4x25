@@ -2,22 +2,25 @@
 <html lang="en" prefix="og: http://ogp.me/ns#">
 <head>
     <!-- Security & Meta Tags -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://market-proxy.wrx-ai-84.workers.dev https://www.google-analytics.com https://analytics.google.com; img-src 'self' data: https://www.googletagmanager.com;">
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-8GJYYGEB88"></script>
-    <script>window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-8GJYYGEB88');</script>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; font-src 'self'; connect-src 'self' https://market-proxy.wrx-ai-84.workers.dev https://www.google-analytics.com https://analytics.google.com; img-src 'self' data: https://www.googletagmanager.com;">
+    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>4x25 Strategy & FIRE Tool | 永久投资组合计算器</title>
     <meta name="description" content="Free Permanent Portfolio Rebalancing Tool & FIRE Calculator.">
     
-    <!-- ✅ 新增：自定义网站图标 (Favicon) 使用 Emoji -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💰</text></svg>">
 
     <script src="https://cdn.tailwindcss.com/3.4.1"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     
     <style>
-        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; font-feature-settings: "tnum"; }
+        /* System Font Stack for performance */
+        body { 
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+            font-feature-settings: "tnum"; 
+            -webkit-font-smoothing: antialiased;
+        }
+        
         .lang-btn.active { background-color: #3b82f6; color: white; border-color: #3b82f6; }
         button:disabled { opacity: 0.3; cursor: not-allowed; pointer-events: none; }
         .table-cell-truncate { max-width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -35,7 +38,6 @@
         @keyframes textFlash { 0% { color: #10B981; text-shadow: 0 0 5px rgba(16, 185, 129, 0.5); } 100% { color: #94a3b8; text-shadow: none; } }
         .flash-update { animation: textFlash 1s ease-out; }
         
-        /* Toast Notification Styles */
         #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 100; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
         .toast { pointer-events: auto; min-width: 300px; padding: 16px; border-radius: 12px; background: white; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); border-left: 4px solid; transform: translateX(120%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease; opacity: 0; display: flex; align-items: start; gap: 12px; }
         .toast.show { transform: translateX(0); opacity: 1; }
@@ -302,7 +304,7 @@
             <div class="modal-content relative transform overflow-hidden rounded-2xl bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-xl opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" id="modal-panel">
                 <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
                     <h3 class="text-xl font-bold leading-6 text-slate-900 mb-4" id="modal-title" data-i18n="privacyTitle">Terms & Privacy Policy</h3>
-                    <div class="mt-2 text-sm text-slate-600 space-y-4 leading-relaxed max-h-[80vh] overflow-y-auto pr-2" data-i18n="privacyContent" data-i18n-html="true"></div>
+                    <div id="modal-body" class="mt-2 text-sm text-slate-600 space-y-4 leading-relaxed max-h-[80vh] overflow-y-auto pr-2"></div>
                 </div>
                 <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 border-t border-gray-100">
                     <button type="button" id="modal-close-btn" class="inline-flex w-full justify-center rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-50 sm:ml-3 sm:w-auto transition-colors" data-i18n="closeBtn">Close</button>
@@ -311,8 +313,256 @@
         </div>
     </div>
 
+    <template id="tmpl-privacy-zh">
+        <h4 class="font-bold text-slate-800 mt-4 mb-2">1. 条款接受</h4>
+        <p>访问并使用本网站 ("4x25 Tools") ，即表示您同意遵守以下条款。如果您不同意这些条款的任何部分，请勿使用本服务。</p>
+        <h4 class="font-bold text-slate-800 mt-4 mb-2">2. 免责声明 (无财务建议)</h4>
+        <p>本网站提供的计算结果、图表及信息仅供<strong>教育和参考用途</strong>。它们不构成任何形式的财务、投资、税务或法律建议。</p>
+        <ul class="list-disc pl-5 mt-2 space-y-1">
+            <li>投资涉及风险，包括本金损失的可能。</li>
+            <li>过往表现不代表未来结果。</li>
+            <li>在做出任何投资决定前，请咨询合格的专业理财顾问。</li>
+        </ul>
+        <p class="mt-2">本网站不对因使用本工具而产生的任何直接或间接损失负责。您需自行承担使用本服务的风险。</p>
+        <h4 class="font-bold text-slate-800 mt-4 mb-2">3. 隐私政策 (数据本地化)</h4>
+        <p>我们高度重视您的隐私。本工具采用<strong>客户端计算 (Client-Side)</strong> 架构：</p>
+        <ul class="list-disc pl-5 mt-2 space-y-1">
+            <li><strong>您的财务数据不离线:</strong> 您输入的资产金额、收益率等敏感数据完全在您的浏览器本地处理，绝不会发送至我们的服务器。</li>
+            <li><strong>数据持久化:</strong> 为了提升体验，我们会将您的输入数据存储在您浏览器的 <strong>LocalStorage</strong> 中，以便您下次访问时无需重新输入。您可以随时清除浏览器缓存来删除这些数据。</li>
+            <li><strong>Cookie 与统计:</strong> 我们可能会使用第三方服务（如 Google Analytics）收集匿名的访问统计数据（如页面浏览量、设备类型），以优化用户体验。这些服务可能会在您的设备上存储 Cookie。</li>
+        </ul>
+        <h4 class="font-bold text-slate-800 mt-4 mb-2">4. 服务变更</h4>
+        <p>我们保留随时修改或终止服务、更新本条款的权利，恕不另行通知。</p>
+        <p class="mt-6 text-xs text-slate-400 border-t pt-4">最后更新日期: 2026年1月6日</p>
+    </template>
+
+    <template id="tmpl-privacy-en">
+        <h4 class="font-bold text-slate-800 mt-4 mb-2">1. Acceptance of Terms</h4>
+        <p>By accessing and using this website ("4x25 Tools"), you agree to be bound by these terms. If you do not agree, please do not use this service.</p>
+        <h4 class="font-bold text-slate-800 mt-4 mb-2">2. Disclaimer (No Financial Advice)</h4>
+        <p>The calculations, charts, and information provided on this website are for <strong>educational and informational purposes only</strong>. They do not constitute financial, investment, tax, or legal advice.</p>
+        <ul class="list-disc pl-5 mt-2 space-y-1">
+            <li>Investments involve risk, including the possible loss of principal.</li>
+            <li>Past performance is not indicative of future results.</li>
+            <li>Consult with a qualified financial advisor before making any investment decisions.</li>
+        </ul>
+        <p class="mt-2">We accept no liability for any loss or damage resulting from the use of this tool. You use this service entirely at your own risk.</p>
+        <h4 class="font-bold text-slate-800 mt-4 mb-2">3. Privacy Policy (Data Localization)</h4>
+        <p>We respect your privacy. This tool operates on a <strong>Client-Side</strong> architecture:</p>
+        <ul class="list-disc pl-5 mt-2 space-y-1">
+            <li><strong>Your Financial Data Stays Local:</strong> The asset values and rates you input are processed entirely within your browser. This data is never transmitted to our servers.</li>
+            <li><strong>Data Persistence:</strong> To improve your experience, we save your input data in your browser's <strong>LocalStorage</strong> so you don't have to re-enter it next time. You can clear your browser cache to remove this data.</li>
+            <li><strong>Cookies & Analytics:</strong> We may use third-party services (like Google Analytics) to collect anonymous usage statistics (e.g., page views, device type) to improve the user experience. These services may store cookies on your device.</li>
+        </ul>
+        <h4 class="font-bold text-slate-800 mt-4 mb-2">4. Changes to Service</h4>
+        <p>We reserve the right to modify or discontinue the service, or update these terms at any time without prior notice.</p>
+        <p class="mt-6 text-xs text-slate-400 border-t pt-4">Last Updated: January 6, 2026</p>
+    </template>
+
+    <script id="i18n-data" type="application/json">
+    {
+        "zh": {
+            "currencyCode": "CNY",
+            "subtitle": "4x25 永久投资组合策略工具 · FIRE 财务自由计算器", 
+            "thresholdLabel": "阈值: ±",
+            "inputTitle": "💰 当前持仓输入",
+            "totalValue": "总资产价值",
+            "rebalanceTitle": "🔄 再平衡建议",
+            "targetLabel": "目标: 25%",
+            "colAsset": "资产",
+            "colCurrent": "当前占比",
+            "colTarget": "目标金额",
+            "colAction": "操作",
+            "fireTitle": "FIRE 4% 法则预览",
+            "fireYear": "可支持年支出",
+            "fireMonth": "可支持月支出",
+            "fireExpenseLabel": "预期年支出目标",
+            "fireProgress": "FIRE 进度",
+            "fireTargetLabel": "目标资产 (25x)",
+            "fireSetGoal": "请设定支出",
+            "stocks": "股票 (Stocks)",
+            "bonds": "长期国债 (Bonds)",
+            "cash": "现金/短债 (Cash)",
+            "gold": "黄金 (Gold)",
+            "buy": "买入",
+            "sell": "卖出",
+            "hold": "保持", 
+            "statusEmptyTitle": "请输入持仓金额",
+            "statusEmptyDesc": "请在左侧输入各项资产的当前价值以开始计算。未填写的项目将默认为 0。",
+            "statusHealthyTitle": "投资组合处于健康区间",
+            "statusHealthyDesc": "所有资产均在目标区间内，无需操作。",
+            "statusActionTitle": "建议进行再平衡",
+            "statusActionDesc": "检测到有资产偏离目标配置超过 {threshold}% (即 <{min}% 或 >{max}%)。",
+            "statusActionNote": "说明：默认策略为将所有资产回归至各 25%。",
+            "faqTitle": "常见问题 (FAQ)",
+            "faqData": [
+                { 
+                    "question": "为什么叫 4x25?", 
+                    "answer": [ "这是一个双关含义：", "1. 永久投资组合：4种资产，各占 25%。", "2. FIRE 运动：4% 法则，意味着你需要存够年支出的 25 倍。" ]
+                },
+                {
+                    "question": "什么是 4% 法则?",
+                    "answer": [
+                        "源自三一学院研究 (Trinity Study)。",
+                        "核心观点：若每年提取初始资金的 4% 作为生活费（并随通胀调整），资金大概率能维持 30 年以上。",
+                        "这意味着：当总资产 = 年支出 × 25 时，理论上已达成财务自由 (FIRE)。"
+                    ]
+                },
+                { 
+                    "question": "什么是永久投资组合？", 
+                    "answer": [
+                        "永久投资组合 (Permanent Portfolio) 是由哈利·布朗 (Harry Browne) 提出的投资策略，旨在无论经济状况如何（繁荣、通缩、通胀或滞胀），都能保护并增值你的财富。",
+                        "其核心理念极其简单：将资产平分为四等份（各25%）：股票（应对繁荣）、长期国债（应对通缩）、现金/短债（应对衰退/紧缩）、黄金（应对通胀）。",
+                        "你只需要定期检查，如果某项资产占比偏离 25% 太多（例如超过设定的阈值），就进行“再平衡”：卖出涨得多的，买入跌得多的，使其回到 25%。"
+                    ]
+                },
+                {
+                    "question": "历史年化收益率大概是多少？",
+                    "answer": [ "虽然《永久投资组合》一书指出该策略在过去 40 年（基于美国市场）的年化回报率约为 9-10%。", "但考虑到未来的不确定性及不同的经济周期，我们认为 6% - 8% 是一个更务实、更稳健的长期预期区间。", "因此，本计算器默认采用 6.8% 进行推演——我们在追求增长之前，首先要确保预期的安全性。" ]
+                },
+                { 
+                    "question": "再平衡的阈值设为多少比较好?", 
+                    "answer": [ "哈利·布朗建议使用 15/35 频带，即当某项资产跌破 15% 或涨超 35% 时触发再平衡（相当于 ±10% 的阈值）。", "本计算器默认设置为 ±10%，你可以根据自己的风险偏好在顶部调整。" ]
+                }
+            ],
+            "privacy": "条款与隐私",
+            "privacyTitle": "使用条款与隐私政策",
+            "closeBtn": "我已了解",
+            "projTitle": "财富变化推演",
+            "modeSaving": "定投积累",
+            "modeSpending": "提款消费",
+            "projCurrent": "当前总资产",
+            "projRate": "年化收益率 (0-100)",
+            "projYears": "推演年限 (1-100)",
+            "projContribution": "每年定投金额",
+            "projExpense": "每年计划开销",
+            "projResultLabel": "未来总资产",
+            "projGain": "累计收益",
+            "projNote": "注：推演结果为名义金额，未扣除通货膨胀/通缩对购买力的实际影响。",
+            "rebalanceNote": "注：建议操作金额为理论值，未考虑交易手续费及税务（如资本利得税）影响。",
+            "seasonTitle": "经济四季罗盘",
+            "seasonProsperity": "繁荣期",
+            "seasonStocks": "股票 (Stocks)",
+            "seasonDeflation": "通缩期",
+            "seasonBonds": "长债 (Bonds)",
+            "seasonRecession": "衰退/紧缩",
+            "seasonCash": "现金 (Cash)",
+            "seasonInflation": "通胀期",
+            "seasonGold": "黄金 (Gold)",
+            "rule72Title": "72法则",
+            "rule72Desc": "按 6.8% 年化收益率计算，您的资产约每 10.6 年翻一番。",
+            "marketTitle": "实时行情看板",
+            "marketNames": {
+                "cn_300": "沪深300", "cn_a500": "中证A500", "us_sp500": "标普500", "us_nasdaq": "纳指100",
+                "cn_bond_30": "30年国债", "cn_bond_10": "10年国债", "us_bond_long": "美长债TLT", "gold_london": "伦敦金",
+                "gold_etf": "华夏黄金", "money_etf": "银华日利", "usd_cash": "美元短债", "usd_cny": "美元汇率"
+            },
+            "errFetch": "获取行情数据失败",
+            "errNetwork": "网络连接错误"
+        },
+        "en": {
+            "currencyCode": "USD",
+            "subtitle": "4x25 Strategy & FIRE Tool · Permanent Portfolio Calculator",
+            "thresholdLabel": "Threshold: ±",
+            "inputTitle": "💰 Current Holdings",
+            "totalValue": "Total Value",
+            "rebalanceTitle": "🔄 Rebalancing Suggestions",
+            "targetLabel": "Target: 25%",
+            "colAsset": "Asset",
+            "colCurrent": "Current %",
+            "colTarget": "Target Value",
+            "colAction": "Action",
+            "fireTitle": "FIRE 4% Rule Preview",
+            "fireYear": "Safe Annual Withdrawal",
+            "fireMonth": "Safe Monthly Withdrawal",
+            "fireExpenseLabel": "Annual Expense Goal",
+            "fireProgress": "FIRE Progress",
+            "fireTargetLabel": "Target (25x)",
+            "fireSetGoal": "Set Expense",
+            "stocks": "Stocks",
+            "bonds": "Long-Term Bonds",
+            "cash": "Cash / T-Bills",
+            "gold": "Gold",
+            "buy": "Buy",
+            "sell": "Sell",
+            "hold": "Hold",
+            "statusEmptyTitle": "Enter Your Holdings",
+            "statusEmptyDesc": "Please input the current value of your assets. Empty fields will be treated as 0.",
+            "statusHealthyTitle": "Portfolio is Healthy",
+            "statusHealthyDesc": "All assets are within the target allocation range.",
+            "statusActionTitle": "Rebalancing Recommended",
+            "statusActionDesc": "Assets detected deviating by more than {threshold}% (i.e., <{min}% or >{max}%).",
+            "statusActionNote": "Note: Defaults to rebalancing to 25% each.",
+            "faqTitle": "Frequently Asked Questions (FAQ)",
+            "faqData": [
+                { 
+                    "question": "Why 4x25?", 
+                    "answer": [ "It's a double meaning:", "1. Permanent Portfolio: 4 assets at 25% each.", "2. FIRE Movement: The 4% Rule implies saving 25 times your annual expenses." ]
+                },
+                {
+                    "question": "What is the 4% Rule?",
+                    "answer": [
+                        "Derived from the Trinity Study.",
+                        "It suggests that if you withdraw 4% of your portfolio annually (adjusted for inflation), your money has a high probability of lasting 30+ years.",
+                        "This implies: You reach FIRE when Total Assets = 25 × Annual Expenses."
+                    ]
+                },
+                { 
+                    "question": "What is the Permanent Portfolio?", 
+                    "answer": [
+                        "The Permanent Portfolio is an investment strategy invented by Harry Browne, designed to preserve and grow your wealth under any condition.",
+                        "The core concept is simple: divide your assets equally into four parts (25% each): Stocks (Prosperity), Long-Term Bonds (Deflation), Cash (Recession), and Gold (Inflation).",
+                        "You simply check it regularly. If an asset deviates too far from 25% (beyond your set threshold), you \"rebalance\": sell the winners and buy the losers to get back to 25%."
+                    ]
+                },
+                {
+                    "question": "What is the historical annual return?",
+                    "answer": [ "Books on the Permanent Portfolio (like Craig Rowland's) cite historical returns of around 9-10% (based on 40 years of US market data).", "However, past performance does not guarantee future results. A range of 6-8% is generally considered a more realistic and conservative estimate for long-term planning.", "This calculator defaults to 6.8% to prioritize safety in your projections." ]
+                },
+                { 
+                    "question": "What is the best rebalancing threshold?", 
+                    "answer": [ "Harry Browne recommended using a 15/35 band. This means you rebalance only when an asset drops below 15% or rises above 35% (which equals a ±10% threshold).", "This calculator defaults to ±10%, but you can adjust it at the top based on your risk tolerance." ]
+                }
+            ],
+            "privacy": "Terms & Privacy",
+            "privacyTitle": "Terms of Service & Privacy Policy",
+            "closeBtn": "I Understand",
+            "projTitle": "Wealth Simulation",
+            "modeSaving": "Saving",
+            "modeSpending": "Spending",
+            "projCurrent": "Current Assets",
+            "projRate": "Return % (0-100)",
+            "projYears": "Years (1-100)",
+            "projContribution": "Annual Contribution",
+            "projExpense": "Annual Expense",
+            "projResultLabel": "Future Total Assets",
+            "projGain": "Total Gain",
+            "projNote": "Note: Projections are nominal values and do not account for inflation or deflation effects.",
+            "rebalanceNote": "Note: Suggested actions are theoretical and do not account for transaction fees or tax implications.",
+            "seasonTitle": "Economic Seasons",
+            "seasonProsperity": "Prosperity",
+            "seasonStocks": "Stocks",
+            "seasonDeflation": "Deflation",
+            "seasonBonds": "Bonds",
+            "seasonRecession": "Recession",
+            "seasonCash": "Cash",
+            "seasonInflation": "Inflation",
+            "seasonGold": "Gold",
+            "rule72Title": "Rule of 72",
+            "rule72Desc": "At 6.8% return, your assets double every ~10.6 years.",
+            "marketTitle": "Live Market Ticker",
+            "marketNames": {
+                "cn_300": "CSI 300", "cn_a500": "CSI A500", "us_sp500": "S&P 500", "us_nasdaq": "Nasdaq 100",
+                "cn_bond_30": "CN 30Y Bond", "cn_bond_10": "CN 10Y Bond", "us_bond_long": "US 20Y+ Bond", "gold_london": "London Gold",
+                "gold_etf": "CN Gold ETF", "money_etf": "CN Cash ETF", "usd_cash": "US Short Bond", "usd_cny": "USD/CNY"
+            },
+            "errFetch": "Failed to fetch market data",
+            "errNetwork": "Network error"
+        }
+    }
+    </script>
+
     <script>
-        // --- Architecture Improvement: Simple Event Emitter (Pub/Sub) ---
         class EventEmitter {
             constructor() { this.events = {}; }
             on(event, listener) {
@@ -345,250 +595,13 @@
                 ]
             };
 
-            const Translations = {
-                zh: {
-                    currencyCode: 'CNY',
-                    subtitle: "4x25 永久投资组合策略工具 · FIRE 财务自由计算器", 
-                    thresholdLabel: "阈值: ±",
-                    inputTitle: "💰 当前持仓输入",
-                    totalValue: "总资产价值",
-                    rebalanceTitle: "🔄 再平衡建议",
-                    targetLabel: `目标: ${Config.TARGET_PERCENT}%`,
-                    colAsset: "资产",
-                    colCurrent: "当前占比",
-                    colTarget: "目标金额",
-                    colAction: "操作",
-                    fireTitle: "FIRE 4% 法则预览",
-                    fireYear: "可支持年支出",
-                    fireMonth: "可支持月支出",
-                    fireExpenseLabel: "预期年支出目标",
-                    fireProgress: "FIRE 进度",
-                    fireTargetLabel: "目标资产 (25x)",
-                    fireSetGoal: "请设定支出",
-                    stocks: "股票 (Stocks)",
-                    bonds: "长期国债 (Bonds)",
-                    cash: "现金/短债 (Cash)",
-                    gold: "黄金 (Gold)",
-                    buy: "买入",
-                    sell: "卖出",
-                    hold: "保持", 
-                    statusEmptyTitle: "请输入持仓金额",
-                    statusEmptyDesc: "请在左侧输入各项资产的当前价值以开始计算。未填写的项目将默认为 0。",
-                    statusHealthyTitle: "投资组合处于健康区间",
-                    statusHealthyDesc: "所有资产均在目标区间内，无需操作。",
-                    statusActionTitle: "建议进行再平衡",
-                    statusActionDesc: "检测到有资产偏离目标配置超过 {threshold}% (即 <{min}% 或 >{max}%)。",
-                    statusActionNote: "说明：默认策略为将所有资产回归至各 25%。",
-                    faqTitle: "常见问题 (FAQ)",
-                    faqData: [
-                        { 
-                            question: "为什么叫 4x25?", 
-                            answer: [ "这是一个双关含义：", "1. 永久投资组合：4种资产，各占 25%。", "2. FIRE 运动：4% 法则，意味着你需要存够年支出的 25 倍。" ]
-                        },
-                        {
-                            question: "什么是 4% 法则?",
-                            answer: [
-                                "源自三一学院研究 (Trinity Study)。",
-                                "核心观点：若每年提取初始资金的 4% 作为生活费（并随通胀调整），资金大概率能维持 30 年以上。",
-                                "这意味着：当总资产 = 年支出 × 25 时，理论上已达成财务自由 (FIRE)。"
-                            ]
-                        },
-                        { 
-                            question: "什么是永久投资组合？", 
-                            answer: [
-                                "永久投资组合 (Permanent Portfolio) 是由哈利·布朗 (Harry Browne) 提出的投资策略，旨在无论经济状况如何（繁荣、通缩、通胀或滞胀），都能保护并增值你的财富。",
-                                "其核心理念极其简单：将资产平分为四等份（各25%）：股票（应对繁荣）、长期国债（应对通缩）、现金/短债（应对衰退/紧缩）、黄金（应对通胀）。",
-                                `你只需要定期检查，如果某项资产占比偏离 ${Config.TARGET_PERCENT}% 太多（例如超过设定的阈值），就进行“再平衡”：卖出涨得多的，买入跌得多的，使其回到 ${Config.TARGET_PERCENT}%。`
-                            ]
-                        },
-                        {
-                            question: "历史年化收益率大概是多少？",
-                            answer: [ "虽然《永久投资组合》一书指出该策略在过去 40 年（基于美国市场）的年化回报率约为 9-10%。", "但考虑到未来的不确定性及不同的经济周期，我们认为 6% - 8% 是一个更务实、更稳健的长期预期区间。", "因此，本计算器默认采用 6.8% 进行推演——我们在追求增长之前，首先要确保预期的安全性。" ]
-                        },
-                        { 
-                            question: "再平衡的阈值设为多少比较好?", 
-                            answer: [ "哈利·布朗建议使用 15/35 频带，即当某项资产跌破 15% 或涨超 35% 时触发再平衡（相当于 ±10% 的阈值）。", "本计算器默认设置为 ±10%，你可以根据自己的风险偏好在顶部调整。" ]
-                        }
-                    ],
-                    privacy: "条款与隐私",
-                    privacyTitle: "使用条款与隐私政策",
-                    privacyContent: `
-                        <h4 class="font-bold text-slate-800 mt-4 mb-2">1. 条款接受</h4>
-                        <p>访问并使用本网站 ("4x25 Tools") ，即表示您同意遵守以下条款。如果您不同意这些条款的任何部分，请勿使用本服务。</p>
-                        <h4 class="font-bold text-slate-800 mt-4 mb-2">2. 免责声明 (无财务建议)</h4>
-                        <p>本网站提供的计算结果、图表及信息仅供<strong>教育和参考用途</strong>。它们不构成任何形式的财务、投资、税务或法律建议。</p>
-                        <ul class="list-disc pl-5 mt-2 space-y-1">
-                            <li>投资涉及风险，包括本金损失的可能。</li>
-                            <li>过往表现不代表未来结果。</li>
-                            <li>在做出任何投资决定前，请咨询合格的专业理财顾问。</li>
-                        </ul>
-                        <p class="mt-2">本网站不对因使用本工具而产生的任何直接或间接损失负责。您需自行承担使用本服务的风险。</p>
-                        <h4 class="font-bold text-slate-800 mt-4 mb-2">3. 隐私政策 (数据本地化)</h4>
-                        <p>我们高度重视您的隐私。本工具采用<strong>客户端计算 (Client-Side)</strong> 架构：</p>
-                        <ul class="list-disc pl-5 mt-2 space-y-1">
-                            <li><strong>您的财务数据不离线:</strong> 您输入的资产金额、收益率等敏感数据完全在您的浏览器本地处理，绝不会发送至我们的服务器。</li>
-                            <li><strong>数据持久化:</strong> 为了提升体验，我们会将您的输入数据存储在您浏览器的 <strong>LocalStorage</strong> 中，以便您下次访问时无需重新输入。您可以随时清除浏览器缓存来删除这些数据。</li>
-                            <li><strong>Cookie 与统计:</strong> 我们可能会使用第三方服务（如 Google Analytics）收集匿名的访问统计数据（如页面浏览量、设备类型），以优化用户体验。这些服务可能会在您的设备上存储 Cookie。</li>
-                        </ul>
-                        <h4 class="font-bold text-slate-800 mt-4 mb-2">4. 服务变更</h4>
-                        <p>我们保留随时修改或终止服务、更新本条款的权利，恕不另行通知。</p>
-                        <p class="mt-6 text-xs text-slate-400 border-t pt-4">最后更新日期: 2026年1月6日</p>
-                    `,
-                    closeBtn: "我已了解",
-                    projTitle: "财富变化推演",
-                    modeSaving: "定投积累",
-                    modeSpending: "提款消费",
-                    projCurrent: "当前总资产",
-                    projRate: "年化收益率 (0-100)",
-                    projYears: "推演年限 (1-100)",
-                    projContribution: "每年定投金额",
-                    projExpense: "每年计划开销",
-                    projResultLabel: "未来总资产",
-                    projGain: "累计收益",
-                    projNote: "注：推演结果为名义金额，未扣除通货膨胀/通缩对购买力的实际影响。",
-                    rebalanceNote: "注：建议操作金额为理论值，未考虑交易手续费及税务（如资本利得税）影响。",
-                    seasonTitle: "经济四季罗盘",
-                    seasonProsperity: "繁荣期",
-                    seasonStocks: "股票 (Stocks)",
-                    seasonDeflation: "通缩期",
-                    seasonBonds: "长债 (Bonds)",
-                    seasonRecession: "衰退/紧缩",
-                    seasonCash: "现金 (Cash)",
-                    seasonInflation: "通胀期",
-                    seasonGold: "黄金 (Gold)",
-                    rule72Title: "72法则",
-                    rule72Desc: "按 6.8% 年化收益率计算，您的资产约每 10.6 年翻一番。",
-                    marketTitle: "实时行情看板",
-                    marketNames: {
-                        'cn_300': '沪深300', 'cn_a500': '中证A500', 'us_sp500': '标普500', 'us_nasdaq': '纳指100',
-                        'cn_bond_30': '30年国债', 'cn_bond_10': '10年国债', 'us_bond_long': '美长债TLT', 'gold_london': '伦敦金',
-                        'gold_etf': '华夏黄金', 'money_etf': '银华日利', 'usd_cash': '美元短债', 'usd_cny': '美元汇率'
-                    },
-                    errFetch: "获取行情数据失败",
-                    errNetwork: "网络连接错误"
-                },
-                en: {
-                    currencyCode: 'USD',
-                    subtitle: "4x25 Strategy & FIRE Tool · Permanent Portfolio Calculator",
-                    thresholdLabel: "Threshold: ±",
-                    inputTitle: "💰 Current Holdings",
-                    totalValue: "Total Value",
-                    rebalanceTitle: "🔄 Rebalancing Suggestions",
-                    targetLabel: `Target: ${Config.TARGET_PERCENT}%`,
-                    colAsset: "Asset",
-                    colCurrent: "Current %",
-                    colTarget: "Target Value",
-                    colAction: "Action",
-                    fireTitle: "FIRE 4% Rule Preview",
-                    fireYear: "Safe Annual Withdrawal",
-                    fireMonth: "Safe Monthly Withdrawal",
-                    fireExpenseLabel: "Annual Expense Goal",
-                    fireProgress: "FIRE Progress",
-                    fireTargetLabel: "Target (25x)",
-                    fireSetGoal: "Set Expense",
-                    stocks: "Stocks",
-                    bonds: "Long-Term Bonds",
-                    cash: "Cash / T-Bills",
-                    gold: "Gold",
-                    buy: "Buy",
-                    sell: "Sell",
-                    hold: "Hold",
-                    statusEmptyTitle: "Enter Your Holdings",
-                    statusEmptyDesc: "Please input the current value of your assets. Empty fields will be treated as 0.",
-                    statusHealthyTitle: "Portfolio is Healthy",
-                    statusHealthyDesc: "All assets are within the target allocation range.",
-                    statusActionTitle: "Rebalancing Recommended",
-                    statusActionDesc: "Assets detected deviating by more than {threshold}% (i.e., <{min}% or >{max}%).",
-                    statusActionNote: "Note: Defaults to rebalancing to 25% each.",
-                    faqTitle: "Frequently Asked Questions (FAQ)",
-                    faqData: [
-                        { 
-                            question: "Why 4x25?", 
-                            answer: [ "It's a double meaning:", "1. Permanent Portfolio: 4 assets at 25% each.", "2. FIRE Movement: The 4% Rule implies saving 25 times your annual expenses." ]
-                        },
-                        {
-                            question: "What is the 4% Rule?",
-                            answer: [
-                                "Derived from the Trinity Study.",
-                                "It suggests that if you withdraw 4% of your portfolio annually (adjusted for inflation), your money has a high probability of lasting 30+ years.",
-                                "This implies: You reach FIRE when Total Assets = 25 × Annual Expenses."
-                            ]
-                        },
-                        { 
-                            question: "What is the Permanent Portfolio?", 
-                            answer: [
-                                "The Permanent Portfolio is an investment strategy invented by Harry Browne, designed to preserve and grow your wealth under any condition.",
-                                `The core concept is simple: divide your assets equally into four parts (${Config.TARGET_PERCENT}% each): Stocks (Prosperity), Long-Term Bonds (Deflation), Cash (Recession), and Gold (Inflation).`,
-                                `You simply check it regularly. If an asset deviates too far from ${Config.TARGET_PERCENT}% (beyond your set threshold), you "rebalance": sell the winners and buy the losers to get back to ${Config.TARGET_PERCENT}%.`
-                            ]
-                        },
-                        {
-                            question: "What is the historical annual return?",
-                            answer: [ "Books on the Permanent Portfolio (like Craig Rowland's) cite historical returns of around 9-10% (based on 40 years of US market data).", "However, past performance does not guarantee future results. A range of 6-8% is generally considered a more realistic and conservative estimate for long-term planning.", "This calculator defaults to 6.8% to prioritize safety in your projections." ]
-                        },
-                        { 
-                            question: "What is the best rebalancing threshold?", 
-                            answer: [ "Harry Browne recommended using a 15/35 band. This means you rebalance only when an asset drops below 15% or rises above 35% (which equals a ±10% threshold).", "This calculator defaults to ±10%, but you can adjust it at the top based on your risk tolerance." ]
-                        }
-                    ],
-                    privacy: "Terms & Privacy",
-                    privacyTitle: "Terms of Service & Privacy Policy",
-                    privacyContent: `
-                        <h4 class="font-bold text-slate-800 mt-4 mb-2">1. Acceptance of Terms</h4>
-                        <p>By accessing and using this website ("4x25 Tools"), you agree to be bound by these terms. If you do not agree, please do not use this service.</p>
-                        <h4 class="font-bold text-slate-800 mt-4 mb-2">2. Disclaimer (No Financial Advice)</h4>
-                        <p>The calculations, charts, and information provided on this website are for <strong>educational and informational purposes only</strong>. They do not constitute financial, investment, tax, or legal advice.</p>
-                        <ul class="list-disc pl-5 mt-2 space-y-1">
-                            <li>Investments involve risk, including the possible loss of principal.</li>
-                            <li>Past performance is not indicative of future results.</li>
-                            <li>Consult with a qualified financial advisor before making any investment decisions.</li>
-                        </ul>
-                        <p class="mt-2">We accept no liability for any loss or damage resulting from the use of this tool. You use this service entirely at your own risk.</p>
-                        <h4 class="font-bold text-slate-800 mt-4 mb-2">3. Privacy Policy (Data Localization)</h4>
-                        <p>We respect your privacy. This tool operates on a <strong>Client-Side</strong> architecture:</p>
-                        <ul class="list-disc pl-5 mt-2 space-y-1">
-                            <li><strong>Your Financial Data Stays Local:</strong> The asset values and rates you input are processed entirely within your browser. This data is never transmitted to our servers.</li>
-                            <li><strong>Data Persistence:</strong> To improve your experience, we save your input data in your browser's <strong>LocalStorage</strong> so you don't have to re-enter it next time. You can clear your browser cache to remove this data.</li>
-                            <li><strong>Cookies & Analytics:</strong> We may use third-party services (like Google Analytics) to collect anonymous usage statistics (e.g., page views, device type) to improve the user experience. These services may store cookies on your device.</li>
-                        </ul>
-                        <h4 class="font-bold text-slate-800 mt-4 mb-2">4. Changes to Service</h4>
-                        <p>We reserve the right to modify or discontinue the service, or update these terms at any time without prior notice.</p>
-                        <p class="mt-6 text-xs text-slate-400 border-t pt-4">Last Updated: January 6, 2026</p>
-                    `,
-                    closeBtn: "I Understand",
-                    projTitle: "Wealth Simulation",
-                    modeSaving: "Saving",
-                    modeSpending: "Spending",
-                    projCurrent: "Current Assets",
-                    projRate: "Return % (0-100)",
-                    projYears: "Years (1-100)",
-                    projContribution: "Annual Contribution",
-                    projExpense: "Annual Expense",
-                    projResultLabel: "Future Total Assets",
-                    projGain: "Total Gain",
-                    projNote: "Note: Projections are nominal values and do not account for inflation or deflation effects.",
-                    rebalanceNote: "Note: Suggested actions are theoretical and do not account for transaction fees or tax implications.",
-                    seasonTitle: "Economic Seasons",
-                    seasonProsperity: "Prosperity",
-                    seasonStocks: "Stocks",
-                    seasonDeflation: "Deflation",
-                    seasonBonds: "Bonds",
-                    seasonRecession: "Recession",
-                    seasonCash: "Cash",
-                    seasonInflation: "Inflation",
-                    seasonGold: "Gold",
-                    rule72Title: "Rule of 72",
-                    rule72Desc: "At 6.8% return, your assets double every ~10.6 years.",
-                    marketTitle: "Live Market Ticker",
-                    marketNames: {
-                        'cn_300': 'CSI 300', 'cn_a500': 'CSI A500', 'us_sp500': 'S&P 500', 'us_nasdaq': 'Nasdaq 100',
-                        'cn_bond_30': 'CN 30Y Bond', 'cn_bond_10': 'CN 10Y Bond', 'us_bond_long': 'US 20Y+ Bond', 'gold_london': 'London Gold',
-                        'gold_etf': 'CN Gold ETF', 'money_etf': 'CN Cash ETF', 'usd_cash': 'US Short Bond', 'usd_cny': 'USD/CNY'
-                    },
-                    errFetch: "Failed to fetch market data",
-                    errNetwork: "Network error"
-                }
-            };
+            let Translations = {};
+            try {
+                Translations = JSON.parse(document.getElementById('i18n-data').textContent);
+            } catch (e) {
+                console.error("Failed to parse i18n data", e);
+                Translations = { en: {}, zh: {} }; 
+            }
 
             const Utils = {
                 formatterCache: new Map(),
@@ -689,7 +702,6 @@
                 },
                 setClass: (el, cls) => { if (el && el.className !== cls) el.className = cls; },
                 roundTo2: (num) => Math.round((num + Number.EPSILON) * 100) / 100,
-                // --- Network Improvement: Fetch with Timeout ---
                 fetchWithTimeout: async (resource, options = {}) => {
                     const { timeout = 5000 } = options;
                     const controller = new AbortController();
@@ -701,7 +713,6 @@
             };
 
             const State = new EventEmitter();
-            // Mixin state properties
             Object.assign(State, {
                 lang: 'en',
                 threshold: 10,
@@ -761,11 +772,17 @@
                     return newData;
                 },
                 startPolling() {
+                    if (this.pollingInterval) return; // Prevent multiple intervals
                     this.fetchMarket(); 
-                    if (this.pollingInterval) clearInterval(this.pollingInterval);
                     this.pollingInterval = setInterval(() => {
                         this.fetchMarket();
                     }, Config.REFRESH_INTERVAL);
+                },
+                stopPolling() {
+                    if (this.pollingInterval) {
+                        clearInterval(this.pollingInterval);
+                        this.pollingInterval = null;
+                    }
                 },
                 setLang(l) { this.lang = l; this.emit('langChanged', l); this.debouncedSave(); },
                 setThreshold(t) { 
@@ -788,7 +805,6 @@
                 },
                 performCalculation() {
                     const results = Logic.calculatePortfolio(this.holdings, this.threshold);
-                    // Decoupled: State simply emits data, doesn't know about UI
                     this.emit('calculationDone', results);
 
                     if (this.shouldSyncPrincipal) {
@@ -799,7 +815,6 @@
                     const projResults = Logic.calculateProjection(this.projection.principal, this.projection.rate, this.projection.years, this.projection.flow, this.projection.mode);
                     this.emit('projectionDone', projResults);
                 },
-                // --- Network Improvement: Retry Logic & Error Handling ---
                 async fetchMarket(retries = 1) {
                     if (this.isFirstLoad) this.emit('marketLoading', true);
                     
@@ -813,7 +828,7 @@
                                 this.emit('marketLoading', false);
                                 this.isFirstLoad = false;
                             }
-                            return; // Success, exit loop
+                            return; 
                         } catch (e) {
                             if (i === retries) {
                                 console.warn('Market fetch failed after retries:', e);
@@ -823,7 +838,6 @@
                                     this.isFirstLoad = false;
                                 }
                             }
-                            // Wait a bit before retry (exponential backoff could be used here)
                             await new Promise(r => setTimeout(r, 1000)); 
                         }
                     }
@@ -884,12 +898,19 @@
                     this.renderLegend(); 
                     this.cacheLegendDOM(); 
                     this.bindEvents(); 
-                    this.subscribeToState(); // New: Subscribe to events
+                    this.subscribeToState(); 
                     this.renderAll();
                     this.startClock(); 
-                    State.startPolling();     
+                    
+                    // OPTIMIZATION: Delayed Ticker Start
+                    // Don't block the main thread or network during initial render.
+                    const startMarketLater = () => State.startPolling();
+                    if ('requestIdleCallback' in window) {
+                        requestIdleCallback(startMarketLater, { timeout: 3000 });
+                    } else {
+                        setTimeout(startMarketLater, 1500);
+                    }
                 },
-                // --- Architecture Improvement: Subscribe to State Events ---
                 subscribeToState() {
                     State.on('langChanged', () => { this.renderAll(); this.renderTicker(); });
                     State.on('thresholdChanged', () => this.updateThresholdDisplay());
@@ -919,7 +940,7 @@
                         btnMinus: document.getElementById('btn-minus'), btnPlus: document.getElementById('btn-plus'), btnEn: document.getElementById('btn-en'), btnZh: document.getElementById('btn-zh'),
                         faqContainer: document.getElementById('faq-container'), currencySymbols: document.querySelectorAll('.currency-symbol'), i18nElements: document.querySelectorAll('[data-i18n]'),
                         privacyModal: document.getElementById('privacy-modal'), modalOverlay: document.querySelector('.modal-overlay'), modalCloseBtn: document.getElementById('modal-close-btn'),
-                        modalContent: document.querySelector('.modal-content'), appContainer: document.getElementById('app'), projPrincipal: document.getElementById('proj-principal'),
+                        modalContent: document.querySelector('.modal-content'), modalBody: document.getElementById('modal-body'), appContainer: document.getElementById('app'), projPrincipal: document.getElementById('proj-principal'),
                         projRate: document.getElementById('proj-rate'), projYears: document.getElementById('proj-years'), projFlow: document.getElementById('proj-flow'),
                         projResult: document.getElementById('proj-result'), projGain: document.getElementById('proj-gain'), projFlowLabel: document.getElementById('proj-flow-label'),
                         modeSavingBtn: document.getElementById('mode-saving'), modeSpendingBtn: document.getElementById('mode-spending'),
@@ -953,6 +974,15 @@
                     this.els.privacyModal.onkeydown = (e) => { if(e.key === "Escape") this.closeModal(); };
                     this.els.faqContainer.onclick = (e) => { const btn = e.target.closest('button[data-faq-toggle]'); if (btn) this.toggleFaq(btn); };
                     
+                    // OPTIMIZATION: Pause polling when page is hidden (saves battery/data)
+                    document.addEventListener('visibilitychange', () => {
+                        if (document.hidden) {
+                            State.stopPolling();
+                        } else {
+                            State.startPolling();
+                        }
+                    });
+
                     Config.ASSETS.forEach(asset => { const input = this.els.assetInputs[asset.key]; if (input) { input.oninput = (e) => { const clean = Utils.sanitizeInput(e.target.value, Config.ASSET_MAX_DIGITS); if (e.target.value !== clean) e.target.value = clean; State.updateHolding(asset.key, clean); }; } });
                     
                     const projectionInputs = [
@@ -985,7 +1015,6 @@
                         };
                     }
                 },
-                // --- UI Improvement: Toast Notification ---
                 showToast(message, type = 'info') {
                     const toast = document.createElement('div');
                     toast.className = `toast toast-${type}`;
@@ -1029,29 +1058,40 @@
                     const expenseStr = State.fireExpense;
                     const expense = parseFloat(expenseStr) || 0;
                     const t = Translations[State.lang];
+                    
+                    // Reset classes
                     this.els.firePercent.classList.remove('text-base', 'text-amber-400');
                     this.els.firePercent.classList.add('text-2xl', 'text-white');
                     this.els.fireExpenseInput.classList.remove('ring-2', 'ring-amber-500', 'ring-opacity-50');
-                    if (totalAssets > 0 && expense === 0 && expenseStr === '0') {
+
+                    // Case 1: Empty Input -> Prompt User (Set Expense)
+                    if (expenseStr === '') {
+                        this.els.fireProgressBar.style.width = '0%';
+                        this.els.firePercent.textContent = t.fireSetGoal;
+                        this.els.firePercent.classList.remove('text-2xl', 'text-white');
+                        this.els.firePercent.classList.add('text-base', 'text-amber-400');
+                        this.els.fireExpenseInput.classList.add('ring-2', 'ring-amber-500', 'ring-opacity-50');
+                        Utils.setText(this.els.fireTargetDisplay, '---');
+                        return;
+                    }
+
+                    // Case 2: Explicit 0 Expense + Assets > 0 -> Diogenes Mode (Infinity)
+                    if (expense === 0 && totalAssets > 0) {
                         this.els.fireProgressBar.style.width = '100%';
                         this.els.firePercent.textContent = '∞%'; 
                         Utils.setText(this.els.fireTargetDisplay, Utils.formatMoney(0, State.lang, true));
                         return;
                     }
-                    if (expense === 0) {
+
+                    // Case 3: Explicit 0 Expense + 0 Assets -> Nothing (0.0%)
+                    if (expense === 0 && totalAssets === 0) {
                         this.els.fireProgressBar.style.width = '0%';
-                        if (totalAssets > 0) {
-                            this.els.firePercent.textContent = t.fireSetGoal;
-                            this.els.firePercent.classList.remove('text-2xl', 'text-white');
-                            this.els.firePercent.classList.add('text-base', 'text-amber-400');
-                            this.els.fireExpenseInput.classList.add('ring-2', 'ring-amber-500', 'ring-opacity-50');
-                            Utils.setText(this.els.fireTargetDisplay, '---');
-                        } else {
-                            this.els.firePercent.textContent = '0.0%';
-                            Utils.setText(this.els.fireTargetDisplay, Utils.formatMoney(0, State.lang, true));
-                        }
+                        this.els.firePercent.textContent = '0.0%';
+                        Utils.setText(this.els.fireTargetDisplay, Utils.formatMoney(0, State.lang, true));
                         return;
                     }
+
+                    // Case 4: Normal Calculation
                     const target = expense * 25;
                     let percent = 0;
                     if (target > 0) { percent = (totalAssets / target) * 100; }
@@ -1183,6 +1223,13 @@
                     }
                 },
                 openModal(triggerElement) {
+                    const lang = State.lang;
+                    const tmplId = lang === 'zh' ? 'tmpl-privacy-zh' : 'tmpl-privacy-en';
+                    const tmpl = document.getElementById(tmplId);
+                    if (tmpl && this.els.modalBody) {
+                        this.els.modalBody.replaceChildren(tmpl.content.cloneNode(true));
+                    }
+                    
                     this.lastFocusedElement = triggerElement; document.body.style.overflow = 'hidden'; this.els.privacyModal.classList.remove('hidden');
                     this.setInert(this.els.appContainer, true);
                     setTimeout(() => { this.els.modalOverlay.classList.remove('opacity-0'); this.els.modalContent.classList.remove('opacity-0', 'translate-y-4', 'sm:translate-y-0', 'sm:scale-95'); this.els.modalContent.classList.add('opacity-100', 'translate-y-0', 'sm:scale-100'); this.els.modalCloseBtn.focus(); }, 10);
@@ -1195,7 +1242,27 @@
             };
             return { init: () => UI.init() };
         })();
-        document.addEventListener('DOMContentLoaded', App.init);
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            App.init();
+            const loadGA = () => {
+                const script = document.createElement('script');
+                script.async = true;
+                script.src = 'https://www.googletagmanager.com/gtag/js?id=G-8GJYYGEB88';
+                document.head.appendChild(script);
+
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                window.gtag = gtag;
+                gtag('js', new Date());
+                gtag('config', 'G-8GJYYGEB88');
+            };
+            if ('requestIdleCallback' in window) {
+                requestIdleCallback(loadGA, { timeout: 3000 });
+            } else {
+                setTimeout(loadGA, 2000);
+            }
+        });
     </script>
 </body>
 </html>
