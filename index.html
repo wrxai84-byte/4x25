@@ -1,9 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" prefix="og: http://ogp.me/ns#">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-8GJYYGEB88"></script>
     <script>
@@ -14,12 +11,13 @@
       gtag('config', 'G-8GJYYGEB88');
     </script>
 
-    <!-- ==========================================
-       SEO OPTIMIZATION
-    ========================================== -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>4x25 Strategy & FIRE Tool | 永久投资组合计算器</title>
-    <meta name="description" content="Free Permanent Portfolio Rebalancing Tool & FIRE Calculator. Visualize asset allocation and live gold prices.">
+    <meta name="description" content="Free Permanent Portfolio Rebalancing Tool & FIRE Calculator.">
     <script src="https://cdn.tailwindcss.com/3.4.1"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     
     <style>
@@ -41,13 +39,12 @@
         .season-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
         .season-card:hover { transform: translateY(-2px); box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
         
-        /* Pulse animation for live indicator */
-        .live-dot { animation: pulse-red 2s infinite; }
-        @keyframes pulse-red {
-            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-            70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
-            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        /* Flash animation for update indicator */
+        @keyframes textFlash {
+            0% { color: #10B981; text-shadow: 0 0 5px rgba(16, 185, 129, 0.5); }
+            100% { color: #94a3b8; text-shadow: none; }
         }
+        .flash-update { animation: textFlash 1s ease-out; }
     </style>
 </head>
 <body class="bg-gray-50 text-slate-800 min-h-screen flex flex-col">
@@ -186,16 +183,16 @@
                                 <tbody class="divide-y divide-gray-100" id="result-body"></tbody>
                             </table>
                         </div>
-                        <div class="bg-gray-50 px-6 py-3 border-t border-gray-100 text-xs text-slate-500 flex items-start gap-2 leading-relaxed">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 flex-shrink-0 opacity-70 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-                            <span data-i18n="rebalanceNote">Note: Suggested actions are theoretical and do not account for transaction fees or tax implications.</span>
-                        </div>
                     </div>
 
                     <!-- FIRE Calc -->
                     <div class="bg-slate-900 text-white rounded-2xl p-6 shadow-lg overflow-hidden">
-                        <h3 class="text-lg font-bold mb-2" data-i18n="fireTitle">FIRE 4% Rule Preview</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                        <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+                            🔥 <span data-i18n="fireTitle">FIRE 4% Rule Preview</span>
+                        </h3>
+                        
+                        <!-- Withdrawal Info -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                             <div class="overflow-hidden">
                                 <p class="text-slate-400 text-sm mb-1" data-i18n="fireYear">Safe Annual Withdrawal</p>
                                 <p class="text-3xl font-mono font-bold text-emerald-400 truncate" id="fire-year" data-current-value="0">0</p>
@@ -205,15 +202,35 @@
                                 <p class="text-2xl font-mono font-bold text-emerald-400 truncate" id="fire-month" data-current-value="0">0</p>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- 4% Rule Text -->
-                    <article class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-                        <h3 class="text-base font-bold text-slate-900 mb-2 flex items-center gap-2">
-                            <span class="text-blue-500" aria-hidden="true">ℹ️</span> <span data-i18n="fireRuleTitle">About the 4% Rule</span>
-                        </h3>
-                        <div class="text-sm text-slate-600 leading-relaxed" data-i18n="fireRuleText" data-i18n-html="true"></div>
-                    </article>
+                        <!-- Progress Section -->
+                        <div class="border-t border-slate-700 pt-5">
+                            <div class="flex flex-col sm:flex-row justify-between items-end gap-2 mb-2">
+                                <label class="text-sm font-medium text-slate-300" for="fire-expense-input" data-i18n="fireExpenseLabel">Annual Expense Goal</label>
+                                <div class="text-right flex items-baseline gap-2">
+                                    <span class="text-xs text-slate-500 uppercase tracking-wider font-bold" data-i18n="fireProgress">Progress</span>
+                                    <span class="text-2xl font-bold text-white font-mono" id="fire-percent">0%</span>
+                                </div>
+                            </div>
+                            
+                            <div class="relative mb-3">
+                                <span class="currency-symbol absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-sm"></span>
+                                <input type="text" id="fire-expense-input" inputmode="numeric" maxlength="8" class="w-full bg-slate-800 border border-slate-600 rounded-lg py-2.5 pl-8 pr-3 text-white placeholder-slate-500 focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all font-mono shadow-inner" placeholder="0">
+                            </div>
+
+                            <!-- Bar -->
+                            <div class="h-3 bg-slate-800 rounded-full overflow-hidden mb-2 shadow-inner border border-slate-700/50">
+                                <div id="fire-progress-bar" class="h-full bg-gradient-to-r from-emerald-600 to-emerald-400 transition-all duration-700 ease-out w-0 shadow-[0_0_10px_rgba(16,185,129,0.5)]"></div>
+                            </div>
+                            
+                            <div class="flex justify-between text-xs text-slate-500 font-mono">
+                                <span>0</span>
+                                <div>
+                                    <span data-i18n="fireTargetLabel">Target (25x)</span>: <span id="fire-target-display" class="text-slate-400">0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                     <!-- Wealth Projection -->
                     <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
@@ -233,7 +250,7 @@
                                     <div class="mb-1"><label class="block text-xs font-bold text-gray-500 uppercase" data-i18n="projCurrent">Current Assets</label></div>
                                     <div class="relative">
                                         <span class="currency-symbol absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-sm"></span>
-                                        <input type="text" id="proj-principal" maxlength="8" class="w-full pl-7 pr-3 py-2 bg-gray-50 border border-gray-200 rounded-lg font-mono text-sm focus:ring-2 focus:ring-purple-500 outline-none placeholder-gray-300" placeholder="0">
+                                        <input type="text" id="proj-principal" maxlength="8" class="w-full pl-7 pr-3 py-2 bg-gray-50 border border-gray-200 rounded-lg font-mono text-sm focus:ring-2 focus:ring-purple-500 outline-none placeholder-gray-300 transition-colors" placeholder="0">
                                     </div>
                                 </div>
                                 <div class="grid grid-cols-2 gap-4">
@@ -266,49 +283,35 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="mt-6 pt-4 border-t border-gray-50 text-xs text-slate-400 flex items-start gap-1.5 leading-relaxed">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 flex-shrink-0 opacity-70" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-                            <span data-i18n="projNote">Note: Projections are nominal values and do not account for inflation or deflation effects.</span>
-                        </div>
                     </div>
 
-                    <!-- NEW: Live Market Data (Gold) -->
-                    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 relative overflow-hidden">
+                    <!-- Market Ticker Section -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
                         <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-lg font-bold flex items-center gap-2">
-                                <span class="text-amber-500">🪙</span> <span data-i18n="marketTitle">Live Market Data</span>
+                            <h3 class="text-sm font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                                <span data-i18n="marketTitle">Live Market</span>
                             </h3>
-                            <div class="flex items-center gap-2">
-                                <span class="relative flex h-2.5 w-2.5">
-                                  <span class="live-dot absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                                  <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
-                                </span>
-                                <span class="text-xs font-bold text-red-500 uppercase tracking-wider" data-i18n="liveTag">Live</span>
-                            </div>
+                            <span class="text-xs text-slate-400 font-mono transition-colors" id="ticker-time">--</span>
                         </div>
                         
-                        <div class="flex flex-col sm:flex-row items-center justify-between bg-amber-50 rounded-xl p-4 border border-amber-100">
-                            <div class="flex items-center gap-3 mb-2 sm:mb-0">
-                                <div class="bg-white p-2 rounded-lg shadow-sm">
-                                    <span class="text-2xl">🥇</span>
-                                </div>
-                                <div>
-                                    <p class="text-sm font-bold text-amber-900" data-i18n="goldSpot">Gold (PAXG)</p>
-                                    <p class="text-xs text-amber-600/80">USD / Ounce</p>
-                                </div>
-                            </div>
-                            <div class="text-right">
-                                <p class="text-2xl font-mono font-bold text-slate-900" id="market-gold-price">---</p>
-                                <p class="text-xs font-bold flex items-center justify-end gap-1" id="market-gold-change">
-                                    <span>--%</span>
-                                </p>
-                            </div>
+                        <!-- Loading Skeleton (Grid Layout) -->
+                        <div id="ticker-loading" class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                            <div class="h-16 bg-gray-50 rounded-xl animate-pulse"></div>
+                            <div class="h-16 bg-gray-50 rounded-xl animate-pulse"></div>
+                            <div class="h-16 bg-gray-50 rounded-xl animate-pulse"></div>
+                            <div class="h-16 bg-gray-50 rounded-xl animate-pulse"></div>
+                            <div class="h-16 bg-gray-50 rounded-xl animate-pulse"></div>
+                            <div class="h-16 bg-gray-50 rounded-xl animate-pulse"></div>
+                            <div class="h-16 bg-gray-50 rounded-xl animate-pulse"></div>
+                            <div class="h-16 bg-gray-50 rounded-xl animate-pulse"></div>
                         </div>
-                        <div class="mt-3 text-[10px] text-gray-400 text-right">
-                            <span data-i18n="marketSource">Data source: Binance API (PAXG/USDT)</span>
+                        
+                        <!-- Ticker Content (Grid Layout) -->
+                        <div id="ticker-content" class="grid grid-cols-2 md:grid-cols-4 gap-3 hidden">
+                            <!-- Items injected by JS -->
                         </div>
                     </div>
-
                 </section>
             </main>
 
@@ -351,6 +354,8 @@
                 MAX_THRESHOLD: 15,
                 MAX_DIGITS: 8,
                 DEBOUNCE_DELAY: 150,
+                MARKET_API: 'https://market-proxy.wrx-ai-84.workers.dev/',
+                REFRESH_INTERVAL: 5000, // 5 seconds refresh
                 FORMAT: { SCIENTIFIC_THRESHOLD: 1e15, COMPACT_THRESHOLD: 1000000 },
                 ASSETS: [
                     { key: 'stocks', color: '#3B82F6', tailwindColor: 'bg-blue-500' },
@@ -376,6 +381,9 @@
                     fireTitle: "FIRE 4% 法则预览",
                     fireYear: "可支持年支出",
                     fireMonth: "可支持月支出",
+                    fireExpenseLabel: "预期年支出目标",
+                    fireProgress: "FIRE 进度",
+                    fireTargetLabel: "目标资产 (25x)",
                     stocks: "股票 (Stocks)",
                     bonds: "长期国债 (Bonds)",
                     cash: "现金/短债 (Cash)",
@@ -390,19 +398,25 @@
                     statusActionTitle: "建议进行再平衡",
                     statusActionDesc: "检测到有资产偏离目标配置超过 {threshold}% (即 <{min}% 或 >{max}%)。",
                     statusActionNote: "说明：默认策略为将所有资产回归至各 25%。",
-                    fireRuleTitle: "关于 4% 法则",
-                    fireRuleText: "源自<b>三一学院研究</b>。核心观点：若每年提取初始资金的 <b>4%</b> 作为生活费（并随通胀调整），资金大概率能维持 30 年以上。这意味着：当<b>总资产 = 年支出 × 25</b> 时，理论上已达成财务自由。",
                     faqTitle: "常见问题 (FAQ)",
                     faqData: [
                         { 
                             question: "为什么叫 4x25?", 
                             answer: [ "这是一个双关含义：", "1. 永久投资组合：4种资产，各占 25%。", "2. FIRE 运动：4% 法则，意味着你需要存够年支出的 25 倍。" ]
                         },
+                        {
+                            question: "什么是 4% 法则?",
+                            answer: [
+                                "源自三一学院研究 (Trinity Study)。",
+                                "核心观点：若每年提取初始资金的 4% 作为生活费（并随通胀调整），资金大概率能维持 30 年以上。",
+                                "这意味着：当总资产 = 年支出 × 25 时，理论上已达成财务自由 (FIRE)。"
+                            ]
+                        },
                         { 
                             question: "什么是永久投资组合？", 
                             answer: [
                                 "永久投资组合 (Permanent Portfolio) 是由哈利·布朗 (Harry Browne) 提出的投资策略，旨在无论经济状况如何（繁荣、通缩、通胀或滞胀），都能保护并增值你的财富。",
-                                "其核心理念极其简单：将资产平分为四等份（各25%）：<strong>股票</strong>（应对繁荣）、<strong>长期国债</strong>（应对通缩）、<strong>现金/短债</strong>（应对衰退/紧缩）、<strong>黄金</strong>（应对通胀）。",
+                                "其核心理念极其简单：将资产平分为四等份（各25%）：股票（应对繁荣）、长期国债（应对通缩）、现金/短债（应对衰退/紧缩）、黄金（应对通胀）。",
                                 `你只需要定期检查，如果某项资产占比偏离 ${Config.TARGET_PERCENT}% 太多（例如超过设定的阈值），就进行“再平衡”：卖出涨得多的，买入跌得多的，使其回到 ${Config.TARGET_PERCENT}%。`
                             ]
                         },
@@ -418,31 +432,29 @@
                     privacy: "条款与隐私",
                     privacyTitle: "使用条款与隐私政策",
                     privacyContent: `
-                        <div class="space-y-4 text-left">
-                            <p class="font-bold text-slate-800">1. 条款接受</p>
-                            <p>访问并使用本网站（"4x25 Tools"），即表示您同意遵守以下条款。如果您不同意这些条款的任何部分，请勿使用本服务。</p>
-                            
-                            <p class="font-bold text-slate-800">2. 免责声明（无财务建议）</p>
-                            <p>本网站提供的计算结果、图表及信息仅供<strong>教育和参考用途</strong>。它们不构成任何形式的财务、投资、税务或法律建议。</p>
-                            <ul class="list-disc pl-5 space-y-1 text-slate-500">
-                                <li>投资涉及风险，包括本金损失的可能。</li>
-                                <li>过往表现不代表未来结果。</li>
-                                <li>在做出任何投资决定前，请咨询合格的专业理财顾问。</li>
-                            </ul>
-                            <p>本网站不对因使用本工具而产生的任何直接或间接损失负责。您需自行承担使用本服务的风险。</p>
+                        <h4 class="font-bold text-slate-800 mt-4 mb-2">1. 条款接受</h4>
+                        <p>访问并使用本网站 ("4x25 Tools") ，即表示您同意遵守以下条款。如果您不同意这些条款的任何部分，请勿使用本服务。</p>
 
-                            <p class="font-bold text-slate-800">3. 隐私政策（数据本地化）</p>
-                            <p>我们高度重视您的隐私。本工具采用<strong>客户端计算（Client-Side）</strong>架构：</p>
-                            <ul class="list-disc pl-5 space-y-1 text-slate-500">
-                                <li><strong>您的财务数据不离线：</strong> 您输入的资产金额、收益率等敏感数据完全在您的浏览器本地处理，绝不会发送至我们的服务器。</li>
-                                <li><strong>Cookie 与统计：</strong> 我们可能会使用第三方服务（如 Google Analytics）收集匿名的访问统计数据（如页面浏览量、设备类型），以优化用户体验。这些服务可能会在您的设备上存储 Cookie。</li>
-                            </ul>
+                        <h4 class="font-bold text-slate-800 mt-4 mb-2">2. 免责声明 (无财务建议)</h4>
+                        <p>本网站提供的计算结果、图表及信息仅供<strong>教育和参考用途</strong>。它们不构成任何形式的财务、投资、税务或法律建议。</p>
+                        <ul class="list-disc pl-5 mt-2 space-y-1">
+                            <li>投资涉及风险，包括本金损失的可能。</li>
+                            <li>过往表现不代表未来结果。</li>
+                            <li>在做出任何投资决定前，请咨询合格的专业理财顾问。</li>
+                        </ul>
+                        <p class="mt-2">本网站不对因使用本工具而产生的任何直接或间接损失负责。您需自行承担使用本服务的风险。</p>
 
-                            <p class="font-bold text-slate-800">4. 服务变更</p>
-                            <p>我们保留随时修改或终止服务、更新本条款的权利，恕不另行通知。</p>
-                            
-                            <p class="text-xs text-gray-400 mt-6 pt-4 border-t border-gray-100">最后更新日期：2026年1月6日</p>
-                        </div>
+                        <h4 class="font-bold text-slate-800 mt-4 mb-2">3. 隐私政策 (数据本地化)</h4>
+                        <p>我们高度重视您的隐私。本工具采用<strong>客户端计算 (Client-Side)</strong> 架构：</p>
+                        <ul class="list-disc pl-5 mt-2 space-y-1">
+                            <li><strong>您的财务数据不离线:</strong> 您输入的资产金额、收益率等敏感数据完全在您的浏览器本地处理，绝不会发送至我们的服务器。</li>
+                            <li><strong>Cookie 与统计:</strong> 我们可能会使用第三方服务（如 Google Analytics）收集匿名的访问统计数据（如页面浏览量、设备类型），以优化用户体验。这些服务可能会在您的设备上存储 Cookie。</li>
+                        </ul>
+
+                        <h4 class="font-bold text-slate-800 mt-4 mb-2">4. 服务变更</h4>
+                        <p>我们保留随时修改或终止服务、更新本条款的权利，恕不另行通知。</p>
+
+                        <p class="mt-6 text-xs text-slate-400 border-t pt-4">最后更新日期: 2026年1月6日</p>
                     `,
                     closeBtn: "我已了解",
                     projTitle: "财富变化推演",
@@ -468,10 +480,11 @@
                     seasonGold: "黄金 (Gold)",
                     rule72Title: "72法则",
                     rule72Desc: "按 6.8% 年化收益率计算，您的资产约每 10.6 年翻一番。",
-                    marketTitle: "实时行情",
-                    goldSpot: "黄金价格 (PAXG)",
-                    marketSource: "数据来源: 币安 API (PAXG/USDT)",
-                    liveTag: "实时"
+                    marketTitle: "实时行情看板",
+                    marketNames: {
+                        'cn_300': '沪深300', 'cn_a500': '中证A500', 'us_sp500': '标普500', 'us_nasdaq': '纳指100',
+                        'cn_bond_30': '30年国债', 'cn_bond_10': '10年国债', 'us_bond_long': '美长债TLT', 'gold': '黄金ETF'
+                    }
                 },
                 en: {
                     currencyCode: 'USD',
@@ -488,6 +501,9 @@
                     fireTitle: "FIRE 4% Rule Preview",
                     fireYear: "Safe Annual Withdrawal",
                     fireMonth: "Safe Monthly Withdrawal",
+                    fireExpenseLabel: "Annual Expense Goal",
+                    fireProgress: "FIRE Progress",
+                    fireTargetLabel: "Target (25x)",
                     stocks: "Stocks",
                     bonds: "Long-Term Bonds",
                     cash: "Cash / T-Bills",
@@ -502,19 +518,25 @@
                     statusActionTitle: "Rebalancing Recommended",
                     statusActionDesc: "Assets detected deviating by more than {threshold}% (i.e., <{min}% or >{max}%).",
                     statusActionNote: "Note: Defaults to rebalancing to 25% each.",
-                    fireRuleTitle: "About the 4% Rule",
-                    fireRuleText: "Derived from the <b>Trinity Study</b>. It suggests that if you withdraw <b>4%</b> of your portfolio annually (adjusted for inflation), your money has a high probability of lasting 30+ years. You are 'FIRE' when <b>Assets = 25 × Annual Expenses</b>.",
                     faqTitle: "Frequently Asked Questions (FAQ)",
                     faqData: [
                         { 
                             question: "Why 4x25?", 
                             answer: [ "It's a double meaning:", "1. Permanent Portfolio: 4 assets at 25% each.", "2. FIRE Movement: The 4% Rule implies saving 25 times your annual expenses." ]
                         },
+                        {
+                            question: "What is the 4% Rule?",
+                            answer: [
+                                "Derived from the Trinity Study.",
+                                "It suggests that if you withdraw 4% of your portfolio annually (adjusted for inflation), your money has a high probability of lasting 30+ years.",
+                                "This implies: You reach FIRE when Total Assets = 25 × Annual Expenses."
+                            ]
+                        },
                         { 
                             question: "What is the Permanent Portfolio?", 
                             answer: [
                                 "The Permanent Portfolio is an investment strategy invented by Harry Browne, designed to preserve and grow your wealth under any condition.",
-                                `The core concept is simple: divide your assets equally into four parts (${Config.TARGET_PERCENT}% each): <strong>Stocks</strong> (Prosperity), <strong>Long-Term Bonds</strong> (Deflation), <strong>Cash</strong> (Recession), and <strong>Gold</strong> (Inflation).`,
+                                `The core concept is simple: divide your assets equally into four parts (${Config.TARGET_PERCENT}% each): Stocks (Prosperity), Long-Term Bonds (Deflation), Cash (Recession), and Gold (Inflation).`,
                                 `You simply check it regularly. If an asset deviates too far from ${Config.TARGET_PERCENT}% (beyond your set threshold), you "rebalance": sell the winners and buy the losers to get back to ${Config.TARGET_PERCENT}%.`
                             ]
                         },
@@ -530,31 +552,29 @@
                     privacy: "Terms & Privacy",
                     privacyTitle: "Terms of Service & Privacy Policy",
                     privacyContent: `
-                        <div class="space-y-4 text-left">
-                            <p class="font-bold text-slate-800">1. Acceptance of Terms</p>
-                            <p>By accessing and using this website ("4x25 Tools"), you agree to be bound by these terms. If you do not agree, please do not use this service.</p>
-                            
-                            <p class="font-bold text-slate-800">2. Disclaimer (No Financial Advice)</p>
-                            <p>The calculations, charts, and information provided on this website are for <strong>educational and informational purposes only</strong>. They do not constitute financial, investment, tax, or legal advice.</p>
-                            <ul class="list-disc pl-5 space-y-1 text-slate-500">
-                                <li>Investments involve risk, including the possible loss of principal.</li>
-                                <li>Past performance is not indicative of future results.</li>
-                                <li>Consult with a qualified financial advisor before making any investment decisions.</li>
-                            </ul>
-                            <p>We accept no liability for any loss or damage resulting from the use of this tool. You use this service entirely at your own risk.</p>
+                        <h4 class="font-bold text-slate-800 mt-4 mb-2">1. Acceptance of Terms</h4>
+                        <p>By accessing and using this website ("4x25 Tools"), you agree to be bound by these terms. If you do not agree, please do not use this service.</p>
 
-                            <p class="font-bold text-slate-800">3. Privacy Policy (Data Localization)</p>
-                            <p>We respect your privacy. This tool operates on a <strong>Client-Side</strong> architecture:</p>
-                            <ul class="list-disc pl-5 space-y-1 text-slate-500">
-                                <li><strong>Your Financial Data Stays Local:</strong> The asset values and rates you input are processed entirely within your browser. This data is never transmitted to our servers.</li>
-                                <li><strong>Cookies & Analytics:</strong> We may use third-party services (like Google Analytics) to collect anonymous usage statistics (e.g., page views, device type) to improve the user experience. These services may store cookies on your device.</li>
-                            </ul>
+                        <h4 class="font-bold text-slate-800 mt-4 mb-2">2. Disclaimer (No Financial Advice)</h4>
+                        <p>The calculations, charts, and information provided on this website are for <strong>educational and informational purposes only</strong>. They do not constitute financial, investment, tax, or legal advice.</p>
+                        <ul class="list-disc pl-5 mt-2 space-y-1">
+                            <li>Investments involve risk, including the possible loss of principal.</li>
+                            <li>Past performance is not indicative of future results.</li>
+                            <li>Consult with a qualified financial advisor before making any investment decisions.</li>
+                        </ul>
+                        <p class="mt-2">We accept no liability for any loss or damage resulting from the use of this tool. You use this service entirely at your own risk.</p>
 
-                            <p class="font-bold text-slate-800">4. Changes to Service</p>
-                            <p>We reserve the right to modify or discontinue the service, or update these terms at any time without prior notice.</p>
-                            
-                            <p class="text-xs text-gray-400 mt-6 pt-4 border-t border-gray-100">Last Updated: January 6, 2026</p>
-                        </div>
+                        <h4 class="font-bold text-slate-800 mt-4 mb-2">3. Privacy Policy (Data Localization)</h4>
+                        <p>We respect your privacy. This tool operates on a <strong>Client-Side</strong> architecture:</p>
+                        <ul class="list-disc pl-5 mt-2 space-y-1">
+                            <li><strong>Your Financial Data Stays Local:</strong> The asset values and rates you input are processed entirely within your browser. This data is never transmitted to our servers.</li>
+                            <li><strong>Cookies & Analytics:</strong> We may use third-party services (like Google Analytics) to collect anonymous usage statistics (e.g., page views, device type) to improve the user experience. These services may store cookies on your device.</li>
+                        </ul>
+
+                        <h4 class="font-bold text-slate-800 mt-4 mb-2">4. Changes to Service</h4>
+                        <p>We reserve the right to modify or discontinue the service, or update these terms at any time without prior notice.</p>
+
+                        <p class="mt-6 text-xs text-slate-400 border-t pt-4">Last Updated: January 6, 2026</p>
                     `,
                     closeBtn: "I Understand",
                     projTitle: "Wealth Simulation",
@@ -580,10 +600,11 @@
                     seasonGold: "Gold",
                     rule72Title: "Rule of 72",
                     rule72Desc: "At 6.8% return, your assets double every ~10.6 years.",
-                    marketTitle: "Live Market Data",
-                    goldSpot: "Gold Price (PAXG)",
-                    marketSource: "Data source: Binance API (PAXG/USDT)",
-                    liveTag: "Live"
+                    marketTitle: "Live Market Ticker",
+                    marketNames: {
+                        'cn_300': 'CSI 300', 'cn_a500': 'CSI A500', 'us_sp500': 'S&P 500', 'us_nasdaq': 'Nasdaq 100',
+                        'cn_bond_30': 'CN 30Y Bond', 'cn_bond_10': 'CN 10Y Bond', 'us_bond_long': 'US 20Y+ Bond', 'gold': 'Gold ETF'
+                    }
                 }
             };
 
@@ -656,20 +677,69 @@
                 threshold: 10,
                 holdings: { stocks: 0, bonds: 0, cash: 0, gold: 0 },
                 projection: { mode: 'saving', principal: '', rate: '6.8', years: 10, flow: '' },
+                fireExpense: '', // New state for FIRE expense input
+                marketData: null,
                 debouncedCalc: null,
-                init() { this.debouncedCalc = Utils.debounce(() => { this.performCalculation(); }, Config.DEBOUNCE_DELAY); },
-                setLang(l) { this.lang = l; UI.renderAll(); Market.updateDisplay(); },
+                pollingInterval: null,
+                shouldSyncPrincipal: false, // Flag for one-way sync
+                init() { 
+                    this.debouncedCalc = Utils.debounce(() => { this.performCalculation(); }, Config.DEBOUNCE_DELAY); 
+                    this.startPolling();
+                },
+                startPolling() {
+                    this.fetchMarket(); // Immediate fetch
+                    if (this.pollingInterval) clearInterval(this.pollingInterval);
+                    this.pollingInterval = setInterval(() => {
+                        this.fetchMarket();
+                    }, Config.REFRESH_INTERVAL);
+                },
+                setLang(l) { this.lang = l; UI.renderAll(); UI.renderTicker(); },
                 setThreshold(t) { if (t >= Config.MIN_THRESHOLD && t <= Config.MAX_THRESHOLD) { this.threshold = t; UI.updateThresholdDisplay(); this.triggerCalc(); } },
-                updateHolding(key, valueStr) { const val = parseInt(valueStr.replace(/[^\d]/g, ''), 10); this.holdings[key] = isNaN(val) ? 0 : val; this.triggerCalc(); },
+                updateHolding(key, valueStr) { 
+                    const val = parseInt(valueStr.replace(/[^\d]/g, ''), 10); 
+                    this.holdings[key] = isNaN(val) ? 0 : val; 
+                    this.shouldSyncPrincipal = true; // Enable sync when holdings change
+                    this.triggerCalc(); 
+                },
                 setProjMode(mode) { this.projection.mode = mode; UI.renderProjectionUI(); this.triggerCalc(); },
                 triggerCalc() { if (this.debouncedCalc) this.debouncedCalc(); },
                 performCalculation() {
                     requestAnimationFrame(() => {
                         const results = Logic.calculatePortfolio(this.holdings, this.threshold);
                         UI.renderResults(results);
+                        UI.renderFireProgress(results.total); // Update FIRE progress
+                        
+                        // --- SYNC LOGIC START ---
+                        // Only sync if the trigger came from holdings update (one-way sync)
+                        if (this.shouldSyncPrincipal) {
+                            // Update state
+                            this.projection.principal = String(results.total);
+                            // Update UI Input directly
+                            if (UI.els.projPrincipal) {
+                                UI.els.projPrincipal.value = results.total > 0 ? results.total : '';
+                            }
+                            // Reset flag so manual edits to projection aren't overwritten later
+                            this.shouldSyncPrincipal = false;
+                        }
+                        // --- SYNC LOGIC END ---
+
                         const projResults = Logic.calculateProjection(this.projection.principal, this.projection.rate, this.projection.years, this.projection.flow, this.projection.mode);
                         UI.renderProjectionResult(projResults);
                     });
+                },
+                async fetchMarket() {
+                    try {
+                        const res = await fetch(Config.MARKET_API);
+                        if (!res.ok) throw new Error('Network error');
+                        this.marketData = await res.json();
+                        UI.renderTicker();
+                    } catch (e) {
+                        console.warn('Market fetch failed (likely network/CORS issue):', e);
+                        if (!this.marketData) {
+                            const loader = document.getElementById('ticker-loading');
+                            if(loader) loader.style.display = 'none';
+                        }
+                    }
                 }
             };
 
@@ -717,71 +787,25 @@
                 }
             };
 
-            // Market Data Module
-            const Market = {
-                els: { price: null, change: null },
-                data: { gold: { price: 0, change: 0 } },
-                interval: null,
-                init() {
-                    this.els.price = document.getElementById('market-gold-price');
-                    this.els.change = document.getElementById('market-gold-change');
-                    this.fetchData();
-                    this.interval = setInterval(() => this.fetchData(), 5000); // Fetch every 5 seconds
-                },
-                async fetchData() {
-                    try {
-                        // Using Binance API for PAXG/USDT as a proxy for Gold Price
-                        const res = await fetch('https://api.binance.com/api/v3/ticker/24hr?symbol=PAXGUSDT');
-                        if (!res.ok) throw new Error('Network response was not ok');
-                        const json = await res.json();
-                        this.data.gold.price = parseFloat(json.lastPrice);
-                        this.data.gold.change = parseFloat(json.priceChangePercent);
-                        this.updateDisplay();
-                    } catch (error) {
-                        console.warn('Market data fetch failed:', error);
-                    }
-                },
-                updateDisplay() {
-                    if (!this.els.price) return;
-                    const { price, change } = this.data.gold;
-                    
-                    // Format Price
-                    this.els.price.textContent = price > 0 
-                        ? `$${price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` 
-                        : '---';
-
-                    // Format Change with Dynamic Color Logic
-                    const isPositive = change >= 0;
-                    let colorClass;
-                    
-                    if (State.lang === 'zh') {
-                        // Chinese Convention: Red is Up, Green is Down
-                        colorClass = isPositive ? 'text-red-500' : 'text-emerald-500';
-                    } else {
-                        // Western Convention: Green is Up, Red is Down
-                        colorClass = isPositive ? 'text-emerald-500' : 'text-red-500';
-                    }
-
-                    const icon = isPositive ? '▲' : '▼';
-                    
-                    this.els.change.className = `text-xs font-bold flex items-center justify-end gap-1 ${colorClass}`;
-                    this.els.change.innerHTML = change !== 0 
-                        ? `<span>${icon} ${Math.abs(change).toFixed(2)}%</span>` 
-                        : '<span>--%</span>';
-                }
-            };
-
             const UI = {
                 els: { assetInputs: {}, assetLabels: {}, assetLegends: {}, chartCircles: {} },
                 lastFocusedElement: null,
                 init() {
-                    State.init(); this.cacheDOM(); this.renderInputs(); this.cacheDynamicDOM(); this.renderLegend(); this.cacheLegendDOM(); this.bindEvents(); this.renderAll();
-                    Market.init(); // Initialize Market Data
+                    State.init(); 
+                    this.cacheDOM(); 
+                    this.renderInputs(); 
+                    this.cacheDynamicDOM(); 
+                    this.renderLegend(); 
+                    this.cacheLegendDOM(); 
+                    this.bindEvents(); 
+                    this.renderAll();
+                    this.startClock(); // Start the live clock
                 },
                 cacheDOM() {
                     this.els = { ...this.els,
                         inputsContainer: document.getElementById('inputs-container'), resultBody: document.getElementById('result-body'), legendContainer: document.getElementById('legend-container'),
                         totalValue: document.getElementById('total-value'), fireYear: document.getElementById('fire-year'), fireMonth: document.getElementById('fire-month'),
+                        fireExpenseInput: document.getElementById('fire-expense-input'), fireProgressBar: document.getElementById('fire-progress-bar'), firePercent: document.getElementById('fire-percent'), fireTargetDisplay: document.getElementById('fire-target-display'),
                         statusCard: document.getElementById('status-card'), statusIcon: document.getElementById('status-icon'), statusTitle: document.getElementById('status-title'),
                         statusDesc: document.getElementById('status-desc'), statusNote: document.getElementById('status-note'), thresholdDisplay: document.getElementById('threshold-display'),
                         btnMinus: document.getElementById('btn-minus'), btnPlus: document.getElementById('btn-plus'), btnEn: document.getElementById('btn-en'), btnZh: document.getElementById('btn-zh'),
@@ -791,6 +815,7 @@
                         projRate: document.getElementById('proj-rate'), projYears: document.getElementById('proj-years'), projFlow: document.getElementById('proj-flow'),
                         projResult: document.getElementById('proj-result'), projGain: document.getElementById('proj-gain'), projFlowLabel: document.getElementById('proj-flow-label'),
                         modeSavingBtn: document.getElementById('mode-saving'), modeSpendingBtn: document.getElementById('mode-spending'),
+                        tickerLoading: document.getElementById('ticker-loading'), tickerContent: document.getElementById('ticker-content'), tickerTime: document.getElementById('ticker-time')
                     };
                 },
                 renderInputs() {
@@ -821,6 +846,15 @@
                     bindInputSync(this.els.projPrincipal, 'principal', Utils.sanitizeInput); bindInputSync(this.els.projFlow, 'flow', Utils.sanitizeInput);
                     bindInputSync(this.els.projRate, 'rate', (val) => Utils.sanitizeDecimal(val, 100)); bindInputSync(this.els.projYears, 'years', (val) => Utils.sanitizeInteger(val, 100));
                     this.els.modeSavingBtn.onclick = () => State.setProjMode('saving'); this.els.modeSpendingBtn.onclick = () => State.setProjMode('spending');
+                    // Bind FIRE Expense Input
+                    if (this.els.fireExpenseInput) {
+                        this.els.fireExpenseInput.oninput = (e) => {
+                            const clean = Utils.sanitizeInput(e.target.value);
+                            if (e.target.value !== clean) e.target.value = clean;
+                            State.fireExpense = clean;
+                            State.triggerCalc();
+                        };
+                    }
                 },
                 renderResults(data) {
                     const t = Translations[State.lang]; const { total, assetsData, globalBreach } = data;
@@ -847,6 +881,78 @@
                         this.els.resultBody.appendChild(tr);
                     });
                 },
+                renderFireProgress(totalAssets) {
+                    const expense = parseFloat(State.fireExpense) || 0;
+                    const target = expense * 25;
+                    let percent = 0;
+                    if (target > 0) {
+                        percent = (totalAssets / target) * 100;
+                    }
+                    
+                    // Cap visual bar at 100%, but text can go higher
+                    const visualPercent = Math.min(percent, 100);
+                    
+                    this.els.fireProgressBar.style.width = `${visualPercent}%`;
+                    this.els.firePercent.textContent = `${percent.toFixed(1)}%`;
+                    Utils.setText(this.els.fireTargetDisplay, Utils.formatMoney(target, State.lang, true));
+                },
+                startClock() {
+                    const update = () => {
+                        const now = new Date();
+                        // Format: YYYY-MM-DD HH:mm:ss
+                        const year = now.getFullYear();
+                        const month = String(now.getMonth() + 1).padStart(2, '0');
+                        const day = String(now.getDate()).padStart(2, '0');
+                        const hours = String(now.getHours()).padStart(2, '0');
+                        const minutes = String(now.getMinutes()).padStart(2, '0');
+                        const seconds = String(now.getSeconds()).padStart(2, '0');
+                        
+                        this.els.tickerTime.textContent = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+                    };
+                    update(); // Run immediately
+                    setInterval(update, 1000); // Update every second
+                },
+                renderTicker() {
+                    const data = State.marketData;
+                    if (!data) return;
+                    this.els.tickerLoading.style.display = 'none';
+                    this.els.tickerContent.classList.remove('hidden');
+                    this.els.tickerContent.innerHTML = '';
+                    
+                    const t = Translations[State.lang];
+                    const isZh = State.lang === 'zh';
+                    const upColor = isZh ? 'text-red-600' : 'text-emerald-600';
+                    const downColor = isZh ? 'text-emerald-600' : 'text-red-600';
+                    const bgUp = isZh ? 'bg-red-50' : 'bg-emerald-50';
+                    const bgDown = isZh ? 'bg-emerald-50' : 'bg-red-50';
+
+                    data.forEach(item => {
+                        const changeVal = parseFloat(item.change);
+                        const isUp = changeVal > 0;
+                        const isZero = changeVal === 0;
+                        const colorClass = isZero ? 'text-gray-500' : (isUp ? upColor : downColor);
+                        const bgClass = isZero ? 'bg-gray-50' : (isUp ? bgUp : bgDown);
+                        const arrow = isZero ? '' : (isUp ? '▲' : '▼');
+                        const sign = isZero ? '' : (isUp ? '+' : '');
+                        const displayName = t.marketNames[item.key] || item.name;
+
+                        const div = document.createElement('div');
+                        div.className = `flex flex-col justify-center px-3 py-3 rounded-xl ${bgClass} border border-transparent hover:border-gray-200 transition-all cursor-default`;
+                        div.innerHTML = `
+                            <div class="text-xs text-slate-500 font-bold mb-1 truncate">${displayName}</div>
+                            <div class="flex items-baseline justify-between gap-1">
+                                <span class="font-mono font-bold text-slate-800 text-sm">${item.price}</span>
+                                <span class="font-mono text-xs font-bold ${colorClass}">${arrow}${sign}${item.change}%</span>
+                            </div>
+                        `;
+                        this.els.tickerContent.appendChild(div);
+                    });
+                    
+                    // Flash animation
+                    this.els.tickerTime.classList.remove('flash-update');
+                    void this.els.tickerTime.offsetWidth; // Force reflow
+                    this.els.tickerTime.classList.add('flash-update');
+                },
                 renderProjectionUI() {
                     const t = Translations[State.lang]; const mode = State.projection.mode;
                     if (mode === 'saving') { Utils.setClass(this.els.modeSavingBtn, "px-3 py-1.5 text-xs font-bold rounded-md shadow-sm bg-white text-emerald-600 transition-all"); Utils.setClass(this.els.modeSpendingBtn, "px-3 py-1.5 text-xs font-bold rounded-md text-gray-500 hover:text-gray-700 transition-all"); Utils.setText(this.els.projFlowLabel, t.projContribution); } 
@@ -854,19 +960,10 @@
                 },
                 renderProjectionResult(data) {
                     Utils.animateTo(this.els.projResult, data.futureValue, State.lang, true);
-                    const gainClass = data.gain >= 0 ? 'font-mono text-emerald-600 break-all' : 'font-mono text-red-500 break-all'; Utils.setClass(this.els.projGain, gainClass);
-                    const el = this.els.projGain; const endValue = data.gain; const startValue = parseFloat(el.dataset.currentValue || '0');
-                    if (startValue !== endValue) {
-                         if (el.animationFrame) cancelAnimationFrame(el.animationFrame);
-                         const duration = 800; const startTime = performance.now();
-                         const step = (currentTime) => {
-                            const progress = Math.min((currentTime - startTime) / duration, 1); const ease = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
-                            const current = startValue + (endValue - startValue) * ease;
-                            el.textContent = (current >= 0 ? '+' : '-') + Utils.formatMoney(Math.abs(current), State.lang, true);
-                            if (progress < 1) el.animationFrame = requestAnimationFrame(step); else { el.dataset.currentValue = endValue; el.textContent = (endValue >= 0 ? '+' : '-') + Utils.formatMoney(Math.abs(endValue), State.lang, true); }
-                         };
-                         el.animationFrame = requestAnimationFrame(step);
-                    }
+                    const sign = data.gain > 0 ? '+' : '';
+                    const color = data.gain > 0 ? 'text-emerald-600' : (data.gain < 0 ? 'text-red-600' : 'text-slate-500');
+                    this.els.projGain.textContent = `${sign}${Utils.formatMoney(data.gain, State.lang, true)}`;
+                    this.els.projGain.className = `font-mono break-all font-bold ${color}`;
                 },
                 updateThresholdDisplay() { Utils.setText(this.els.thresholdDisplay, State.threshold); this.els.btnMinus.disabled = (State.threshold <= Config.MIN_THRESHOLD); this.els.btnPlus.disabled = (State.threshold >= Config.MAX_THRESHOLD); },
                 renderAll() {
