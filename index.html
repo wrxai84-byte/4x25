@@ -63,23 +63,11 @@
                     <h2 class="text-slate-500 mt-3 text-base md:text-lg font-medium" data-i18n="subtitle">Permanent Portfolio Strategy & FIRE Tool</h2>
                 </div>
                 
-                <div class="flex flex-col md:flex-row gap-3 items-end md:items-center">
-                    <!-- Language Switcher -->
-                    <div class="flex rounded-lg shadow-sm overflow-hidden border border-gray-300 bg-white" role="group">
-                        <button type="button" id="btn-en" class="lang-btn w-20 flex justify-center px-4 py-3 text-sm font-bold hover:bg-gray-50 transition-colors active">EN</button>
-                        <div class="w-px bg-gray-300"></div>
-                        <button type="button" id="btn-zh" class="lang-btn w-20 flex justify-center px-4 py-3 text-sm font-bold hover:bg-gray-50 transition-colors">中文</button>
-                    </div>
-
-                    <div class="bg-white px-2 py-1.5 rounded-lg shadow-sm border border-gray-200 flex items-center gap-2 select-none">
-                        <span class="text-sm font-bold text-gray-500 ml-2" data-i18n="thresholdLabel" id="threshold-label">Threshold: ±</span>
-                        <div class="flex items-center bg-gray-100 rounded-md p-1">
-                            <button type="button" id="btn-minus" class="w-8 h-8 flex items-center justify-center bg-white rounded shadow-sm text-slate-600 hover:text-blue-600 hover:bg-blue-50 transition-all font-bold text-lg">-</button>
-                            <div class="w-10 text-center font-bold text-slate-800" id="threshold-display">10</div>
-                            <span class="text-xs font-bold text-slate-400 mr-2">%</span>
-                            <button type="button" id="btn-plus" class="w-8 h-8 flex items-center justify-center bg-white rounded shadow-sm text-slate-600 hover:text-blue-600 hover:bg-blue-50 transition-all font-bold text-lg">+</button>
-                        </div>
-                    </div>
+                <!-- Language Switcher (Moved to far right) -->
+                <div class="flex rounded-lg shadow-sm overflow-hidden border border-gray-300 bg-white self-start md:self-end" role="group">
+                    <button type="button" id="btn-en" class="lang-btn w-20 flex justify-center px-4 py-3 text-sm font-bold hover:bg-gray-50 transition-colors active">EN</button>
+                    <div class="w-px bg-gray-300"></div>
+                    <button type="button" id="btn-zh" class="lang-btn w-20 flex justify-center px-4 py-3 text-sm font-bold hover:bg-gray-50 transition-colors">中文</button>
                 </div>
             </header>
 
@@ -166,9 +154,24 @@
 
                     <!-- Table -->
                     <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-                        <div class="p-6 border-b border-gray-100 flex justify-between items-center">
+                        <!-- Table Header with Threshold Control -->
+                        <div class="p-6 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                             <h3 class="text-xl font-bold" data-i18n="rebalanceTitle">🔄 Rebalancing Suggestions</h3>
-                            <span class="text-xs font-mono bg-gray-100 text-gray-600 px-2 py-1 rounded" data-i18n="targetLabel">Target: 25%</span>
+                            
+                            <div class="flex flex-wrap items-center gap-3 sm:gap-4">
+                                <!-- Threshold Control (Moved Here) -->
+                                <div class="bg-gray-50 px-2 py-1 rounded-lg border border-gray-200 flex items-center gap-2 select-none">
+                                    <span class="text-xs font-bold text-gray-500 ml-1" data-i18n="thresholdLabel" id="threshold-label">Threshold: ±</span>
+                                    <div class="flex items-center bg-white rounded border border-gray-200 shadow-sm">
+                                        <button type="button" id="btn-minus" class="w-6 h-6 flex items-center justify-center text-slate-600 hover:text-blue-600 hover:bg-blue-50 transition-all font-bold text-base rounded-l">-</button>
+                                        <div class="w-8 text-center font-bold text-slate-800 text-sm border-x border-gray-100" id="threshold-display">10</div>
+                                        <button type="button" id="btn-plus" class="w-6 h-6 flex items-center justify-center text-slate-600 hover:text-blue-600 hover:bg-blue-50 transition-all font-bold text-base rounded-r">+</button>
+                                    </div>
+                                    <span class="text-xs font-bold text-slate-400 mr-1">%</span>
+                                </div>
+
+                                <span class="text-xs font-mono bg-gray-100 text-gray-600 px-2 py-1.5 rounded border border-gray-200" data-i18n="targetLabel">Target: 25%</span>
+                            </div>
                         </div>
                         <div class="overflow-x-auto">
                             <table class="w-full text-left border-collapse">
@@ -349,6 +352,7 @@
     <script>
         const App = (() => {
             const Config = {
+                STORAGE_KEY: '4x25_data_v1', // Key for LocalStorage
                 TARGET_PERCENT: 25,
                 MIN_THRESHOLD: 5,
                 MAX_THRESHOLD: 15,
@@ -369,11 +373,11 @@
                 zh: {
                     currencyCode: 'CNY',
                     subtitle: "4x25 永久投资组合策略工具 · FIRE 财务自由计算器", 
-                    thresholdLabel: "再平衡阈值: ±",
+                    thresholdLabel: "阈值: ±",
                     inputTitle: "💰 当前持仓输入",
                     totalValue: "总资产价值",
-                    rebalanceTitle: "🔄 再平衡操作建议",
-                    targetLabel: `目标占比: ${Config.TARGET_PERCENT}%`,
+                    rebalanceTitle: "🔄 再平衡建议",
+                    targetLabel: `目标: ${Config.TARGET_PERCENT}%`,
                     colAsset: "资产",
                     colCurrent: "当前占比",
                     colTarget: "目标金额",
@@ -448,6 +452,7 @@
                         <p>我们高度重视您的隐私。本工具采用<strong>客户端计算 (Client-Side)</strong> 架构：</p>
                         <ul class="list-disc pl-5 mt-2 space-y-1">
                             <li><strong>您的财务数据不离线:</strong> 您输入的资产金额、收益率等敏感数据完全在您的浏览器本地处理，绝不会发送至我们的服务器。</li>
+                            <li><strong>数据持久化:</strong> 为了提升体验，我们会将您的输入数据存储在您浏览器的 <strong>LocalStorage</strong> 中，以便您下次访问时无需重新输入。您可以随时清除浏览器缓存来删除这些数据。</li>
                             <li><strong>Cookie 与统计:</strong> 我们可能会使用第三方服务（如 Google Analytics）收集匿名的访问统计数据（如页面浏览量、设备类型），以优化用户体验。这些服务可能会在您的设备上存储 Cookie。</li>
                         </ul>
 
@@ -568,6 +573,7 @@
                         <p>We respect your privacy. This tool operates on a <strong>Client-Side</strong> architecture:</p>
                         <ul class="list-disc pl-5 mt-2 space-y-1">
                             <li><strong>Your Financial Data Stays Local:</strong> The asset values and rates you input are processed entirely within your browser. This data is never transmitted to our servers.</li>
+                            <li><strong>Data Persistence:</strong> To improve your experience, we save your input data in your browser's <strong>LocalStorage</strong> so you don't have to re-enter it next time. You can clear your browser cache to remove this data.</li>
                             <li><strong>Cookies & Analytics:</strong> We may use third-party services (like Google Analytics) to collect anonymous usage statistics (e.g., page views, device type) to improve the user experience. These services may store cookies on your device.</li>
                         </ul>
 
@@ -677,51 +683,84 @@
                 threshold: 10,
                 holdings: { stocks: 0, bonds: 0, cash: 0, gold: 0 },
                 projection: { mode: 'saving', principal: '', rate: '6.8', years: 10, flow: '' },
-                fireExpense: '', // New state for FIRE expense input
+                fireExpense: '', 
                 marketData: null,
                 debouncedCalc: null,
+                debouncedSave: null, // New debounced save
                 pollingInterval: null,
-                shouldSyncPrincipal: false, // Flag for one-way sync
+                shouldSyncPrincipal: false, 
                 init() { 
+                    this.load(); // Load from LocalStorage on init
                     this.debouncedCalc = Utils.debounce(() => { this.performCalculation(); }, Config.DEBOUNCE_DELAY); 
+                    this.debouncedSave = Utils.debounce(() => { this.save(); }, 500); // Save after 500ms of inactivity
                     this.startPolling();
                 },
+                // --- Persistence Logic Start ---
+                save() {
+                    try {
+                        const data = {
+                            lang: this.lang,
+                            threshold: this.threshold,
+                            holdings: this.holdings,
+                            projection: this.projection,
+                            fireExpense: this.fireExpense
+                        };
+                        localStorage.setItem(Config.STORAGE_KEY, JSON.stringify(data));
+                    } catch (e) {
+                        // Silently fail if localStorage is blocked (e.g. sandboxed iframe)
+                        console.warn('LocalStorage save skipped (restricted environment).');
+                    }
+                },
+                load() {
+                    try {
+                        const raw = localStorage.getItem(Config.STORAGE_KEY);
+                        if (raw) {
+                            const data = JSON.parse(raw);
+                            if (data.lang) this.lang = data.lang;
+                            if (data.threshold) this.threshold = data.threshold;
+                            if (data.holdings) this.holdings = { ...this.holdings, ...data.holdings };
+                            if (data.projection) this.projection = { ...this.projection, ...data.projection };
+                            if (data.fireExpense) this.fireExpense = data.fireExpense;
+                        }
+                    } catch (e) {
+                        // Silently fail if localStorage is blocked
+                        console.warn('LocalStorage load skipped (restricted environment).');
+                    }
+                },
+                // --- Persistence Logic End ---
                 startPolling() {
-                    this.fetchMarket(); // Immediate fetch
+                    this.fetchMarket(); 
                     if (this.pollingInterval) clearInterval(this.pollingInterval);
                     this.pollingInterval = setInterval(() => {
                         this.fetchMarket();
                     }, Config.REFRESH_INTERVAL);
                 },
-                setLang(l) { this.lang = l; UI.renderAll(); UI.renderTicker(); },
+                setLang(l) { this.lang = l; UI.renderAll(); UI.renderTicker(); this.debouncedSave(); },
                 setThreshold(t) { if (t >= Config.MIN_THRESHOLD && t <= Config.MAX_THRESHOLD) { this.threshold = t; UI.updateThresholdDisplay(); this.triggerCalc(); } },
                 updateHolding(key, valueStr) { 
                     const val = parseInt(valueStr.replace(/[^\d]/g, ''), 10); 
                     this.holdings[key] = isNaN(val) ? 0 : val; 
-                    this.shouldSyncPrincipal = true; // Enable sync when holdings change
+                    this.shouldSyncPrincipal = true; 
                     this.triggerCalc(); 
                 },
                 setProjMode(mode) { this.projection.mode = mode; UI.renderProjectionUI(); this.triggerCalc(); },
-                triggerCalc() { if (this.debouncedCalc) this.debouncedCalc(); },
+                triggerCalc() { 
+                    if (this.debouncedCalc) this.debouncedCalc(); 
+                    if (this.debouncedSave) this.debouncedSave(); // Trigger save on changes
+                },
                 performCalculation() {
                     requestAnimationFrame(() => {
                         const results = Logic.calculatePortfolio(this.holdings, this.threshold);
                         UI.renderResults(results);
-                        UI.renderFireProgress(results.total); // Update FIRE progress
+                        UI.renderFireProgress(results.total); 
                         
-                        // --- SYNC LOGIC START ---
-                        // Only sync if the trigger came from holdings update (one-way sync)
                         if (this.shouldSyncPrincipal) {
-                            // Update state
                             this.projection.principal = String(results.total);
-                            // Update UI Input directly
                             if (UI.els.projPrincipal) {
                                 UI.els.projPrincipal.value = results.total > 0 ? results.total : '';
                             }
-                            // Reset flag so manual edits to projection aren't overwritten later
                             this.shouldSyncPrincipal = false;
                         }
-                        // --- SYNC LOGIC END ---
 
                         const projResults = Logic.calculateProjection(this.projection.principal, this.projection.rate, this.projection.years, this.projection.flow, this.projection.mode);
                         UI.renderProjectionResult(projResults);
@@ -734,10 +773,15 @@
                         this.marketData = await res.json();
                         UI.renderTicker();
                     } catch (e) {
-                        console.warn('Market fetch failed (likely network/CORS issue):', e);
+                        console.warn('Market fetch failed (likely sandboxed or network error). Hiding ticker.');
                         if (!this.marketData) {
                             const loader = document.getElementById('ticker-loading');
+                            const content = document.getElementById('ticker-content');
                             if(loader) loader.style.display = 'none';
+                            if(content) {
+                                content.classList.remove('hidden');
+                                content.innerHTML = `<div class="col-span-full text-center text-gray-400 text-sm py-2 bg-gray-50 rounded-lg">Market data unavailable in this preview</div>`;
+                            }
                         }
                     }
                 }
@@ -799,7 +843,7 @@
                     this.cacheLegendDOM(); 
                     this.bindEvents(); 
                     this.renderAll();
-                    this.startClock(); // Start the live clock
+                    this.startClock(); 
                 },
                 cacheDOM() {
                     this.els = { ...this.els,
@@ -819,10 +863,13 @@
                     };
                 },
                 renderInputs() {
+                    this.els.inputsContainer.innerHTML = ''; // Clear first
                     const fragment = document.createDocumentFragment();
                     Config.ASSETS.forEach(asset => {
                         const div = document.createElement('div');
-                        div.innerHTML = `<label class="block text-sm font-medium text-gray-700 mb-1.5" id="label-${asset.key}" for="input-${asset.key}"></label><div class="relative"><span class="currency-symbol absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold select-none"></span><input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="${Config.MAX_DIGITS}" id="input-${asset.key}" placeholder="0" class="asset-input w-full pl-8 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none font-mono text-lg placeholder-gray-300 transition-shadow"></div>`;
+                        // Inject value from State.holdings
+                        const val = State.holdings[asset.key] === 0 ? '' : State.holdings[asset.key];
+                        div.innerHTML = `<label class="block text-sm font-medium text-gray-700 mb-1.5" id="label-${asset.key}" for="input-${asset.key}"></label><div class="relative"><span class="currency-symbol absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold select-none"></span><input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="${Config.MAX_DIGITS}" id="input-${asset.key}" placeholder="0" value="${val}" class="asset-input w-full pl-8 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none font-mono text-lg placeholder-gray-300 transition-shadow"></div>`;
                         fragment.appendChild(div);
                     });
                     this.els.inputsContainer.appendChild(fragment);
@@ -846,7 +893,6 @@
                     bindInputSync(this.els.projPrincipal, 'principal', Utils.sanitizeInput); bindInputSync(this.els.projFlow, 'flow', Utils.sanitizeInput);
                     bindInputSync(this.els.projRate, 'rate', (val) => Utils.sanitizeDecimal(val, 100)); bindInputSync(this.els.projYears, 'years', (val) => Utils.sanitizeInteger(val, 100));
                     this.els.modeSavingBtn.onclick = () => State.setProjMode('saving'); this.els.modeSpendingBtn.onclick = () => State.setProjMode('spending');
-                    // Bind FIRE Expense Input
                     if (this.els.fireExpenseInput) {
                         this.els.fireExpenseInput.oninput = (e) => {
                             const clean = Utils.sanitizeInput(e.target.value);
@@ -885,32 +931,30 @@
                     const expense = parseFloat(State.fireExpense) || 0;
                     const target = expense * 25;
                     let percent = 0;
-                    if (target > 0) {
-                        percent = (totalAssets / target) * 100;
-                    }
-                    
-                    // Cap visual bar at 100%, but text can go higher
+                    if (target > 0) { percent = (totalAssets / target) * 100; }
                     const visualPercent = Math.min(percent, 100);
-                    
                     this.els.fireProgressBar.style.width = `${visualPercent}%`;
                     this.els.firePercent.textContent = `${percent.toFixed(1)}%`;
                     Utils.setText(this.els.fireTargetDisplay, Utils.formatMoney(target, State.lang, true));
                 },
+                renderProjectionResult(data) {
+                    const { futureValue, gain } = data;
+                    Utils.animateTo(this.els.projResult, futureValue, State.lang, true);
+                    Utils.animateTo(this.els.projGain, gain, State.lang, true);
+                },
                 startClock() {
                     const update = () => {
                         const now = new Date();
-                        // Format: YYYY-MM-DD HH:mm:ss
                         const year = now.getFullYear();
                         const month = String(now.getMonth() + 1).padStart(2, '0');
                         const day = String(now.getDate()).padStart(2, '0');
                         const hours = String(now.getHours()).padStart(2, '0');
                         const minutes = String(now.getMinutes()).padStart(2, '0');
                         const seconds = String(now.getSeconds()).padStart(2, '0');
-                        
                         this.els.tickerTime.textContent = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
                     };
-                    update(); // Run immediately
-                    setInterval(update, 1000); // Update every second
+                    update(); 
+                    setInterval(update, 1000);
                 },
                 renderTicker() {
                     const data = State.marketData;
@@ -918,14 +962,12 @@
                     this.els.tickerLoading.style.display = 'none';
                     this.els.tickerContent.classList.remove('hidden');
                     this.els.tickerContent.innerHTML = '';
-                    
                     const t = Translations[State.lang];
                     const isZh = State.lang === 'zh';
                     const upColor = isZh ? 'text-red-600' : 'text-emerald-600';
                     const downColor = isZh ? 'text-emerald-600' : 'text-red-600';
                     const bgUp = isZh ? 'bg-red-50' : 'bg-emerald-50';
                     const bgDown = isZh ? 'bg-emerald-50' : 'bg-red-50';
-
                     data.forEach(item => {
                         const changeVal = parseFloat(item.change);
                         const isUp = changeVal > 0;
@@ -935,35 +977,19 @@
                         const arrow = isZero ? '' : (isUp ? '▲' : '▼');
                         const sign = isZero ? '' : (isUp ? '+' : '');
                         const displayName = t.marketNames[item.key] || item.name;
-
                         const div = document.createElement('div');
                         div.className = `flex flex-col justify-center px-3 py-3 rounded-xl ${bgClass} border border-transparent hover:border-gray-200 transition-all cursor-default`;
-                        div.innerHTML = `
-                            <div class="text-xs text-slate-500 font-bold mb-1 truncate">${displayName}</div>
-                            <div class="flex items-baseline justify-between gap-1">
-                                <span class="font-mono font-bold text-slate-800 text-sm">${item.price}</span>
-                                <span class="font-mono text-xs font-bold ${colorClass}">${arrow}${sign}${item.change}%</span>
-                            </div>
-                        `;
+                        div.innerHTML = `<div class="text-xs text-slate-500 font-bold mb-1 truncate">${displayName}</div><div class="flex items-baseline justify-between gap-1"><span class="font-mono font-bold text-slate-800 text-sm">${item.price}</span><span class="font-mono text-xs font-bold ${colorClass}">${arrow}${sign}${item.change}%</span></div>`;
                         this.els.tickerContent.appendChild(div);
                     });
-                    
-                    // Flash animation
                     this.els.tickerTime.classList.remove('flash-update');
-                    void this.els.tickerTime.offsetWidth; // Force reflow
+                    void this.els.tickerTime.offsetWidth; 
                     this.els.tickerTime.classList.add('flash-update');
                 },
                 renderProjectionUI() {
                     const t = Translations[State.lang]; const mode = State.projection.mode;
                     if (mode === 'saving') { Utils.setClass(this.els.modeSavingBtn, "px-3 py-1.5 text-xs font-bold rounded-md shadow-sm bg-white text-emerald-600 transition-all"); Utils.setClass(this.els.modeSpendingBtn, "px-3 py-1.5 text-xs font-bold rounded-md text-gray-500 hover:text-gray-700 transition-all"); Utils.setText(this.els.projFlowLabel, t.projContribution); } 
                     else { Utils.setClass(this.els.modeSavingBtn, "px-3 py-1.5 text-xs font-bold rounded-md text-gray-500 hover:text-gray-700 transition-all"); Utils.setClass(this.els.modeSpendingBtn, "px-3 py-1.5 text-xs font-bold rounded-md shadow-sm bg-white text-orange-600 transition-all"); Utils.setText(this.els.projFlowLabel, t.projExpense); }
-                },
-                renderProjectionResult(data) {
-                    Utils.animateTo(this.els.projResult, data.futureValue, State.lang, true);
-                    const sign = data.gain > 0 ? '+' : '';
-                    const color = data.gain > 0 ? 'text-emerald-600' : (data.gain < 0 ? 'text-red-600' : 'text-slate-500');
-                    this.els.projGain.textContent = `${sign}${Utils.formatMoney(data.gain, State.lang, true)}`;
-                    this.els.projGain.className = `font-mono break-all font-bold ${color}`;
                 },
                 updateThresholdDisplay() { Utils.setText(this.els.thresholdDisplay, State.threshold); this.els.btnMinus.disabled = (State.threshold <= Config.MIN_THRESHOLD); this.els.btnPlus.disabled = (State.threshold >= Config.MAX_THRESHOLD); },
                 renderAll() {
@@ -988,6 +1014,14 @@
                     this.els.faqContainer.appendChild(faqFragment);
                     Utils.setClass(this.els.btnZh, `lang-btn w-20 flex justify-center px-4 py-3 text-sm font-bold hover:bg-gray-50 transition-colors ${lang === 'zh' ? 'active' : ''}`);
                     Utils.setClass(this.els.btnEn, `lang-btn w-20 flex justify-center px-4 py-3 text-sm font-bold hover:bg-gray-50 transition-colors ${lang === 'en' ? 'active' : ''}`);
+                    
+                    // Fill inputs from State (for non-generated inputs)
+                    if (this.els.projPrincipal) this.els.projPrincipal.value = State.projection.principal;
+                    if (this.els.projRate) this.els.projRate.value = State.projection.rate;
+                    if (this.els.projYears) this.els.projYears.value = State.projection.years;
+                    if (this.els.projFlow) this.els.projFlow.value = State.projection.flow;
+                    if (this.els.fireExpenseInput) this.els.fireExpenseInput.value = State.fireExpense;
+
                     this.renderProjectionUI(); this.updateThresholdDisplay(); State.triggerCalc();
                 },
                 toggleFaq(btn) {
