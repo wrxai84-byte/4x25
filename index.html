@@ -1,23 +1,19 @@
 <!DOCTYPE html>
 <html lang="en" prefix="og: http://ogp.me/ns#">
 <head>
-    <!-- Google tag (gtag.js) -->
+    <!-- Security & Meta Tags -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://market-proxy.wrx-ai-84.workers.dev https://www.google-analytics.com https://analytics.google.com; img-src 'self' data: https://www.googletagmanager.com;">
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-8GJYYGEB88"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-
-      gtag('config', 'G-8GJYYGEB88');
-    </script>
-
+    <script>window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-8GJYYGEB88');</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>4x25 Strategy & FIRE Tool | 永久投资组合计算器</title>
     <meta name="description" content="Free Permanent Portfolio Rebalancing Tool & FIRE Calculator.">
+    
+    <!-- ✅ 新增：自定义网站图标 (Favicon) 使用 Emoji -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💰</text></svg>">
+
     <script src="https://cdn.tailwindcss.com/3.4.1"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     
     <style>
@@ -25,55 +21,34 @@
         .lang-btn.active { background-color: #3b82f6; color: white; border-color: #3b82f6; }
         button:disabled { opacity: 0.3; cursor: not-allowed; pointer-events: none; }
         .table-cell-truncate { max-width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        
-        /* FAQ Animation */
         .faq-content { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.3s ease-out, opacity 0.3s ease-out; opacity: 0; visibility: hidden; }
         .faq-content.open { grid-template-rows: 1fr; opacity: 1; visibility: visible; }
         .faq-inner { overflow: hidden; min-height: 0; }
         .faq-icon { transition: transform 0.3s ease; }
         .faq-icon.rotate { transform: rotate(180deg); }
-        
-        /* Modal Animation */
         .modal-overlay { transition: opacity 0.3s ease; }
         .modal-content { transition: transform 0.3s ease, opacity 0.3s ease; }
-        
-        /* Chart Animation */
         .chart-segment { transition: stroke-dasharray 0.6s cubic-bezier(0.4, 0, 0.2, 1), stroke-dashoffset 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
-        
         button:focus-visible, input:focus-visible, a:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
-        
         .season-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
         .season-card:hover { transform: translateY(-2px); box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
-        
-        /* Flash animation for update indicator */
-        @keyframes textFlash {
-            0% { color: #10B981; text-shadow: 0 0 5px rgba(16, 185, 129, 0.5); }
-            100% { color: #94a3b8; text-shadow: none; }
-        }
+        @keyframes textFlash { 0% { color: #10B981; text-shadow: 0 0 5px rgba(16, 185, 129, 0.5); } 100% { color: #94a3b8; text-shadow: none; } }
         .flash-update { animation: textFlash 1s ease-out; }
+        
+        /* Toast Notification Styles */
+        #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 100; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+        .toast { pointer-events: auto; min-width: 300px; padding: 16px; border-radius: 12px; background: white; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); border-left: 4px solid; transform: translateX(120%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease; opacity: 0; display: flex; align-items: start; gap: 12px; }
+        .toast.show { transform: translateX(0); opacity: 1; }
+        .toast-error { border-left-color: #EF4444; }
+        .toast-success { border-left-color: #10B981; }
+        .toast-info { border-left-color: #3B82F6; }
 
-        /* Performance Optimization: content-visibility */
-        .content-auto {
-            content-visibility: auto;
-            contain-intrinsic-size: 1px 1000px;
-        }
-
-        /* Accessibility: Respect user's motion preferences */
-        @media (prefers-reduced-motion: reduce) {
-            *, ::before, ::after {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
-                scroll-behavior: auto !important;
-            }
-            .chart-segment { transition: none; }
-            .flash-update { animation: none; }
-        }
+        .content-auto { content-visibility: auto; contain-intrinsic-size: 1px 1000px; }
+        @media (prefers-reduced-motion: reduce) { *, ::before, ::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; } .chart-segment { transition: none; } .flash-update { animation: none; } .toast { transition: none; } }
     </style>
 </head>
 <body class="bg-gray-50 text-slate-800 min-h-screen flex flex-col">
 
-    <!-- Main App Container -->
     <div id="app" class="flex flex-col min-h-screen p-4 md:p-8">
         <div class="max-w-5xl mx-auto w-full flex-grow">
             <!-- Header -->
@@ -86,8 +61,6 @@
                     </h1>
                     <h2 class="text-slate-500 mt-3 text-base md:text-lg font-medium" data-i18n="subtitle">Permanent Portfolio Strategy & FIRE Tool</h2>
                 </div>
-                
-                <!-- Language Switcher -->
                 <div class="flex rounded-lg shadow-sm overflow-hidden border border-gray-300 bg-white self-start md:self-end" role="group">
                     <button type="button" id="btn-en" class="lang-btn w-20 flex justify-center px-4 py-3 text-sm font-bold hover:bg-gray-50 transition-colors active">EN</button>
                     <div class="w-px bg-gray-300"></div>
@@ -103,14 +76,13 @@
                         <div class="space-y-5" id="inputs-container"></div>
                         <div class="mt-8 pt-6 border-t border-gray-100 flex justify-between items-center overflow-hidden">
                             <span class="text-gray-500 font-medium whitespace-nowrap mr-2" data-i18n="totalValue">Total Value</span>
-                            <span class="text-2xl font-bold text-slate-900 font-mono truncate" id="total-value" data-current-value="0">0</span>
+                            <span class="text-2xl font-bold text-slate-900 font-mono truncate" id="total-value" data-current-value="0" aria-live="polite" aria-atomic="true">0</span>
                         </div>
                     </div>
 
-                    <!-- Chart -->
                     <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 flex flex-col items-center">
                         <div class="relative w-48 h-48 mb-6">
-                            <svg viewBox="0 0 32 32" class="w-full h-full transform -rotate-90">
+                            <svg viewBox="0 0 32 32" class="w-full h-full transform -rotate-90" aria-hidden="true">
                                 <circle r="15.9155" cx="16" cy="16" fill="transparent" stroke="#f3f4f6" stroke-width="6"></circle>
                                 <circle id="chart-stocks" class="chart-segment" r="15.9155" cx="16" cy="16" fill="transparent" stroke="#3B82F6" stroke-width="6" stroke-dasharray="0 100" stroke-dashoffset="0"></circle>
                                 <circle id="chart-bonds" class="chart-segment" r="15.9155" cx="16" cy="16" fill="transparent" stroke="#8B5CF6" stroke-width="6" stroke-dasharray="0 100" stroke-dashoffset="0"></circle>
@@ -124,39 +96,34 @@
                         <div class="w-full px-6 space-y-3" id="legend-container"></div>
                     </div>
 
-                    <!-- Seasons -->
                     <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
                         <h3 class="text-base font-bold text-slate-900 mb-4 flex items-center gap-2">
-                            <span class="text-xl">🧭</span> <span data-i18n="seasonTitle">Economic Seasons</span>
+                            <span class="text-xl" aria-hidden="true">🧭</span> <span data-i18n="seasonTitle">Economic Seasons</span>
                         </h3>
                         <div class="grid grid-cols-2 gap-3 mb-4">
-                            <!-- Stocks -->
                             <div class="season-card bg-blue-50 border border-blue-100 rounded-xl p-3 flex flex-col items-center text-center cursor-default">
-                                <span class="text-xl mb-1">📈</span>
+                                <span class="text-xl mb-1" aria-hidden="true">📈</span>
                                 <span class="text-xs font-bold text-blue-400 uppercase tracking-wide mb-0.5" data-i18n="seasonProsperity">Prosperity</span>
                                 <span class="text-sm font-bold text-blue-700" data-i18n="seasonStocks">Stocks</span>
                             </div>
-                            <!-- Bonds -->
                             <div class="season-card bg-violet-50 border border-violet-100 rounded-xl p-3 flex flex-col items-center text-center cursor-default">
-                                <span class="text-xl mb-1">📉</span>
+                                <span class="text-xl mb-1" aria-hidden="true">📉</span>
                                 <span class="text-xs font-bold text-violet-400 uppercase tracking-wide mb-0.5" data-i18n="seasonDeflation">Deflation</span>
                                 <span class="text-sm font-bold text-violet-700" data-i18n="seasonBonds">Bonds</span>
                             </div>
-                            <!-- Cash -->
-                            <div class="season-card bg-emerald-50 border border-emerald-100 rounded-xl p-3 flex flex-col items-center text-center cursor-default">
-                                <span class="text-xl mb-1">💵</span>
-                                <span class="text-xs font-bold text-emerald-400 uppercase tracking-wide mb-0.5" data-i18n="seasonRecession">Recession</span>
-                                <span class="text-sm font-bold text-emerald-700" data-i18n="seasonCash">Cash</span>
-                            </div>
-                            <!-- Gold -->
                             <div class="season-card bg-amber-50 border border-amber-100 rounded-xl p-3 flex flex-col items-center text-center cursor-default">
-                                <span class="text-xl mb-1">🪙</span>
+                                <span class="text-xl mb-1" aria-hidden="true">💰</span>
                                 <span class="text-xs font-bold text-amber-400 uppercase tracking-wide mb-0.5" data-i18n="seasonInflation">Inflation</span>
                                 <span class="text-sm font-bold text-amber-700" data-i18n="seasonGold">Gold</span>
                             </div>
+                            <div class="season-card bg-emerald-50 border border-emerald-100 rounded-xl p-3 flex flex-col items-center text-center cursor-default">
+                                <span class="text-xl mb-1" aria-hidden="true">🛡️</span>
+                                <span class="text-xs font-bold text-emerald-400 uppercase tracking-wide mb-0.5" data-i18n="seasonRecession">Recession</span>
+                                <span class="text-sm font-bold text-emerald-700" data-i18n="seasonCash">Cash</span>
+                            </div>
                         </div>
                         <div class="bg-slate-50 rounded-lg p-3 text-xs text-slate-500 leading-relaxed border border-slate-100">
-                            <span class="font-bold text-slate-700">💡 <span data-i18n="rule72Title">Rule of 72</span>:</span> 
+                            <span class="font-bold text-slate-700"><span aria-hidden="true">💡</span> <span data-i18n="rule72Title">Rule of 72</span>:</span> 
                             <span data-i18n="rule72Desc">At 6.8% return, your assets double every ~10.6 years.</span>
                         </div>
                     </div>
@@ -164,8 +131,7 @@
 
                 <!-- Right Column -->
                 <section class="lg:col-span-8 space-y-6">
-                    <!-- Status -->
-                    <div id="status-card" class="rounded-2xl p-6 border shadow-sm transition-all bg-blue-50 border-blue-200 text-blue-900" role="status">
+                    <div id="status-card" class="rounded-2xl p-6 border shadow-sm transition-all bg-blue-50 border-blue-200 text-blue-900" role="status" aria-live="polite">
                         <div class="flex items-start gap-4">
                             <div id="status-icon" class="text-2xl" aria-hidden="true">⚖️</div>
                             <div>
@@ -176,24 +142,19 @@
                         </div>
                     </div>
 
-                    <!-- Table -->
                     <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-                        <!-- Table Header with Threshold Control -->
                         <div class="p-6 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                             <h3 class="text-xl font-bold" data-i18n="rebalanceTitle">🔄 Rebalancing Suggestions</h3>
-                            
                             <div class="flex flex-wrap items-center gap-3 sm:gap-4">
-                                <!-- Threshold Control -->
                                 <div class="bg-gray-50 px-2 py-1 rounded-lg border border-gray-200 flex items-center gap-2 select-none">
                                     <span class="text-xs font-bold text-gray-500 ml-1" data-i18n="thresholdLabel" id="threshold-label">Threshold: ±</span>
                                     <div class="flex items-center bg-white rounded border border-gray-200 shadow-sm">
-                                        <button type="button" id="btn-minus" class="w-6 h-6 flex items-center justify-center text-slate-600 hover:text-blue-600 hover:bg-blue-50 transition-all font-bold text-base rounded-l">-</button>
+                                        <button type="button" id="btn-minus" class="w-6 h-6 flex items-center justify-center text-slate-600 hover:text-blue-600 hover:bg-blue-50 transition-all font-bold text-base rounded-l" aria-label="Decrease threshold">-</button>
                                         <div class="w-8 text-center font-bold text-slate-800 text-sm border-x border-gray-100" id="threshold-display">10</div>
-                                        <button type="button" id="btn-plus" class="w-6 h-6 flex items-center justify-center text-slate-600 hover:text-blue-600 hover:bg-blue-50 transition-all font-bold text-base rounded-r">+</button>
+                                        <button type="button" id="btn-plus" class="w-6 h-6 flex items-center justify-center text-slate-600 hover:text-blue-600 hover:bg-blue-50 transition-all font-bold text-base rounded-r" aria-label="Increase threshold">+</button>
                                     </div>
                                     <span class="text-xs font-bold text-slate-400 mr-1">%</span>
                                 </div>
-
                                 <span class="text-xs font-mono bg-gray-100 text-gray-600 px-2 py-1.5 rounded border border-gray-200" data-i18n="targetLabel">Target: 25%</span>
                             </div>
                         </div>
@@ -212,13 +173,10 @@
                         </div>
                     </div>
 
-                    <!-- FIRE Calc -->
                     <div class="bg-slate-900 text-white rounded-2xl p-6 shadow-lg overflow-hidden">
                         <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
-                            🔥 <span data-i18n="fireTitle">FIRE 4% Rule Preview</span>
+                            <span aria-hidden="true">🔥</span> <span data-i18n="fireTitle">FIRE 4% Rule Preview</span>
                         </h3>
-                        
-                        <!-- Withdrawal Info -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                             <div class="overflow-hidden">
                                 <p class="text-slate-400 text-sm mb-1" data-i18n="fireYear">Safe Annual Withdrawal</p>
@@ -229,27 +187,21 @@
                                 <p class="text-2xl font-mono font-bold text-emerald-400 truncate" id="fire-month" data-current-value="0">0</p>
                             </div>
                         </div>
-
-                        <!-- Progress Section -->
                         <div class="border-t border-slate-700 pt-5">
                             <div class="flex flex-col sm:flex-row justify-between items-end gap-2 mb-2">
                                 <label class="text-sm font-medium text-slate-300" for="fire-expense-input" data-i18n="fireExpenseLabel">Annual Expense Goal</label>
                                 <div class="text-right flex items-baseline gap-2">
                                     <span class="text-xs text-slate-500 uppercase tracking-wider font-bold" data-i18n="fireProgress">Progress</span>
-                                    <span class="text-2xl font-bold text-white font-mono transition-colors duration-300" id="fire-percent">0%</span>
+                                    <span class="text-2xl font-bold text-white font-mono transition-colors duration-300" id="fire-percent" aria-live="polite" aria-atomic="true">0%</span>
                                 </div>
                             </div>
-                            
                             <div class="relative mb-3">
                                 <span class="currency-symbol absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-sm"></span>
                                 <input type="text" id="fire-expense-input" inputmode="numeric" maxlength="8" class="w-full bg-slate-800 border border-slate-600 rounded-lg py-2.5 pl-8 pr-3 text-white placeholder-slate-500 focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all font-mono shadow-inner" placeholder="0">
                             </div>
-
-                            <!-- Bar -->
-                            <div class="h-3 bg-slate-800 rounded-full overflow-hidden mb-2 shadow-inner border border-slate-700/50">
+                            <div class="h-3 bg-slate-800 rounded-full overflow-hidden mb-2 shadow-inner border border-slate-700/50" role="progressbar" aria-valuemin="0" aria-valuemax="100">
                                 <div id="fire-progress-bar" class="h-full bg-gradient-to-r from-emerald-600 to-emerald-400 transition-all duration-700 ease-out w-0 shadow-[0_0_10px_rgba(16,185,129,0.5)]"></div>
                             </div>
-                            
                             <div class="flex justify-between text-xs text-slate-500 font-mono">
                                 <span>0</span>
                                 <div>
@@ -259,25 +211,23 @@
                         </div>
                     </div>
 
-                    <!-- Wealth Projection -->
                     <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
                             <h3 class="text-xl font-bold flex items-center gap-2">
-                                <span class="text-purple-500">🔮</span> <span data-i18n="projTitle">Wealth Simulation</span>
+                                <span class="text-purple-500" aria-hidden="true">🔮</span> <span data-i18n="projTitle">Wealth Simulation</span>
                             </h3>
                             <div class="flex bg-gray-100 p-1 rounded-lg self-start sm:self-auto">
                                 <button type="button" id="mode-saving" class="px-3 py-1.5 text-xs font-bold rounded-md shadow-sm bg-white text-emerald-600 transition-all"><span data-i18n="modeSaving">Saving</span></button>
                                 <button type="button" id="mode-spending" class="px-3 py-1.5 text-xs font-bold rounded-md text-gray-500 hover:text-gray-700 transition-all"><span data-i18n="modeSpending">Spending</span></button>
                             </div>
                         </div>
-
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="space-y-4">
                                 <div>
                                     <div class="mb-1"><label class="block text-xs font-bold text-gray-500 uppercase" data-i18n="projCurrent">Current Assets</label></div>
                                     <div class="relative">
                                         <span class="currency-symbol absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-sm"></span>
-                                        <input type="text" id="proj-principal" maxlength="8" class="w-full pl-7 pr-3 py-2 bg-gray-50 border border-gray-200 rounded-lg font-mono text-sm focus:ring-2 focus:ring-purple-500 outline-none placeholder-gray-300 transition-colors" placeholder="0">
+                                        <input type="text" id="proj-principal" maxlength="12" class="w-full pl-7 pr-3 py-2 bg-gray-50 border border-gray-200 rounded-lg font-mono text-sm focus:ring-2 focus:ring-purple-500 outline-none placeholder-gray-300 transition-colors" placeholder="0">
                                     </div>
                                 </div>
                                 <div class="grid grid-cols-2 gap-4">
@@ -297,14 +247,13 @@
                                     <label class="block text-xs font-bold text-gray-500 uppercase mb-1" id="proj-flow-label" data-i18n="projContribution">Annual Contribution</label>
                                     <div class="relative">
                                         <span class="currency-symbol absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-sm"></span>
-                                        <input type="text" id="proj-flow" maxlength="8" class="w-full pl-7 pr-3 py-2 bg-gray-50 border border-gray-200 rounded-lg font-mono text-sm focus:ring-2 focus:ring-purple-500 outline-none placeholder-gray-300" placeholder="0">
+                                        <input type="text" id="proj-flow" maxlength="12" class="w-full pl-7 pr-3 py-2 bg-gray-50 border border-gray-200 rounded-lg font-mono text-sm focus:ring-2 focus:ring-purple-500 outline-none placeholder-gray-300" placeholder="0">
                                     </div>
                                 </div>
                             </div>
-
                             <div class="bg-purple-50 rounded-xl p-5 flex flex-col justify-center items-center text-center border border-purple-100 overflow-hidden">
                                 <p class="text-purple-600 font-medium text-sm mb-2" data-i18n="projResultLabel">Future Total Assets</p>
-                                <p class="text-3xl md:text-4xl font-bold text-slate-900 font-mono tracking-tight break-all w-full" id="proj-result" data-current-value="0">0</p>
+                                <p class="text-3xl md:text-4xl font-bold text-slate-900 font-mono tracking-tight break-all w-full" id="proj-result" data-current-value="0" aria-live="polite" aria-atomic="true">0</p>
                                 <div class="mt-4 text-xs text-purple-400 font-medium bg-white px-3 py-1 rounded-full shadow-sm max-w-full">
                                     <span data-i18n="projGain">Total Gain</span>: <span id="proj-gain" class="font-mono break-all" data-current-value="0">0</span>
                                 </div>
@@ -312,7 +261,6 @@
                         </div>
                     </div>
 
-                    <!-- Market Ticker Section -->
                     <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
                         <div class="flex items-center justify-between mb-4">
                             <h3 class="text-sm font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2">
@@ -321,35 +269,23 @@
                             </h3>
                             <span class="text-xs text-slate-400 font-mono transition-colors" id="ticker-time">--</span>
                         </div>
-                        
-                        <!-- Loading Skeleton (Grid Layout) -->
                         <div id="ticker-loading" class="grid grid-cols-2 md:grid-cols-4 gap-3">
                             <div class="h-16 bg-gray-50 rounded-xl animate-pulse"></div>
                             <div class="h-16 bg-gray-50 rounded-xl animate-pulse"></div>
                             <div class="h-16 bg-gray-50 rounded-xl animate-pulse"></div>
                             <div class="h-16 bg-gray-50 rounded-xl animate-pulse"></div>
-                            <div class="h-16 bg-gray-50 rounded-xl animate-pulse"></div>
-                            <div class="h-16 bg-gray-50 rounded-xl animate-pulse"></div>
-                            <div class="h-16 bg-gray-50 rounded-xl animate-pulse"></div>
-                            <div class="h-16 bg-gray-50 rounded-xl animate-pulse"></div>
                         </div>
-                        
-                        <!-- Ticker Content (Grid Layout) -->
-                        <div id="ticker-content" class="grid grid-cols-2 md:grid-cols-4 gap-3 hidden">
-                            <!-- Items injected by JS -->
-                        </div>
+                        <div id="ticker-content" class="grid grid-cols-2 md:grid-cols-4 gap-3 hidden"></div>
                     </div>
                 </section>
             </main>
 
-            <!-- FAQ (Applied content-visibility here) -->
             <section class="mt-10 max-w-4xl mx-auto content-auto">
                 <h3 class="text-lg font-bold text-slate-800 mb-6 text-center" data-i18n="faqTitle">Frequently Asked Questions (FAQ)</h3>
                 <div id="faq-container" class="space-y-4"></div>
             </section>
         </div>
 
-        <!-- Footer -->
         <footer class="mt-12 text-center pb-8 px-4 border-t border-gray-100 pt-8">
             <p class="text-slate-400 text-sm">
                 &copy; 2026 4x25 · <button type="button" id="btn-privacy" class="cursor-pointer hover:text-slate-600 transition-colors underline decoration-slate-300 underline-offset-2" data-i18n="privacy">Terms & Privacy</button>
@@ -357,7 +293,9 @@
         </footer>
     </div>
 
-    <!-- Privacy Modal -->
+    <!-- Toast Container -->
+    <div id="toast-container"></div>
+
     <div id="privacy-modal" class="fixed inset-0 z-50 hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
         <div class="modal-overlay absolute inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity opacity-0"></div>
         <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
@@ -374,17 +312,31 @@
     </div>
 
     <script>
+        // --- Architecture Improvement: Simple Event Emitter (Pub/Sub) ---
+        class EventEmitter {
+            constructor() { this.events = {}; }
+            on(event, listener) {
+                if (!this.events[event]) this.events[event] = [];
+                this.events[event].push(listener);
+            }
+            emit(event, data) {
+                if (this.events[event]) this.events[event].forEach(listener => listener(data));
+            }
+        }
+
         const App = (() => {
             const Config = {
-                STORAGE_KEY: '4x25_data_v1', // Key for LocalStorage
+                STORAGE_KEY: '4x25_data_v1', 
+                DATA_VERSION: 2, 
                 TARGET_PERCENT: 25,
                 MIN_THRESHOLD: 5,
                 MAX_THRESHOLD: 15,
-                MAX_DIGITS: 8,
-                DEBOUNCE_DELAY: 150,
+                ASSET_MAX_DIGITS: 8,
+                PROJ_MAX_DIGITS: 12,
+                TIMING: { CALC_DEBOUNCE: 150, SAVE_DEBOUNCE: 1000 },
                 MARKET_API: 'https://market-proxy.wrx-ai-84.workers.dev/',
-                REFRESH_INTERVAL: 5000, // 5 seconds refresh
-                FORMAT: { SCIENTIFIC_THRESHOLD: 1e15, COMPACT_THRESHOLD: 1000000 },
+                REFRESH_INTERVAL: 5000,
+                FORMAT: { SCIENTIFIC_THRESHOLD: 1e15, COMPACT_THRESHOLD: 1000000, MIN_LENGTH_FOR_TRIM: 2 },
                 ASSETS: [
                     { key: 'stocks', color: '#3B82F6', tailwindColor: 'bg-blue-500' },
                     { key: 'bonds', color: '#8B5CF6', tailwindColor: 'bg-violet-500' },
@@ -463,7 +415,6 @@
                     privacyContent: `
                         <h4 class="font-bold text-slate-800 mt-4 mb-2">1. 条款接受</h4>
                         <p>访问并使用本网站 ("4x25 Tools") ，即表示您同意遵守以下条款。如果您不同意这些条款的任何部分，请勿使用本服务。</p>
-
                         <h4 class="font-bold text-slate-800 mt-4 mb-2">2. 免责声明 (无财务建议)</h4>
                         <p>本网站提供的计算结果、图表及信息仅供<strong>教育和参考用途</strong>。它们不构成任何形式的财务、投资、税务或法律建议。</p>
                         <ul class="list-disc pl-5 mt-2 space-y-1">
@@ -472,7 +423,6 @@
                             <li>在做出任何投资决定前，请咨询合格的专业理财顾问。</li>
                         </ul>
                         <p class="mt-2">本网站不对因使用本工具而产生的任何直接或间接损失负责。您需自行承担使用本服务的风险。</p>
-
                         <h4 class="font-bold text-slate-800 mt-4 mb-2">3. 隐私政策 (数据本地化)</h4>
                         <p>我们高度重视您的隐私。本工具采用<strong>客户端计算 (Client-Side)</strong> 架构：</p>
                         <ul class="list-disc pl-5 mt-2 space-y-1">
@@ -480,10 +430,8 @@
                             <li><strong>数据持久化:</strong> 为了提升体验，我们会将您的输入数据存储在您浏览器的 <strong>LocalStorage</strong> 中，以便您下次访问时无需重新输入。您可以随时清除浏览器缓存来删除这些数据。</li>
                             <li><strong>Cookie 与统计:</strong> 我们可能会使用第三方服务（如 Google Analytics）收集匿名的访问统计数据（如页面浏览量、设备类型），以优化用户体验。这些服务可能会在您的设备上存储 Cookie。</li>
                         </ul>
-
                         <h4 class="font-bold text-slate-800 mt-4 mb-2">4. 服务变更</h4>
                         <p>我们保留随时修改或终止服务、更新本条款的权利，恕不另行通知。</p>
-
                         <p class="mt-6 text-xs text-slate-400 border-t pt-4">最后更新日期: 2026年1月6日</p>
                     `,
                     closeBtn: "我已了解",
@@ -513,8 +461,11 @@
                     marketTitle: "实时行情看板",
                     marketNames: {
                         'cn_300': '沪深300', 'cn_a500': '中证A500', 'us_sp500': '标普500', 'us_nasdaq': '纳指100',
-                        'cn_bond_30': '30年国债', 'cn_bond_10': '10年国债', 'us_bond_long': '美长债TLT', 'gold': '伦敦金'
-                    }
+                        'cn_bond_30': '30年国债', 'cn_bond_10': '10年国债', 'us_bond_long': '美长债TLT', 'gold_london': '伦敦金',
+                        'gold_etf': '华夏黄金', 'money_etf': '银华日利', 'usd_cash': '美元短债', 'usd_cny': '美元汇率'
+                    },
+                    errFetch: "获取行情数据失败",
+                    errNetwork: "网络连接错误"
                 },
                 en: {
                     currencyCode: 'USD',
@@ -585,7 +536,6 @@
                     privacyContent: `
                         <h4 class="font-bold text-slate-800 mt-4 mb-2">1. Acceptance of Terms</h4>
                         <p>By accessing and using this website ("4x25 Tools"), you agree to be bound by these terms. If you do not agree, please do not use this service.</p>
-
                         <h4 class="font-bold text-slate-800 mt-4 mb-2">2. Disclaimer (No Financial Advice)</h4>
                         <p>The calculations, charts, and information provided on this website are for <strong>educational and informational purposes only</strong>. They do not constitute financial, investment, tax, or legal advice.</p>
                         <ul class="list-disc pl-5 mt-2 space-y-1">
@@ -594,7 +544,6 @@
                             <li>Consult with a qualified financial advisor before making any investment decisions.</li>
                         </ul>
                         <p class="mt-2">We accept no liability for any loss or damage resulting from the use of this tool. You use this service entirely at your own risk.</p>
-
                         <h4 class="font-bold text-slate-800 mt-4 mb-2">3. Privacy Policy (Data Localization)</h4>
                         <p>We respect your privacy. This tool operates on a <strong>Client-Side</strong> architecture:</p>
                         <ul class="list-disc pl-5 mt-2 space-y-1">
@@ -602,10 +551,8 @@
                             <li><strong>Data Persistence:</strong> To improve your experience, we save your input data in your browser's <strong>LocalStorage</strong> so you don't have to re-enter it next time. You can clear your browser cache to remove this data.</li>
                             <li><strong>Cookies & Analytics:</strong> We may use third-party services (like Google Analytics) to collect anonymous usage statistics (e.g., page views, device type) to improve the user experience. These services may store cookies on your device.</li>
                         </ul>
-
                         <h4 class="font-bold text-slate-800 mt-4 mb-2">4. Changes to Service</h4>
                         <p>We reserve the right to modify or discontinue the service, or update these terms at any time without prior notice.</p>
-
                         <p class="mt-6 text-xs text-slate-400 border-t pt-4">Last Updated: January 6, 2026</p>
                     `,
                     closeBtn: "I Understand",
@@ -635,13 +582,15 @@
                     marketTitle: "Live Market Ticker",
                     marketNames: {
                         'cn_300': 'CSI 300', 'cn_a500': 'CSI A500', 'us_sp500': 'S&P 500', 'us_nasdaq': 'Nasdaq 100',
-                        'cn_bond_30': 'CN 30Y Bond', 'cn_bond_10': 'CN 10Y Bond', 'us_bond_long': 'US 20Y+ Bond', 'gold': 'London Gold'
-                    }
+                        'cn_bond_30': 'CN 30Y Bond', 'cn_bond_10': 'CN 10Y Bond', 'us_bond_long': 'US 20Y+ Bond', 'gold_london': 'London Gold',
+                        'gold_etf': 'CN Gold ETF', 'money_etf': 'CN Cash ETF', 'usd_cash': 'US Short Bond', 'usd_cny': 'USD/CNY'
+                    },
+                    errFetch: "Failed to fetch market data",
+                    errNetwork: "Network error"
                 }
             };
 
             const Utils = {
-                // --- Optimization: Formatter Cache ---
                 formatterCache: new Map(),
                 getFormatter: (locale, options) => {
                     const key = locale + '|' + JSON.stringify(options);
@@ -652,8 +601,6 @@
                     }
                     return formatter;
                 },
-                // -------------------------------------
-
                 debounce: (func, wait) => {
                     let timeout;
                     return function(...args) {
@@ -662,10 +609,12 @@
                         timeout = setTimeout(() => func.apply(context, args), wait);
                     };
                 },
-                sanitizeInput: (value) => {
+                sanitizeInput: (value, maxLength = Config.ASSET_MAX_DIGITS) => {
                     let clean = value.replace(/[^\d]/g, '');
-                    if (clean.length > 1 && clean.startsWith('0')) clean = clean.replace(/^0+/, '');
-                    if (clean.length > Config.MAX_DIGITS) clean = clean.slice(0, Config.MAX_DIGITS);
+                    if (clean.length > Config.FORMAT.MIN_LENGTH_FOR_TRIM && clean.startsWith('0')) {
+                        clean = clean.replace(/^0+/, '');
+                    }
+                    if (clean.length > maxLength) clean = clean.slice(0, maxLength);
                     return clean;
                 },
                 sanitizeInteger: (value, max) => {
@@ -709,7 +658,6 @@
                     const startValue = parseFloat(el.dataset.currentValue || '0');
                     if (startValue === endValue) { el.textContent = Utils.formatMoney(endValue, lang, isCompact, includeCurrency); return; }
                     
-                    // Check for reduced motion preference
                     const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
                     if (mediaQuery.matches) {
                         el.textContent = Utils.formatMoney(endValue, lang, isCompact, includeCurrency);
@@ -732,12 +680,29 @@
                     el.animationFrame = requestAnimationFrame(step);
                 },
                 setText: (el, text) => { if (el && el.textContent !== text) el.textContent = text; },
-                setHtml: (el, html) => { if (!el) return; const t = document.createElement('template'); t.innerHTML = html.trim(); el.replaceChildren(t.content); },
+                setTrustedHtml: (el, html) => { 
+                    if (!el) return; 
+                    const clean = html.replace(/<script\b[^>]*>([\s\S]*?)<\/script>/gim, "").replace(/ on\w+="[^"]*"/g, "");
+                    const t = document.createElement('template'); 
+                    t.innerHTML = clean.trim(); 
+                    el.replaceChildren(t.content); 
+                },
                 setClass: (el, cls) => { if (el && el.className !== cls) el.className = cls; },
-                roundTo2: (num) => Math.round((num + Number.EPSILON) * 100) / 100
+                roundTo2: (num) => Math.round((num + Number.EPSILON) * 100) / 100,
+                // --- Network Improvement: Fetch with Timeout ---
+                fetchWithTimeout: async (resource, options = {}) => {
+                    const { timeout = 5000 } = options;
+                    const controller = new AbortController();
+                    const id = setTimeout(() => controller.abort(), timeout);
+                    const response = await fetch(resource, { ...options, signal: controller.signal });
+                    clearTimeout(id);
+                    return response;
+                }
             };
 
-            const State = {
+            const State = new EventEmitter();
+            // Mixin state properties
+            Object.assign(State, {
                 lang: 'en',
                 threshold: 10,
                 holdings: { stocks: 0, bonds: 0, cash: 0, gold: 0 },
@@ -748,14 +713,16 @@
                 debouncedSave: null,
                 pollingInterval: null,
                 shouldSyncPrincipal: false, 
+                isFirstLoad: true,
                 init() { 
                     this.load(); 
-                    this.debouncedCalc = Utils.debounce(() => { this.performCalculation(); }, Config.DEBOUNCE_DELAY); 
-                    this.debouncedSave = Utils.debounce(() => { this.save(); }, 500);
+                    this.debouncedCalc = Utils.debounce(() => { this.performCalculation(); }, Config.TIMING.CALC_DEBOUNCE); 
+                    this.debouncedSave = Utils.debounce(() => { this.save(); }, Config.TIMING.SAVE_DEBOUNCE);
                 },
                 save() {
                     try {
                         const data = {
+                            version: Config.DATA_VERSION, 
                             lang: this.lang,
                             threshold: this.threshold,
                             holdings: this.holdings,
@@ -764,14 +731,17 @@
                         };
                         localStorage.setItem(Config.STORAGE_KEY, JSON.stringify(data));
                     } catch (e) {
-                        console.warn('LocalStorage save skipped (restricted environment).');
+                        console.warn('LocalStorage save skipped.');
                     }
                 },
                 load() {
                     try {
                         const raw = localStorage.getItem(Config.STORAGE_KEY);
                         if (raw) {
-                            const data = JSON.parse(raw);
+                            let data = JSON.parse(raw);
+                            if (!data.version || data.version < Config.DATA_VERSION) {
+                                data = this.migrate(data);
+                            }
                             if (data.lang) this.lang = data.lang;
                             if (data.threshold) this.threshold = data.threshold;
                             if (data.holdings) this.holdings = { ...this.holdings, ...data.holdings };
@@ -779,8 +749,16 @@
                             if (data.fireExpense) this.fireExpense = data.fireExpense;
                         }
                     } catch (e) {
-                        console.warn('LocalStorage load skipped (restricted environment).');
+                        console.warn('LocalStorage load skipped.');
                     }
+                },
+                migrate(oldData) {
+                    const newData = { ...oldData };
+                    if (!newData.version) {
+                        if (typeof newData.fireExpense === 'undefined') newData.fireExpense = ''; 
+                        newData.version = 2;
+                    }
+                    return newData;
                 },
                 startPolling() {
                     this.fetchMarket(); 
@@ -789,57 +767,68 @@
                         this.fetchMarket();
                     }, Config.REFRESH_INTERVAL);
                 },
-                setLang(l) { this.lang = l; UI.renderAll(); UI.renderTicker(); this.debouncedSave(); },
-                setThreshold(t) { if (t >= Config.MIN_THRESHOLD && t <= Config.MAX_THRESHOLD) { this.threshold = t; UI.updateThresholdDisplay(); this.triggerCalc(); } },
+                setLang(l) { this.lang = l; this.emit('langChanged', l); this.debouncedSave(); },
+                setThreshold(t) { 
+                    if (t >= Config.MIN_THRESHOLD && t <= Config.MAX_THRESHOLD) { 
+                        this.threshold = t; 
+                        this.emit('thresholdChanged', t);
+                        this.triggerCalc(); 
+                    } 
+                },
                 updateHolding(key, valueStr) { 
                     const val = parseInt(valueStr.replace(/[^\d]/g, ''), 10); 
                     this.holdings[key] = isNaN(val) ? 0 : val; 
                     this.shouldSyncPrincipal = true; 
                     this.triggerCalc(); 
                 },
-                setProjMode(mode) { this.projection.mode = mode; UI.renderProjectionUI(); this.triggerCalc(); },
+                setProjMode(mode) { this.projection.mode = mode; this.emit('projModeChanged', mode); this.triggerCalc(); },
                 triggerCalc() { 
                     if (this.debouncedCalc) this.debouncedCalc(); 
                     if (this.debouncedSave) this.debouncedSave(); 
                 },
                 performCalculation() {
-                    requestAnimationFrame(() => {
-                        const results = Logic.calculatePortfolio(this.holdings, this.threshold);
-                        UI.renderResults(results);
-                        UI.renderFireProgress(results.total); 
-                        
-                        if (this.shouldSyncPrincipal) {
-                            this.projection.principal = String(results.total);
-                            if (UI.els.projPrincipal) {
-                                UI.els.projPrincipal.value = results.total > 0 ? results.total : '';
-                            }
-                            this.shouldSyncPrincipal = false;
-                        }
+                    const results = Logic.calculatePortfolio(this.holdings, this.threshold);
+                    // Decoupled: State simply emits data, doesn't know about UI
+                    this.emit('calculationDone', results);
 
-                        const projResults = Logic.calculateProjection(this.projection.principal, this.projection.rate, this.projection.years, this.projection.flow, this.projection.mode);
-                        UI.renderProjectionResult(projResults);
-                    });
+                    if (this.shouldSyncPrincipal) {
+                        this.projection.principal = String(results.total);
+                        this.emit('principalSynced', results.total);
+                        this.shouldSyncPrincipal = false;
+                    }
+                    const projResults = Logic.calculateProjection(this.projection.principal, this.projection.rate, this.projection.years, this.projection.flow, this.projection.mode);
+                    this.emit('projectionDone', projResults);
                 },
-                async fetchMarket() {
-                    try {
-                        const res = await fetch(Config.MARKET_API);
-                        if (!res.ok) throw new Error('Network error');
-                        this.marketData = await res.json();
-                        UI.renderTicker();
-                    } catch (e) {
-                        console.warn('Market fetch failed (likely sandboxed or network error). Hiding ticker.');
-                        if (!this.marketData) {
-                            const loader = document.getElementById('ticker-loading');
-                            const content = document.getElementById('ticker-content');
-                            if(loader) loader.style.display = 'none';
-                            if(content) {
-                                content.classList.remove('hidden');
-                                content.innerHTML = `<div class="col-span-full text-center text-gray-400 text-sm py-2 bg-gray-50 rounded-lg">Market data unavailable in this preview</div>`;
+                // --- Network Improvement: Retry Logic & Error Handling ---
+                async fetchMarket(retries = 1) {
+                    if (this.isFirstLoad) this.emit('marketLoading', true);
+                    
+                    for (let i = 0; i <= retries; i++) {
+                        try {
+                            const res = await Utils.fetchWithTimeout(Config.MARKET_API, { timeout: 5000 });
+                            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                            this.marketData = await res.json();
+                            this.emit('marketDataUpdated', this.marketData);
+                            if (this.isFirstLoad) {
+                                this.emit('marketLoading', false);
+                                this.isFirstLoad = false;
                             }
+                            return; // Success, exit loop
+                        } catch (e) {
+                            if (i === retries) {
+                                console.warn('Market fetch failed after retries:', e);
+                                if (!this.marketData) this.emit('marketError', e);
+                                if (this.isFirstLoad) {
+                                    this.emit('marketLoading', false);
+                                    this.isFirstLoad = false;
+                                }
+                            }
+                            // Wait a bit before retry (exponential backoff could be used here)
+                            await new Promise(r => setTimeout(r, 1000)); 
                         }
                     }
                 }
-            };
+            });
 
             const Logic = {
                 calculatePortfolio: (holdings, threshold) => {
@@ -887,7 +876,6 @@
 
             const UI = {
                 els: { assetInputs: {}, assetLabels: {}, assetLegends: {}, chartCircles: {} },
-                lastFocusedElement: null,
                 init() {
                     this.cacheDOM();          
                     State.init();             
@@ -896,9 +884,30 @@
                     this.renderLegend(); 
                     this.cacheLegendDOM(); 
                     this.bindEvents(); 
+                    this.subscribeToState(); // New: Subscribe to events
                     this.renderAll();
                     this.startClock(); 
                     State.startPolling();     
+                },
+                // --- Architecture Improvement: Subscribe to State Events ---
+                subscribeToState() {
+                    State.on('langChanged', () => { this.renderAll(); this.renderTicker(); });
+                    State.on('thresholdChanged', () => this.updateThresholdDisplay());
+                    State.on('projModeChanged', () => this.renderProjectionUI());
+                    State.on('calculationDone', (results) => {
+                        this.renderResults(results);
+                        this.renderFireProgress(results.total);
+                    });
+                    State.on('principalSynced', (val) => {
+                        if (this.els.projPrincipal) this.els.projPrincipal.value = val > 0 ? val : '';
+                    });
+                    State.on('projectionDone', (results) => this.renderProjectionResult(results));
+                    State.on('marketLoading', (isLoading) => this.setTickerLoading(isLoading));
+                    State.on('marketDataUpdated', () => this.renderTicker());
+                    State.on('marketError', () => {
+                        this.showTickerError();
+                        this.showToast(Translations[State.lang].errFetch, 'error');
+                    });
                 },
                 cacheDOM() {
                     this.els = { ...this.els,
@@ -914,7 +923,8 @@
                         projRate: document.getElementById('proj-rate'), projYears: document.getElementById('proj-years'), projFlow: document.getElementById('proj-flow'),
                         projResult: document.getElementById('proj-result'), projGain: document.getElementById('proj-gain'), projFlowLabel: document.getElementById('proj-flow-label'),
                         modeSavingBtn: document.getElementById('mode-saving'), modeSpendingBtn: document.getElementById('mode-spending'),
-                        tickerLoading: document.getElementById('ticker-loading'), tickerContent: document.getElementById('ticker-content'), tickerTime: document.getElementById('ticker-time')
+                        tickerLoading: document.getElementById('ticker-loading'), tickerContent: document.getElementById('ticker-content'), tickerTime: document.getElementById('ticker-time'),
+                        toastContainer: document.getElementById('toast-container')
                     };
                 },
                 renderInputs() {
@@ -923,16 +933,16 @@
                     Config.ASSETS.forEach(asset => {
                         const div = document.createElement('div');
                         const val = State.holdings[asset.key] === 0 ? '' : State.holdings[asset.key];
-                        div.innerHTML = `<label class="block text-sm font-medium text-gray-700 mb-1.5" id="label-${asset.key}" for="input-${asset.key}"></label><div class="relative"><span class="currency-symbol absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold select-none"></span><input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="${Config.MAX_DIGITS}" id="input-${asset.key}" placeholder="0" value="${val}" class="asset-input w-full pl-8 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none font-mono text-lg placeholder-gray-300 transition-shadow"></div>`;
+                        div.innerHTML = `<label class="block text-sm font-medium text-gray-700 mb-1.5" id="label-${asset.key}" for="input-${asset.key}"></label><div class="relative"><span class="currency-symbol absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold select-none"></span><input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="${Config.ASSET_MAX_DIGITS}" id="input-${asset.key}" placeholder="0" value="${val}" class="asset-input w-full pl-8 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none font-mono text-lg placeholder-gray-300 transition-shadow"></div>`;
                         fragment.appendChild(div);
                     });
-                    this.els.inputsContainer.appendChild(fragment);
+                    this.els.inputsContainer.replaceChildren(fragment);
                 },
                 cacheDynamicDOM() { Config.ASSETS.forEach(asset => { this.els.assetInputs[asset.key] = document.getElementById(`input-${asset.key}`); this.els.assetLabels[asset.key] = document.getElementById(`label-${asset.key}`); this.els.chartCircles[asset.key] = document.getElementById(`chart-${asset.key}`); }); },
                 renderLegend() {
                     const fragment = document.createDocumentFragment();
                     Config.ASSETS.forEach(asset => { const div = document.createElement('div'); div.className = "flex items-center gap-3"; div.innerHTML = `<span class="w-3 h-3 rounded-full ${asset.tailwindColor} flex-shrink-0 shadow-sm"></span><span class="text-sm font-medium text-slate-600" id="legend-${asset.key}"></span>`; fragment.appendChild(div); });
-                    this.els.legendContainer.appendChild(fragment);
+                    this.els.legendContainer.replaceChildren(fragment);
                 },
                 cacheLegendDOM() { Config.ASSETS.forEach(asset => { this.els.assetLegends[asset.key] = document.getElementById(`legend-${asset.key}`); }); },
                 bindEvents() {
@@ -942,19 +952,51 @@
                     this.els.modalCloseBtn.onclick = () => this.closeModal(); this.els.modalOverlay.onclick = () => this.closeModal();
                     this.els.privacyModal.onkeydown = (e) => { if(e.key === "Escape") this.closeModal(); };
                     this.els.faqContainer.onclick = (e) => { const btn = e.target.closest('button[data-faq-toggle]'); if (btn) this.toggleFaq(btn); };
-                    Config.ASSETS.forEach(asset => { const input = this.els.assetInputs[asset.key]; if (input) { input.oninput = (e) => { const clean = Utils.sanitizeInput(e.target.value); if (e.target.value !== clean) e.target.value = clean; State.updateHolding(asset.key, clean); }; } });
-                    const bindInputSync = (element, stateKey, sanitizer) => { if (!element) return; element.oninput = (e) => { const clean = sanitizer(e.target.value); if (e.target.value !== clean) e.target.value = clean; State.projection[stateKey] = clean; State.triggerCalc(); }; };
-                    bindInputSync(this.els.projPrincipal, 'principal', Utils.sanitizeInput); bindInputSync(this.els.projFlow, 'flow', Utils.sanitizeInput);
-                    bindInputSync(this.els.projRate, 'rate', (val) => Utils.sanitizeDecimal(val, 100)); bindInputSync(this.els.projYears, 'years', (val) => Utils.sanitizeInteger(val, 100));
+                    
+                    Config.ASSETS.forEach(asset => { const input = this.els.assetInputs[asset.key]; if (input) { input.oninput = (e) => { const clean = Utils.sanitizeInput(e.target.value, Config.ASSET_MAX_DIGITS); if (e.target.value !== clean) e.target.value = clean; State.updateHolding(asset.key, clean); }; } });
+                    
+                    const projectionInputs = [
+                        { el: this.els.projPrincipal, key: 'principal', type: 'input', max: Config.PROJ_MAX_DIGITS },
+                        { el: this.els.projFlow, key: 'flow', type: 'input', max: Config.PROJ_MAX_DIGITS },
+                        { el: this.els.projRate, key: 'rate', type: 'decimal', max: 100 },
+                        { el: this.els.projYears, key: 'years', type: 'integer', max: 100 }
+                    ];
+
+                    const sanitizerMap = { 'input': Utils.sanitizeInput, 'decimal': Utils.sanitizeDecimal, 'integer': Utils.sanitizeInteger };
+
+                    projectionInputs.forEach(config => {
+                        if (!config.el) return;
+                        const sanitizer = sanitizerMap[config.type];
+                        config.el.oninput = (e) => {
+                            const clean = sanitizer(e.target.value, config.max);
+                            if (e.target.value !== clean) e.target.value = clean;
+                            State.projection[config.key] = clean;
+                            State.triggerCalc();
+                        };
+                    });
+
                     this.els.modeSavingBtn.onclick = () => State.setProjMode('saving'); this.els.modeSpendingBtn.onclick = () => State.setProjMode('spending');
                     if (this.els.fireExpenseInput) {
                         this.els.fireExpenseInput.oninput = (e) => {
-                            const clean = Utils.sanitizeInput(e.target.value);
+                            const clean = Utils.sanitizeInput(e.target.value, Config.ASSET_MAX_DIGITS);
                             if (e.target.value !== clean) e.target.value = clean;
                             State.fireExpense = clean;
                             State.triggerCalc();
                         };
                     }
+                },
+                // --- UI Improvement: Toast Notification ---
+                showToast(message, type = 'info') {
+                    const toast = document.createElement('div');
+                    toast.className = `toast toast-${type}`;
+                    const icon = type === 'error' ? '⚠️' : (type === 'success' ? '✅' : 'ℹ️');
+                    toast.innerHTML = `<span class="text-lg">${icon}</span><span class="text-sm font-medium text-slate-800 pt-0.5">${message}</span>`;
+                    this.els.toastContainer.appendChild(toast);
+                    requestAnimationFrame(() => toast.classList.add('show'));
+                    setTimeout(() => {
+                        toast.classList.remove('show');
+                        setTimeout(() => toast.remove(), 300);
+                    }, 4000);
                 },
                 renderResults(data) {
                     const t = Translations[State.lang]; const { total, assetsData, globalBreach } = data;
@@ -965,7 +1007,8 @@
                     else { statusClass = "bg-emerald-50 border-emerald-200 text-emerald-900"; icon = "✅"; title = t.statusHealthyTitle; desc = t.statusHealthyDesc; showNote = false; }
                     Utils.setClass(this.els.statusCard, `rounded-2xl p-6 border shadow-sm transition-all ${statusClass}`);
                     Utils.setText(this.els.statusIcon, icon); Utils.setText(this.els.statusTitle, title); Utils.setText(this.els.statusDesc, desc); Utils.setText(this.els.statusNote, t.statusActionNote); Utils.setClass(this.els.statusNote, showNote ? "mt-2 text-xs opacity-75" : "hidden");
-                    this.els.resultBody.innerHTML = ''; let chartOffset = 0;
+                    const fragment = document.createDocumentFragment();
+                    let chartOffset = 0;
                     assetsData.forEach(asset => {
                         const circle = this.els.chartCircles[asset.key];
                         if (allZero) { circle.style.strokeDasharray = `0 100`; } else { circle.style.strokeDasharray = `${asset.percent} 100`; circle.style.strokeDashoffset = -chartOffset; chartOffset += asset.percent; }
@@ -978,46 +1021,37 @@
                         } else { actionHtml = `<span class="text-gray-400 text-sm font-medium pl-1 font-mono">${t.hold}</span>`; }
                         const percentClass = asset.isBreached ? 'text-red-500 font-bold' : 'text-slate-600'; const assetConfig = Config.ASSETS.find(a => a.key === asset.key);
                         tr.innerHTML = `<td class="p-3 text-left pl-4"><div class="flex items-center gap-3"><div class="w-3 h-3 rounded-full flex-shrink-0" style="background-color:${assetConfig.color}"></div><span class="font-medium text-slate-700 whitespace-nowrap">${t[asset.key]}</span></div></td><td class="p-3 text-left font-mono"><span class="${percentClass}">${asset.percent.toFixed(1)}%</span></td><td class="p-3 text-left font-mono text-slate-600 table-cell-truncate" title="${Utils.formatMoney(asset.target, State.lang, true)}">${Utils.formatMoney(asset.target, State.lang, true)}</td><td class="p-3 text-left pl-4">${actionHtml}</td>`;
-                        this.els.resultBody.appendChild(tr);
+                        fragment.appendChild(tr);
                     });
+                    this.els.resultBody.replaceChildren(fragment);
                 },
                 renderFireProgress(totalAssets) {
                     const expenseStr = State.fireExpense;
                     const expense = parseFloat(expenseStr) || 0;
                     const t = Translations[State.lang];
-                    
-                    // Reset styles first to default state
                     this.els.firePercent.classList.remove('text-base', 'text-amber-400');
                     this.els.firePercent.classList.add('text-2xl', 'text-white');
                     this.els.fireExpenseInput.classList.remove('ring-2', 'ring-amber-500', 'ring-opacity-50');
-
-                    // Case: Diogenes Mode (Explicit '0' input + Has Assets)
                     if (totalAssets > 0 && expense === 0 && expenseStr === '0') {
                         this.els.fireProgressBar.style.width = '100%';
-                        this.els.firePercent.textContent = '∞%'; // Infinity symbol
+                        this.els.firePercent.textContent = '∞%'; 
                         Utils.setText(this.els.fireTargetDisplay, Utils.formatMoney(0, State.lang, true));
                         return;
                     }
-
-                    // Case: Not Set / Empty (Prompt user)
                     if (expense === 0) {
                         this.els.fireProgressBar.style.width = '0%';
                         if (totalAssets > 0) {
-                            // User has money, but no goal -> Prompt them
                             this.els.firePercent.textContent = t.fireSetGoal;
                             this.els.firePercent.classList.remove('text-2xl', 'text-white');
                             this.els.firePercent.classList.add('text-base', 'text-amber-400');
                             this.els.fireExpenseInput.classList.add('ring-2', 'ring-amber-500', 'ring-opacity-50');
                             Utils.setText(this.els.fireTargetDisplay, '---');
                         } else {
-                            // No money, no goal -> Default zero state
                             this.els.firePercent.textContent = '0.0%';
                             Utils.setText(this.els.fireTargetDisplay, Utils.formatMoney(0, State.lang, true));
                         }
                         return;
                     }
-
-                    // Case: Normal Calculation
                     const target = expense * 25;
                     let percent = 0;
                     if (target > 0) { percent = (totalAssets / target) * 100; }
@@ -1045,21 +1079,30 @@
                     update(); 
                     setInterval(update, 1000);
                 },
+                setTickerLoading(isLoading) {
+                    if (isLoading) {
+                        this.els.tickerLoading.style.display = 'grid';
+                        this.els.tickerContent.classList.add('hidden');
+                    } else {
+                        this.els.tickerLoading.style.display = 'none';
+                        this.els.tickerContent.classList.remove('hidden');
+                    }
+                },
+                showTickerError() {
+                    this.els.tickerLoading.style.display = 'none';
+                    this.els.tickerContent.classList.remove('hidden');
+                    this.els.tickerContent.innerHTML = `<div class="col-span-full text-center text-gray-400 text-sm py-2 bg-gray-50 rounded-lg">Market data unavailable</div>`;
+                },
                 renderTicker() {
                     const data = State.marketData;
                     if (!data) return;
-                    this.els.tickerLoading.style.display = 'none';
-                    this.els.tickerContent.classList.remove('hidden');
-                    this.els.tickerContent.innerHTML = '';
+                    const fragment = document.createDocumentFragment();
                     const t = Translations[State.lang];
                     const isZh = State.lang === 'zh';
                     const upColor = isZh ? 'text-red-600' : 'text-emerald-600';
                     const downColor = isZh ? 'text-emerald-600' : 'text-red-600';
                     const bgUp = isZh ? 'bg-red-50' : 'bg-emerald-50';
                     const bgDown = isZh ? 'bg-emerald-50' : 'bg-red-50';
-                    
-                    const fragment = document.createDocumentFragment();
-                    
                     data.forEach(item => {
                         const changeVal = parseFloat(item.change);
                         const isUp = changeVal > 0;
@@ -1069,37 +1112,26 @@
                         const arrow = isZero ? '' : (isUp ? '▲' : '▼');
                         const sign = isZero ? '' : (isUp ? '+' : '');
                         const displayName = t.marketNames[item.key] || item.name;
-
-                        // Create Card
                         const card = document.createElement('div');
                         card.className = `flex flex-col justify-center px-3 py-3 rounded-xl ${bgClass} border border-transparent hover:border-gray-200 transition-all cursor-default`;
-
-                        // Name Row
                         const nameRow = document.createElement('div');
                         nameRow.className = "text-xs text-slate-500 font-bold mb-1 truncate";
                         nameRow.textContent = displayName; 
                         card.appendChild(nameRow);
-
-                        // Data Row
                         const dataRow = document.createElement('div');
                         dataRow.className = "flex items-baseline justify-between gap-1";
-
                         const priceSpan = document.createElement('span');
                         priceSpan.className = "font-mono font-bold text-slate-800 text-sm";
                         priceSpan.textContent = item.price; 
                         dataRow.appendChild(priceSpan);
-
                         const changeSpan = document.createElement('span');
                         changeSpan.className = `font-mono text-xs font-bold ${colorClass}`;
                         changeSpan.textContent = `${arrow}${sign}${item.change}%`; 
                         dataRow.appendChild(changeSpan);
-
                         card.appendChild(dataRow);
                         fragment.appendChild(card);
                     });
-                    
-                    this.els.tickerContent.appendChild(fragment);
-
+                    this.els.tickerContent.replaceChildren(fragment);
                     this.els.tickerTime.classList.remove('flash-update');
                     void this.els.tickerTime.offsetWidth; 
                     this.els.tickerTime.classList.add('flash-update');
@@ -1114,7 +1146,7 @@
                     const lang = State.lang; const t = Translations[lang];
                     document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
                     document.title = lang === 'en' ? "4x25 Strategy & FIRE Tool | Permanent Portfolio Calculator" : "4x25 Strategy & FIRE Tool | 永久投资组合计算器";
-                    this.els.i18nElements.forEach(el => { const key = el.getAttribute('data-i18n'); if (t[key]) { if (el.dataset.i18nHtml === 'true') { Utils.setHtml(el, t[key]); } else { Utils.setText(el, t[key]); } } });
+                    this.els.i18nElements.forEach(el => { const key = el.getAttribute('data-i18n'); if (t[key]) { if (el.dataset.i18nHtml === 'true') { Utils.setTrustedHtml(el, t[key]); } else { Utils.setText(el, t[key]); } } });
                     Config.ASSETS.forEach(asset => { Utils.setText(this.els.assetLabels[asset.key], t[asset.key]); Utils.setText(this.els.assetLegends[asset.key], t[asset.key]); });
                     const symbol = new Intl.NumberFormat(lang === 'zh' ? 'zh-CN' : 'en-US', { style: 'currency', currency: t.currencyCode }).formatToParts(0).find(x => x.type === 'currency').value;
                     this.els.currencySymbols.forEach(el => Utils.setText(el, symbol));
@@ -1129,16 +1161,14 @@
                         if (Array.isArray(item.answer)) { item.answer.forEach(paraText => { const p = document.createElement('p'); p.innerHTML = paraText; body.appendChild(p); }); } else { body.innerHTML = item.answer; }
                         inner.appendChild(body); content.appendChild(inner); container.appendChild(btn); container.appendChild(content); faqFragment.appendChild(container);
                     });
-                    this.els.faqContainer.appendChild(faqFragment);
+                    this.els.faqContainer.replaceChildren(faqFragment);
                     Utils.setClass(this.els.btnZh, `lang-btn w-20 flex justify-center px-4 py-3 text-sm font-bold hover:bg-gray-50 transition-colors ${lang === 'zh' ? 'active' : ''}`);
                     Utils.setClass(this.els.btnEn, `lang-btn w-20 flex justify-center px-4 py-3 text-sm font-bold hover:bg-gray-50 transition-colors ${lang === 'en' ? 'active' : ''}`);
-                    
                     if (this.els.projPrincipal) this.els.projPrincipal.value = State.projection.principal;
                     if (this.els.projRate) this.els.projRate.value = State.projection.rate;
                     if (this.els.projYears) this.els.projYears.value = State.projection.years;
                     if (this.els.projFlow) this.els.projFlow.value = State.projection.flow;
                     if (this.els.fireExpenseInput) this.els.fireExpenseInput.value = State.fireExpense;
-
                     this.renderProjectionUI(); this.updateThresholdDisplay(); State.triggerCalc();
                 },
                 toggleFaq(btn) {
