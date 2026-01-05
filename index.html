@@ -25,17 +25,23 @@
         .lang-btn.active { background-color: #3b82f6; color: white; border-color: #3b82f6; }
         button:disabled { opacity: 0.3; cursor: not-allowed; pointer-events: none; }
         .table-cell-truncate { max-width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        
+        /* FAQ Animation */
         .faq-content { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.3s ease-out, opacity 0.3s ease-out; opacity: 0; visibility: hidden; }
         .faq-content.open { grid-template-rows: 1fr; opacity: 1; visibility: visible; }
         .faq-inner { overflow: hidden; min-height: 0; }
         .faq-icon { transition: transform 0.3s ease; }
         .faq-icon.rotate { transform: rotate(180deg); }
+        
+        /* Modal Animation */
         .modal-overlay { transition: opacity 0.3s ease; }
         .modal-content { transition: transform 0.3s ease, opacity 0.3s ease; }
+        
+        /* Chart Animation */
         .chart-segment { transition: stroke-dasharray 0.6s cubic-bezier(0.4, 0, 0.2, 1), stroke-dashoffset 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+        
         button:focus-visible, input:focus-visible, a:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
-        body { opacity: 0; animation: fadeIn 0.3s ease-in forwards; }
-        @keyframes fadeIn { to { opacity: 1; } }
+        
         .season-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
         .season-card:hover { transform: translateY(-2px); box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
         
@@ -45,12 +51,30 @@
             100% { color: #94a3b8; text-shadow: none; }
         }
         .flash-update { animation: textFlash 1s ease-out; }
+
+        /* Performance Optimization: content-visibility */
+        .content-auto {
+            content-visibility: auto;
+            contain-intrinsic-size: 1px 1000px;
+        }
+
+        /* Accessibility: Respect user's motion preferences */
+        @media (prefers-reduced-motion: reduce) {
+            *, ::before, ::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
+            .chart-segment { transition: none; }
+            .flash-update { animation: none; }
+        }
     </style>
 </head>
 <body class="bg-gray-50 text-slate-800 min-h-screen flex flex-col">
 
     <!-- Main App Container -->
-    <div id="app" class="flex flex-col min-h-screen p-4 md:p-8 transition-opacity duration-300">
+    <div id="app" class="flex flex-col min-h-screen p-4 md:p-8">
         <div class="max-w-5xl mx-auto w-full flex-grow">
             <!-- Header -->
             <header class="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-gray-100 pb-6">
@@ -63,7 +87,7 @@
                     <h2 class="text-slate-500 mt-3 text-base md:text-lg font-medium" data-i18n="subtitle">Permanent Portfolio Strategy & FIRE Tool</h2>
                 </div>
                 
-                <!-- Language Switcher (Moved to far right) -->
+                <!-- Language Switcher -->
                 <div class="flex rounded-lg shadow-sm overflow-hidden border border-gray-300 bg-white self-start md:self-end" role="group">
                     <button type="button" id="btn-en" class="lang-btn w-20 flex justify-center px-4 py-3 text-sm font-bold hover:bg-gray-50 transition-colors active">EN</button>
                     <div class="w-px bg-gray-300"></div>
@@ -159,7 +183,7 @@
                             <h3 class="text-xl font-bold" data-i18n="rebalanceTitle">🔄 Rebalancing Suggestions</h3>
                             
                             <div class="flex flex-wrap items-center gap-3 sm:gap-4">
-                                <!-- Threshold Control (Moved Here) -->
+                                <!-- Threshold Control -->
                                 <div class="bg-gray-50 px-2 py-1 rounded-lg border border-gray-200 flex items-center gap-2 select-none">
                                     <span class="text-xs font-bold text-gray-500 ml-1" data-i18n="thresholdLabel" id="threshold-label">Threshold: ±</span>
                                     <div class="flex items-center bg-white rounded border border-gray-200 shadow-sm">
@@ -180,7 +204,7 @@
                                         <th class="p-3 font-medium whitespace-nowrap text-left pl-4" data-i18n="colAsset">Asset</th>
                                         <th class="p-3 font-medium whitespace-nowrap text-left" data-i18n="colCurrent">Current %</th>
                                         <th class="p-3 font-medium whitespace-nowrap text-left" data-i18n="colTarget">Target Value</th>
-                                        <th class="p-3 font-medium whitespace-nowrap text-left" data-i18n="colAction">Action</th>
+                                        <th class="p-3 font-medium whitespace-nowrap text-left pl-4" data-i18n="colAction">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-100" id="result-body"></tbody>
@@ -318,9 +342,9 @@
                 </section>
             </main>
 
-            <!-- FAQ -->
-            <section class="mt-10 max-w-4xl mx-auto">
-                <h3 class="text-xl font-bold text-slate-800 mb-6 text-center" data-i18n="faqTitle">Frequently Asked Questions (FAQ)</h3>
+            <!-- FAQ (Applied content-visibility here) -->
+            <section class="mt-10 max-w-4xl mx-auto content-auto">
+                <h3 class="text-lg font-bold text-slate-800 mb-6 text-center" data-i18n="faqTitle">Frequently Asked Questions (FAQ)</h3>
                 <div id="faq-container" class="space-y-4"></div>
             </section>
         </div>
@@ -488,7 +512,7 @@
                     marketTitle: "实时行情看板",
                     marketNames: {
                         'cn_300': '沪深300', 'cn_a500': '中证A500', 'us_sp500': '标普500', 'us_nasdaq': '纳指100',
-                        'cn_bond_30': '30年国债', 'cn_bond_10': '10年国债', 'us_bond_long': '美长债TLT', 'gold': '黄金ETF'
+                        'cn_bond_30': '30年国债', 'cn_bond_10': '10年国债', 'us_bond_long': '美长债TLT', 'gold': '伦敦金'
                     }
                 },
                 en: {
@@ -609,12 +633,25 @@
                     marketTitle: "Live Market Ticker",
                     marketNames: {
                         'cn_300': 'CSI 300', 'cn_a500': 'CSI A500', 'us_sp500': 'S&P 500', 'us_nasdaq': 'Nasdaq 100',
-                        'cn_bond_30': 'CN 30Y Bond', 'cn_bond_10': 'CN 10Y Bond', 'us_bond_long': 'US 20Y+ Bond', 'gold': 'Gold ETF'
+                        'cn_bond_30': 'CN 30Y Bond', 'cn_bond_10': 'CN 10Y Bond', 'us_bond_long': 'US 20Y+ Bond', 'gold': 'London Gold'
                     }
                 }
             };
 
             const Utils = {
+                // --- Optimization: Formatter Cache ---
+                formatterCache: new Map(),
+                getFormatter: (locale, options) => {
+                    const key = locale + '|' + JSON.stringify(options);
+                    let formatter = Utils.formatterCache.get(key);
+                    if (!formatter) {
+                        formatter = new Intl.NumberFormat(locale, options);
+                        Utils.formatterCache.set(key, formatter);
+                    }
+                    return formatter;
+                },
+                // -------------------------------------
+
                 debounce: (func, wait) => {
                     let timeout;
                     return function(...args) {
@@ -648,16 +685,36 @@
                     const currencyCode = Translations[lang].currencyCode;
                     const locale = lang === 'zh' ? 'zh-CN' : 'en-US';
                     if (!Number.isFinite(num)) return '---';
+                    
                     if (Math.abs(num) > Config.FORMAT.SCIENTIFIC_THRESHOLD) {
-                        return new Intl.NumberFormat(locale, { style: includeCurrency ? 'currency' : 'decimal', currency: currencyCode, notation: 'scientific', maximumFractionDigits: 2 }).format(num);
+                        return Utils.getFormatter(locale, { 
+                            style: includeCurrency ? 'currency' : 'decimal', 
+                            currency: currencyCode, 
+                            notation: 'scientific', 
+                            maximumFractionDigits: 2 
+                        }).format(num);
                     }
                     const useCompact = isCompact && Math.abs(num) > Config.FORMAT.COMPACT_THRESHOLD; 
-                    return new Intl.NumberFormat(locale, { style: includeCurrency ? 'currency' : 'decimal', currency: currencyCode, notation: useCompact ? 'compact' : 'standard', maximumFractionDigits: useCompact ? 2 : 0 }).format(num);
+                    return Utils.getFormatter(locale, { 
+                        style: includeCurrency ? 'currency' : 'decimal', 
+                        currency: currencyCode, 
+                        notation: useCompact ? 'compact' : 'standard', 
+                        maximumFractionDigits: useCompact ? 2 : 0 
+                    }).format(num);
                 },
                 animateTo: (el, endValue, lang, isCompact = false, includeCurrency = true) => {
                     if (!el) return;
                     const startValue = parseFloat(el.dataset.currentValue || '0');
                     if (startValue === endValue) { el.textContent = Utils.formatMoney(endValue, lang, isCompact, includeCurrency); return; }
+                    
+                    // Check for reduced motion preference
+                    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+                    if (mediaQuery.matches) {
+                        el.textContent = Utils.formatMoney(endValue, lang, isCompact, includeCurrency);
+                        el.dataset.currentValue = endValue;
+                        return;
+                    }
+
                     if (el.animationFrame) cancelAnimationFrame(el.animationFrame);
                     const duration = 800;
                     const startTime = performance.now();
@@ -686,16 +743,14 @@
                 fireExpense: '', 
                 marketData: null,
                 debouncedCalc: null,
-                debouncedSave: null, // New debounced save
+                debouncedSave: null,
                 pollingInterval: null,
                 shouldSyncPrincipal: false, 
                 init() { 
-                    this.load(); // Load from LocalStorage on init
+                    this.load(); 
                     this.debouncedCalc = Utils.debounce(() => { this.performCalculation(); }, Config.DEBOUNCE_DELAY); 
-                    this.debouncedSave = Utils.debounce(() => { this.save(); }, 500); // Save after 500ms of inactivity
-                    this.startPolling();
+                    this.debouncedSave = Utils.debounce(() => { this.save(); }, 500);
                 },
-                // --- Persistence Logic Start ---
                 save() {
                     try {
                         const data = {
@@ -707,7 +762,6 @@
                         };
                         localStorage.setItem(Config.STORAGE_KEY, JSON.stringify(data));
                     } catch (e) {
-                        // Silently fail if localStorage is blocked (e.g. sandboxed iframe)
                         console.warn('LocalStorage save skipped (restricted environment).');
                     }
                 },
@@ -723,11 +777,9 @@
                             if (data.fireExpense) this.fireExpense = data.fireExpense;
                         }
                     } catch (e) {
-                        // Silently fail if localStorage is blocked
                         console.warn('LocalStorage load skipped (restricted environment).');
                     }
                 },
-                // --- Persistence Logic End ---
                 startPolling() {
                     this.fetchMarket(); 
                     if (this.pollingInterval) clearInterval(this.pollingInterval);
@@ -746,7 +798,7 @@
                 setProjMode(mode) { this.projection.mode = mode; UI.renderProjectionUI(); this.triggerCalc(); },
                 triggerCalc() { 
                     if (this.debouncedCalc) this.debouncedCalc(); 
-                    if (this.debouncedSave) this.debouncedSave(); // Trigger save on changes
+                    if (this.debouncedSave) this.debouncedSave(); 
                 },
                 performCalculation() {
                     requestAnimationFrame(() => {
@@ -835,15 +887,16 @@
                 els: { assetInputs: {}, assetLabels: {}, assetLegends: {}, chartCircles: {} },
                 lastFocusedElement: null,
                 init() {
-                    State.init(); 
-                    this.cacheDOM(); 
-                    this.renderInputs(); 
+                    this.cacheDOM();          
+                    State.init();             
+                    this.renderInputs();      
                     this.cacheDynamicDOM(); 
                     this.renderLegend(); 
                     this.cacheLegendDOM(); 
                     this.bindEvents(); 
                     this.renderAll();
                     this.startClock(); 
+                    State.startPolling();     
                 },
                 cacheDOM() {
                     this.els = { ...this.els,
@@ -863,11 +916,10 @@
                     };
                 },
                 renderInputs() {
-                    this.els.inputsContainer.innerHTML = ''; // Clear first
+                    this.els.inputsContainer.innerHTML = ''; 
                     const fragment = document.createDocumentFragment();
                     Config.ASSETS.forEach(asset => {
                         const div = document.createElement('div');
-                        // Inject value from State.holdings
                         const val = State.holdings[asset.key] === 0 ? '' : State.holdings[asset.key];
                         div.innerHTML = `<label class="block text-sm font-medium text-gray-700 mb-1.5" id="label-${asset.key}" for="input-${asset.key}"></label><div class="relative"><span class="currency-symbol absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold select-none"></span><input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="${Config.MAX_DIGITS}" id="input-${asset.key}" placeholder="0" value="${val}" class="asset-input w-full pl-8 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none font-mono text-lg placeholder-gray-300 transition-shadow"></div>`;
                         fragment.appendChild(div);
@@ -919,11 +971,11 @@
                         let actionHtml = '';
                         if (allZero) { actionHtml = `<span class="text-gray-300 text-lg font-bold select-none">-</span>`; } 
                         else if (globalBreach) {
-                            if (Math.abs(asset.diff) > 0) { const type = asset.diff > 0 ? t.buy : t.sell; const colorClass = asset.diff > 0 ? 'bg-blue-50 text-blue-700' : 'bg-orange-50 text-orange-700'; actionHtml = `<div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-bold ${colorClass} whitespace-nowrap">${type} <span class="font-mono ml-1">${Utils.formatMoney(Math.abs(asset.diff), State.lang, true, false)}</span></div>`; } 
-                            else { actionHtml = `<span class="text-gray-400 text-sm font-medium pl-1">${t.hold}</span>`; }
-                        } else { actionHtml = `<span class="text-gray-400 text-sm font-medium pl-1">${t.hold}</span>`; }
+                            if (Math.abs(asset.diff) > 0) { const type = asset.diff > 0 ? t.buy : t.sell; const colorClass = asset.diff > 0 ? 'bg-blue-50 text-blue-700' : 'bg-orange-50 text-orange-700'; actionHtml = `<div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-bold ${colorClass} whitespace-nowrap font-mono">${type} <span class="ml-1">${Utils.formatMoney(Math.abs(asset.diff), State.lang, true, false)}</span></div>`; } 
+                            else { actionHtml = `<span class="text-gray-400 text-sm font-medium pl-1 font-mono">${t.hold}</span>`; }
+                        } else { actionHtml = `<span class="text-gray-400 text-sm font-medium pl-1 font-mono">${t.hold}</span>`; }
                         const percentClass = asset.isBreached ? 'text-red-500 font-bold' : 'text-slate-600'; const assetConfig = Config.ASSETS.find(a => a.key === asset.key);
-                        tr.innerHTML = `<td class="p-3 text-left pl-4"><div class="flex items-center gap-3"><div class="w-3 h-3 rounded-full flex-shrink-0" style="background-color:${assetConfig.color}"></div><span class="font-medium text-slate-700 whitespace-nowrap">${t[asset.key]}</span></div></td><td class="p-3 text-left font-mono"><span class="${percentClass}">${asset.percent.toFixed(1)}%</span></td><td class="p-3 text-left font-mono text-slate-600 table-cell-truncate" title="${Utils.formatMoney(asset.target, State.lang, true)}">${Utils.formatMoney(asset.target, State.lang, true)}</td><td class="p-3 text-left">${actionHtml}</td>`;
+                        tr.innerHTML = `<td class="p-3 text-left pl-4"><div class="flex items-center gap-3"><div class="w-3 h-3 rounded-full flex-shrink-0" style="background-color:${assetConfig.color}"></div><span class="font-medium text-slate-700 whitespace-nowrap">${t[asset.key]}</span></div></td><td class="p-3 text-left font-mono"><span class="${percentClass}">${asset.percent.toFixed(1)}%</span></td><td class="p-3 text-left font-mono text-slate-600 table-cell-truncate" title="${Utils.formatMoney(asset.target, State.lang, true)}">${Utils.formatMoney(asset.target, State.lang, true)}</td><td class="p-3 text-left pl-4">${actionHtml}</td>`;
                         this.els.resultBody.appendChild(tr);
                     });
                 },
@@ -968,6 +1020,10 @@
                     const downColor = isZh ? 'text-emerald-600' : 'text-red-600';
                     const bgUp = isZh ? 'bg-red-50' : 'bg-emerald-50';
                     const bgDown = isZh ? 'bg-emerald-50' : 'bg-red-50';
+                    
+                    // FIXED: Use document.createElement instead of innerHTML for security (XSS prevention) and performance
+                    const fragment = document.createDocumentFragment();
+                    
                     data.forEach(item => {
                         const changeVal = parseFloat(item.change);
                         const isUp = changeVal > 0;
@@ -977,11 +1033,37 @@
                         const arrow = isZero ? '' : (isUp ? '▲' : '▼');
                         const sign = isZero ? '' : (isUp ? '+' : '');
                         const displayName = t.marketNames[item.key] || item.name;
-                        const div = document.createElement('div');
-                        div.className = `flex flex-col justify-center px-3 py-3 rounded-xl ${bgClass} border border-transparent hover:border-gray-200 transition-all cursor-default`;
-                        div.innerHTML = `<div class="text-xs text-slate-500 font-bold mb-1 truncate">${displayName}</div><div class="flex items-baseline justify-between gap-1"><span class="font-mono font-bold text-slate-800 text-sm">${item.price}</span><span class="font-mono text-xs font-bold ${colorClass}">${arrow}${sign}${item.change}%</span></div>`;
-                        this.els.tickerContent.appendChild(div);
+
+                        // Create Card
+                        const card = document.createElement('div');
+                        card.className = `flex flex-col justify-center px-3 py-3 rounded-xl ${bgClass} border border-transparent hover:border-gray-200 transition-all cursor-default`;
+
+                        // Name Row
+                        const nameRow = document.createElement('div');
+                        nameRow.className = "text-xs text-slate-500 font-bold mb-1 truncate";
+                        nameRow.textContent = displayName; // Safe text insertion
+                        card.appendChild(nameRow);
+
+                        // Data Row
+                        const dataRow = document.createElement('div');
+                        dataRow.className = "flex items-baseline justify-between gap-1";
+
+                        const priceSpan = document.createElement('span');
+                        priceSpan.className = "font-mono font-bold text-slate-800 text-sm";
+                        priceSpan.textContent = item.price; // Safe text insertion
+                        dataRow.appendChild(priceSpan);
+
+                        const changeSpan = document.createElement('span');
+                        changeSpan.className = `font-mono text-xs font-bold ${colorClass}`;
+                        changeSpan.textContent = `${arrow}${sign}${item.change}%`; // Safe text insertion
+                        dataRow.appendChild(changeSpan);
+
+                        card.appendChild(dataRow);
+                        fragment.appendChild(card);
                     });
+                    
+                    this.els.tickerContent.appendChild(fragment);
+
                     this.els.tickerTime.classList.remove('flash-update');
                     void this.els.tickerTime.offsetWidth; 
                     this.els.tickerTime.classList.add('flash-update');
@@ -1004,7 +1086,7 @@
                     t.faqData.forEach((item, index) => {
                         const container = document.createElement('div'); container.className = 'border border-gray-200 rounded-xl overflow-hidden bg-white';
                         const btn = document.createElement('button'); btn.type = 'button'; btn.className = 'w-full flex justify-between items-center p-4 bg-gray-50 hover:bg-gray-100 transition-colors text-left focus:outline-none'; btn.setAttribute('data-faq-toggle', 'true'); btn.setAttribute('data-index', index); btn.setAttribute('aria-expanded', 'false');
-                        btn.innerHTML = `<span class="font-bold text-slate-800 text-sm md:text-base">${item.question}</span><svg class="faq-icon w-5 h-5 text-slate-400 flex-shrink-0 ml-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>`;
+                        btn.innerHTML = `<span class="font-bold text-slate-800 text-sm">${item.question}</span><svg class="faq-icon w-5 h-5 text-slate-400 flex-shrink-0 ml-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>`;
                         const content = document.createElement('div'); content.className = 'faq-content bg-white'; content.id = `faq-content-${index}`;
                         const inner = document.createElement('div'); inner.className = 'faq-inner';
                         const body = document.createElement('div'); body.className = 'p-4 text-sm text-slate-600 leading-relaxed border-t border-gray-100 space-y-2';
@@ -1015,7 +1097,6 @@
                     Utils.setClass(this.els.btnZh, `lang-btn w-20 flex justify-center px-4 py-3 text-sm font-bold hover:bg-gray-50 transition-colors ${lang === 'zh' ? 'active' : ''}`);
                     Utils.setClass(this.els.btnEn, `lang-btn w-20 flex justify-center px-4 py-3 text-sm font-bold hover:bg-gray-50 transition-colors ${lang === 'en' ? 'active' : ''}`);
                     
-                    // Fill inputs from State (for non-generated inputs)
                     if (this.els.projPrincipal) this.els.projPrincipal.value = State.projection.principal;
                     if (this.els.projRate) this.els.projRate.value = State.projection.rate;
                     if (this.els.projYears) this.els.projYears.value = State.projection.years;
