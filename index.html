@@ -236,7 +236,7 @@
                                 <label class="text-sm font-medium text-slate-300" for="fire-expense-input" data-i18n="fireExpenseLabel">Annual Expense Goal</label>
                                 <div class="text-right flex items-baseline gap-2">
                                     <span class="text-xs text-slate-500 uppercase tracking-wider font-bold" data-i18n="fireProgress">Progress</span>
-                                    <span class="text-2xl font-bold text-white font-mono" id="fire-percent">0%</span>
+                                    <span class="text-2xl font-bold text-white font-mono transition-colors duration-300" id="fire-percent">0%</span>
                                 </div>
                             </div>
                             
@@ -412,6 +412,7 @@
                     fireExpenseLabel: "预期年支出目标",
                     fireProgress: "FIRE 进度",
                     fireTargetLabel: "目标资产 (25x)",
+                    fireSetGoal: "请设定支出",
                     stocks: "股票 (Stocks)",
                     bonds: "长期国债 (Bonds)",
                     cash: "现金/短债 (Cash)",
@@ -533,6 +534,7 @@
                     fireExpenseLabel: "Annual Expense Goal",
                     fireProgress: "FIRE Progress",
                     fireTargetLabel: "Target (25x)",
+                    fireSetGoal: "Set Expense",
                     stocks: "Stocks",
                     bonds: "Long-Term Bonds",
                     cash: "Cash / T-Bills",
@@ -980,7 +982,42 @@
                     });
                 },
                 renderFireProgress(totalAssets) {
-                    const expense = parseFloat(State.fireExpense) || 0;
+                    const expenseStr = State.fireExpense;
+                    const expense = parseFloat(expenseStr) || 0;
+                    const t = Translations[State.lang];
+                    
+                    // Reset styles first to default state
+                    this.els.firePercent.classList.remove('text-base', 'text-amber-400');
+                    this.els.firePercent.classList.add('text-2xl', 'text-white');
+                    this.els.fireExpenseInput.classList.remove('ring-2', 'ring-amber-500', 'ring-opacity-50');
+
+                    // Case: Diogenes Mode (Explicit '0' input + Has Assets)
+                    if (totalAssets > 0 && expense === 0 && expenseStr === '0') {
+                        this.els.fireProgressBar.style.width = '100%';
+                        this.els.firePercent.textContent = '∞%'; // Infinity symbol
+                        Utils.setText(this.els.fireTargetDisplay, Utils.formatMoney(0, State.lang, true));
+                        return;
+                    }
+
+                    // Case: Not Set / Empty (Prompt user)
+                    if (expense === 0) {
+                        this.els.fireProgressBar.style.width = '0%';
+                        if (totalAssets > 0) {
+                            // User has money, but no goal -> Prompt them
+                            this.els.firePercent.textContent = t.fireSetGoal;
+                            this.els.firePercent.classList.remove('text-2xl', 'text-white');
+                            this.els.firePercent.classList.add('text-base', 'text-amber-400');
+                            this.els.fireExpenseInput.classList.add('ring-2', 'ring-amber-500', 'ring-opacity-50');
+                            Utils.setText(this.els.fireTargetDisplay, '---');
+                        } else {
+                            // No money, no goal -> Default zero state
+                            this.els.firePercent.textContent = '0.0%';
+                            Utils.setText(this.els.fireTargetDisplay, Utils.formatMoney(0, State.lang, true));
+                        }
+                        return;
+                    }
+
+                    // Case: Normal Calculation
                     const target = expense * 25;
                     let percent = 0;
                     if (target > 0) { percent = (totalAssets / target) * 100; }
@@ -1021,7 +1058,6 @@
                     const bgUp = isZh ? 'bg-red-50' : 'bg-emerald-50';
                     const bgDown = isZh ? 'bg-emerald-50' : 'bg-red-50';
                     
-                    // FIXED: Use document.createElement instead of innerHTML for security (XSS prevention) and performance
                     const fragment = document.createDocumentFragment();
                     
                     data.forEach(item => {
@@ -1041,7 +1077,7 @@
                         // Name Row
                         const nameRow = document.createElement('div');
                         nameRow.className = "text-xs text-slate-500 font-bold mb-1 truncate";
-                        nameRow.textContent = displayName; // Safe text insertion
+                        nameRow.textContent = displayName; 
                         card.appendChild(nameRow);
 
                         // Data Row
@@ -1050,12 +1086,12 @@
 
                         const priceSpan = document.createElement('span');
                         priceSpan.className = "font-mono font-bold text-slate-800 text-sm";
-                        priceSpan.textContent = item.price; // Safe text insertion
+                        priceSpan.textContent = item.price; 
                         dataRow.appendChild(priceSpan);
 
                         const changeSpan = document.createElement('span');
                         changeSpan.className = `font-mono text-xs font-bold ${colorClass}`;
-                        changeSpan.textContent = `${arrow}${sign}${item.change}%`; // Safe text insertion
+                        changeSpan.textContent = `${arrow}${sign}${item.change}%`; 
                         dataRow.appendChild(changeSpan);
 
                         card.appendChild(dataRow);
