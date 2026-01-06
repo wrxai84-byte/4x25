@@ -14,7 +14,7 @@
     <script src="https://cdn.tailwindcss.com/3.4.1"></script>
     
     <style>
-        /* System Font Stack for performance */
+        /* System Font Stack */
         body { 
             font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
             font-feature-settings: "tnum"; 
@@ -45,8 +45,11 @@
         .toast-success { border-left-color: #10B981; }
         .toast-info { border-left-color: #3B82F6; }
 
+        /* Chart Animation */
+        .chart-path { transition: d 0.4s ease-out, fill 0.4s ease; }
+
         .content-auto { content-visibility: auto; contain-intrinsic-size: 1px 1000px; }
-        @media (prefers-reduced-motion: reduce) { *, ::before, ::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; } .chart-segment { transition: none; } .flash-update { animation: none; } .toast { transition: none; } }
+        @media (prefers-reduced-motion: reduce) { *, ::before, ::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; } .chart-segment { transition: none; } .flash-update { animation: none; } .toast { transition: none; } .chart-path { transition: none; } }
     </style>
 </head>
 <body class="bg-gray-50 text-slate-800 min-h-screen flex flex-col">
@@ -252,12 +255,33 @@
                                         <input type="text" id="proj-flow" maxlength="12" class="w-full pl-7 pr-3 py-2 bg-gray-50 border border-gray-200 rounded-lg font-mono text-sm focus:ring-2 focus:ring-purple-500 outline-none placeholder-gray-300" placeholder="0">
                                     </div>
                                 </div>
+                                <div id="proj-note" class="text-xs text-gray-400 leading-tight pt-1"></div>
                             </div>
-                            <div class="bg-purple-50 rounded-xl p-5 flex flex-col justify-center items-center text-center border border-purple-100 overflow-hidden">
-                                <p class="text-purple-600 font-medium text-sm mb-2" data-i18n="projResultLabel">Future Total Assets</p>
-                                <p class="text-3xl md:text-4xl font-bold text-slate-900 font-mono tracking-tight break-all w-full" id="proj-result" data-current-value="0" aria-live="polite" aria-atomic="true">0</p>
-                                <div class="mt-4 text-xs text-purple-400 font-medium bg-white px-3 py-1 rounded-full shadow-sm max-w-full">
-                                    <span data-i18n="projGain">Total Gain</span>: <span id="proj-gain" class="font-mono break-all" data-current-value="0">0</span>
+                            <div class="flex flex-col h-full">
+                                <div class="bg-purple-50 rounded-xl p-5 flex flex-col justify-center items-center text-center border border-purple-100 overflow-hidden relative flex-grow min-h-[160px] mb-4">
+                                    <p class="text-purple-600 font-medium text-sm mb-2" data-i18n="projResultLabel">Future Total Assets</p>
+                                    <p class="text-3xl md:text-4xl font-bold text-slate-900 font-mono tracking-tight break-all w-full" id="proj-result" data-current-value="0" aria-live="polite" aria-atomic="true">0</p>
+                                    <div class="mt-4 text-xs text-purple-400 font-medium bg-white px-3 py-1 rounded-full shadow-sm max-w-full">
+                                        <span data-i18n="projGain">Total Gain</span>: <span id="proj-gain" class="font-mono break-all" data-current-value="0">0</span>
+                                    </div>
+                                </div>
+                                
+                                <!-- Mini Chart Container -->
+                                <div class="relative h-24 w-full bg-white rounded-lg border border-gray-100 overflow-hidden">
+                                    <svg id="proj-chart" class="w-full h-full block" preserveAspectRatio="none" viewBox="0 0 100 100">
+                                        <defs>
+                                            <linearGradient id="grad-purple" x1="0%" y1="0%" x2="0%" y2="100%">
+                                                <stop offset="0%" style="stop-color:#a855f7;stop-opacity:0.2" />
+                                                <stop offset="100%" style="stop-color:#a855f7;stop-opacity:0" />
+                                            </linearGradient>
+                                            <linearGradient id="grad-orange" x1="0%" y1="0%" x2="0%" y2="100%">
+                                                <stop offset="0%" style="stop-color:#f97316;stop-opacity:0.2" />
+                                                <stop offset="100%" style="stop-color:#f97316;stop-opacity:0" />
+                                            </linearGradient>
+                                        </defs>
+                                        <path id="proj-chart-area" class="chart-path" d="" fill="url(#grad-purple)"></path>
+                                        <path id="proj-chart-line" class="chart-path" d="" fill="none" stroke="#a855f7" stroke-width="2" vector-effect="non-scaling-stroke"></path>
+                                    </svg>
                                 </div>
                             </div>
                         </div>
@@ -331,7 +355,13 @@
             <li><strong>数据持久化:</strong> 为了提升体验，我们会将您的输入数据存储在您浏览器的 <strong>LocalStorage</strong> 中，以便您下次访问时无需重新输入。您可以随时清除浏览器缓存来删除这些数据。</li>
             <li><strong>Cookie 与统计:</strong> 我们可能会使用第三方服务（如 Google Analytics）收集匿名的访问统计数据（如页面浏览量、设备类型），以优化用户体验。这些服务可能会在您的设备上存储 Cookie。</li>
         </ul>
-        <h4 class="font-bold text-slate-800 mt-4 mb-2">4. 服务变更</h4>
+        <h4 class="font-bold text-slate-800 mt-4 mb-2">4. 模型局限性 (费用与通胀)</h4>
+        <p>请注意，本工具生成的模拟推演与再平衡建议均为<strong>理论数学模型</strong>，存在以下局限性：</p>
+        <ul class="list-disc pl-5 mt-2 space-y-1">
+            <li><strong>未考虑通胀/通缩:</strong> 所有金额均为名义价值，未根据通货膨胀率或购买力变化进行调整。</li>
+            <li><strong>忽略交易摩擦:</strong> 计算假设交易无损耗，未扣除交易手续费、佣金、印花税、滑点以及资本利得税等实际成本。</li>
+        </ul>
+        <h4 class="font-bold text-slate-800 mt-4 mb-2">5. 服务变更</h4>
         <p>我们保留随时修改或终止服务、更新本条款的权利，恕不另行通知。</p>
         <p class="mt-6 text-xs text-slate-400 border-t pt-4">最后更新日期: 2026年1月6日</p>
     </template>
@@ -354,7 +384,13 @@
             <li><strong>Data Persistence:</strong> To improve your experience, we save your input data in your browser's <strong>LocalStorage</strong> so you don't have to re-enter it next time. You can clear your browser cache to remove this data.</li>
             <li><strong>Cookies & Analytics:</strong> We may use third-party services (like Google Analytics) to collect anonymous usage statistics (e.g., page views, device type) to improve the user experience. These services may store cookies on your device.</li>
         </ul>
-        <h4 class="font-bold text-slate-800 mt-4 mb-2">4. Changes to Service</h4>
+        <h4 class="font-bold text-slate-800 mt-4 mb-2">4. Model Limitations (Fees & Inflation)</h4>
+        <p>Please note that the simulations and rebalancing suggestions are <strong>theoretical mathematical models</strong> with the following limitations:</p>
+        <ul class="list-disc pl-5 mt-2 space-y-1">
+            <li><strong>Inflation/Deflation Excluded:</strong> All figures are nominal values and are not adjusted for inflation or changes in purchasing power.</li>
+            <li><strong>Transaction Costs Ignored:</strong> Calculations assume zero friction and do not account for trading fees, commissions, slippage, or taxes (e.g., capital gains tax).</li>
+        </ul>
+        <h4 class="font-bold text-slate-800 mt-4 mb-2">5. Changes to Service</h4>
         <p>We reserve the right to modify or discontinue the service, or update these terms at any time without prior notice.</p>
         <p class="mt-6 text-xs text-slate-400 border-t pt-4">Last Updated: January 6, 2026</p>
     </template>
@@ -429,8 +465,8 @@
             "privacyTitle": "使用条款与隐私政策",
             "closeBtn": "我已了解",
             "projTitle": "财富变化推演",
-            "modeSaving": "定投积累",
-            "modeSpending": "提款消费",
+            "modeSaving": "定投模式",
+            "modeSpending": "消费模式",
             "projCurrent": "当前总资产",
             "projRate": "年化收益率 (0-100)",
             "projYears": "推演年限 (1-100)",
@@ -438,7 +474,8 @@
             "projExpense": "每年计划开销",
             "projResultLabel": "未来总资产",
             "projGain": "累计收益",
-            "projNote": "注：推演结果为名义金额，未扣除通货膨胀/通缩对购买力的实际影响。",
+            "projNoteSaving": "注：采用月度复利模型，模拟资金在全年均匀流入。",
+            "projNoteSpending": "注：采用月度复利模型，模拟资金在全年均匀流出。",
             "rebalanceNote": "注：建议操作金额为理论值，未考虑交易手续费及税务（如资本利得税）影响。",
             "seasonTitle": "经济四季罗盘",
             "seasonProsperity": "繁荣期",
@@ -455,7 +492,7 @@
             "marketNames": {
                 "cn_300": "沪深300", "cn_a500": "中证A500", "us_sp500": "标普500", "us_nasdaq": "纳指100",
                 "cn_bond_30": "30年国债", "cn_bond_10": "10年国债", "us_bond_long": "美长债TLT", "gold_london": "伦敦金",
-                "gold_etf": "华夏黄金", "money_etf": "银华日利", "usd_cash": "美元短债", "usd_cny": "美元汇率"
+                "gold_etf": "华夏黄金", "money_etf": "银华日利", "usd_cash": "美元短债", "usd_cny": "USD/CNY"
             },
             "errFetch": "获取行情数据失败",
             "errNetwork": "网络连接错误"
@@ -537,7 +574,8 @@
             "projExpense": "Annual Expense",
             "projResultLabel": "Future Total Assets",
             "projGain": "Total Gain",
-            "projNote": "Note: Projections are nominal values and do not account for inflation or deflation effects.",
+            "projNoteSaving": "Note: Uses monthly compounding to simulate continuous flow.",
+            "projNoteSpending": "Note: Uses monthly compounding to simulate continuous flow.",
             "rebalanceNote": "Note: Suggested actions are theoretical and do not account for transaction fees or tax implications.",
             "seasonTitle": "Economic Seasons",
             "seasonProsperity": "Prosperity",
@@ -863,28 +901,85 @@
                     return { total, assetsData, globalBreach };
                 },
                 calculateProjection: (principalStr, rateStr, yearsStr, flowStr, mode) => {
-                    const safeReturn = { futureValue: 0, gain: 0 };
-                    if (rateStr === '' || yearsStr === '') return safeReturn;
+                    // Unified Logic: Monthly Compounding (Approximates Continuous Limit)
+                    // This removes the "Start vs End" of year distinction by smoothing it over 12 months.
+                    
+                    const safeReturn = { futureValue: 0, gain: 0, series: [] };
+                    
                     const principal = parseFloat(String(principalStr).replace(/[^\d]/g, '')) || 0;
                     let rawRate = parseFloat(rateStr);
                     if (!Number.isFinite(rawRate)) rawRate = 0; if (rawRate > 100) rawRate = 100; if (rawRate < 0) rawRate = 0;
-                    const rate = rawRate / 100;
+                    const annualRate = rawRate / 100;
+                    
                     let years = parseFloat(yearsStr) || 0;
                     if (!Number.isFinite(years)) years = 0; if (years > 100) years = 100;
-                    let flow = parseFloat(String(flowStr).replace(/[^\d]/g, '')) || 0;
-                    if (mode === 'spending') flow = -flow;
-                    let futureValue = 0;
-                    if (rate === 0) { futureValue = principal + (flow * years); } 
-                    else {
-                        const fvPrincipal = principal * Math.pow(1 + rate, years);
-                        const fvAnnuityEOY = flow * (Math.pow(1 + rate, years) - 1) / rate;
-                        const fvAnnuityAvg = fvAnnuityEOY * (1 + rate / 2);
-                        futureValue = fvPrincipal + fvAnnuityAvg;
+                    
+                    let annualFlow = parseFloat(String(flowStr).replace(/[^\d]/g, '')) || 0;
+                    
+                    // Unified Flow Logic:
+                    // Saving = Positive Flow
+                    // Spending = Negative Flow
+                    if (mode === 'spending') {
+                        annualFlow = -annualFlow;
                     }
-                    if (!Number.isFinite(futureValue)) return safeReturn;
-                    if (futureValue < 0) futureValue = 0;
-                    const totalInvested = principal + (flow * years);
-                    return { futureValue: Utils.roundTo2(futureValue), gain: Utils.roundTo2(futureValue - totalInvested) };
+
+                    // Convert Annual to Monthly
+                    // 1. Monthly Rate: Geometric mean to preserve APY. (1+r)^(1/12) - 1
+                    const monthlyRate = Math.pow(1 + annualRate, 1/12) - 1;
+                    
+                    // 2. Monthly Flow: Spread the annual amount evenly
+                    const monthlyFlow = annualFlow / 12;
+                    
+                    const totalMonths = Math.floor(years * 12);
+                    let balance = principal;
+                    let totalFlow = 0;
+                    
+                    const series = [principal];
+
+                    // Loop through months (Approximating the limit)
+                    for (let i = 1; i <= totalMonths; i++) {
+                        // Apply Interest
+                        balance = balance * (1 + monthlyRate);
+                        
+                        // Apply Flow (Assumed at end of month, but since it's monthly, deviation is minimal)
+                        balance += monthlyFlow;
+                        
+                        // Prevent negative balance in spending mode
+                        if (balance < 0) balance = 0;
+
+                        // Only push to series once per year to keep chart clean, or if it's the last month
+                        if (i % 12 === 0 || i === totalMonths) {
+                            series.push(balance);
+                        }
+                    }
+
+                    // Calculate Total Flow for Gain calculation (Logic differs slightly for display)
+                    // For Gain display:
+                    // If Saving: Gain = Final - Principal - Contribution
+                    // If Spending: Gain = Final + Withdrawal - Principal
+                    
+                    // We track the raw flow sum.
+                    // If mode was spending, annualFlow was negative, so monthlyFlow was negative.
+                    // totalFlowSum will be negative.
+                    const totalFlowSum = monthlyFlow * totalMonths; 
+
+                    let gain = 0;
+                    // Math: Final = Principal + FlowSum + Gain
+                    // => Gain = Final - Principal - FlowSum
+                    gain = balance - principal - totalFlowSum;
+
+                    // If we want to display "Total Withdrawn" as a positive number in the gain calculation logic for spending:
+                    // Spending Mode: Gain = (Final Balance + Total Withdrawn) - Initial Principal
+                    // Since totalFlowSum is negative (e.g. -1000), subtracting it adds the withdrawal back.
+                    // So the formula `balance - principal - totalFlowSum` works for both cases.
+
+                    if (!Number.isFinite(balance)) return safeReturn;
+                    
+                    return { 
+                        futureValue: Utils.roundTo2(balance), 
+                        gain: Utils.roundTo2(gain),
+                        series: series
+                    };
                 }
             };
 
@@ -902,8 +997,6 @@
                     this.renderAll();
                     this.startClock(); 
                     
-                    // OPTIMIZATION: Delayed Ticker Start
-                    // Don't block the main thread or network during initial render.
                     const startMarketLater = () => State.startPolling();
                     if ('requestIdleCallback' in window) {
                         requestIdleCallback(startMarketLater, { timeout: 3000 });
@@ -922,7 +1015,10 @@
                     State.on('principalSynced', (val) => {
                         if (this.els.projPrincipal) this.els.projPrincipal.value = val > 0 ? val : '';
                     });
-                    State.on('projectionDone', (results) => this.renderProjectionResult(results));
+                    State.on('projectionDone', (results) => {
+                        this.renderProjectionResult(results);
+                        this.renderProjectionChart(results.series, State.projection.mode);
+                    });
                     State.on('marketLoading', (isLoading) => this.setTickerLoading(isLoading));
                     State.on('marketDataUpdated', () => this.renderTicker());
                     State.on('marketError', () => {
@@ -945,7 +1041,8 @@
                         projResult: document.getElementById('proj-result'), projGain: document.getElementById('proj-gain'), projFlowLabel: document.getElementById('proj-flow-label'),
                         modeSavingBtn: document.getElementById('mode-saving'), modeSpendingBtn: document.getElementById('mode-spending'),
                         tickerLoading: document.getElementById('ticker-loading'), tickerContent: document.getElementById('ticker-content'), tickerTime: document.getElementById('ticker-time'),
-                        toastContainer: document.getElementById('toast-container')
+                        toastContainer: document.getElementById('toast-container'), projNote: document.getElementById('proj-note'),
+                        projChartArea: document.getElementById('proj-chart-area'), projChartLine: document.getElementById('proj-chart-line')
                     };
                 },
                 renderInputs() {
@@ -974,7 +1071,6 @@
                     this.els.privacyModal.onkeydown = (e) => { if(e.key === "Escape") this.closeModal(); };
                     this.els.faqContainer.onclick = (e) => { const btn = e.target.closest('button[data-faq-toggle]'); if (btn) this.toggleFaq(btn); };
                     
-                    // OPTIMIZATION: Pause polling when page is hidden (saves battery/data)
                     document.addEventListener('visibilitychange', () => {
                         if (document.hidden) {
                             State.stopPolling();
@@ -1059,23 +1155,20 @@
                     const expense = parseFloat(expenseStr) || 0;
                     const t = Translations[State.lang];
                     
-                    // Reset classes
-                    this.els.firePercent.classList.remove('text-base', 'text-amber-400');
-                    this.els.firePercent.classList.add('text-2xl', 'text-white');
+                    this.els.firePercent.className = 'transition-colors duration-300 font-mono';
                     this.els.fireExpenseInput.classList.remove('ring-2', 'ring-amber-500', 'ring-opacity-50');
 
-                    // Case 1: Empty Input -> Prompt User (Set Expense)
                     if (expenseStr === '') {
                         this.els.fireProgressBar.style.width = '0%';
                         this.els.firePercent.textContent = t.fireSetGoal;
-                        this.els.firePercent.classList.remove('text-2xl', 'text-white');
-                        this.els.firePercent.classList.add('text-base', 'text-amber-400');
+                        this.els.firePercent.classList.add('text-sm', 'text-slate-500', 'font-medium', 'italic');
                         this.els.fireExpenseInput.classList.add('ring-2', 'ring-amber-500', 'ring-opacity-50');
                         Utils.setText(this.els.fireTargetDisplay, '---');
                         return;
                     }
 
-                    // Case 2: Explicit 0 Expense + Assets > 0 -> Diogenes Mode (Infinity)
+                    this.els.firePercent.classList.add('text-2xl', 'text-white', 'font-bold');
+
                     if (expense === 0 && totalAssets > 0) {
                         this.els.fireProgressBar.style.width = '100%';
                         this.els.firePercent.textContent = '∞%'; 
@@ -1083,7 +1176,6 @@
                         return;
                     }
 
-                    // Case 3: Explicit 0 Expense + 0 Assets -> Nothing (0.0%)
                     if (expense === 0 && totalAssets === 0) {
                         this.els.fireProgressBar.style.width = '0%';
                         this.els.firePercent.textContent = '0.0%';
@@ -1091,7 +1183,6 @@
                         return;
                     }
 
-                    // Case 4: Normal Calculation
                     const target = expense * 25;
                     let percent = 0;
                     if (target > 0) { percent = (totalAssets / target) * 100; }
@@ -1104,6 +1195,46 @@
                     const { futureValue, gain } = data;
                     Utils.animateTo(this.els.projResult, futureValue, State.lang, true);
                     Utils.animateTo(this.els.projGain, gain, State.lang, true);
+                },
+                renderProjectionChart(series, mode) {
+                    const svg = this.els.projChartArea.closest('svg');
+                    if (!series || series.length < 2) {
+                        this.els.projChartArea.setAttribute('d', '');
+                        this.els.projChartLine.setAttribute('d', '');
+                        return;
+                    }
+
+                    const maxVal = Math.max(...series, 1); 
+                    const minVal = 0;
+                    const range = maxVal - minVal;
+                    const width = 100;
+                    const height = 100;
+                    const stepX = width / (series.length - 1);
+
+                    const points = series.map((val, i) => {
+                        const x = i * stepX;
+                        // Invert Y because SVG 0 is top
+                        const y = height - ((val - minVal) / range) * height;
+                        return `${x},${y}`;
+                    });
+
+                    // Create Line Path
+                    const lineD = `M ${points.join(' L ')}`;
+                    
+                    // Create Area Path (close the loop at bottom)
+                    const areaD = `${lineD} L ${width},${height} L 0,${height} Z`;
+
+                    this.els.projChartArea.setAttribute('d', areaD);
+                    this.els.projChartLine.setAttribute('d', lineD);
+
+                    // Color logic
+                    if (mode === 'saving') {
+                        this.els.projChartArea.setAttribute('fill', 'url(#grad-purple)');
+                        this.els.projChartLine.setAttribute('stroke', '#a855f7'); // purple-500
+                    } else {
+                        this.els.projChartArea.setAttribute('fill', 'url(#grad-orange)');
+                        this.els.projChartLine.setAttribute('stroke', '#f97316'); // orange-500
+                    }
                 },
                 startClock() {
                     const update = () => {
@@ -1178,8 +1309,18 @@
                 },
                 renderProjectionUI() {
                     const t = Translations[State.lang]; const mode = State.projection.mode;
-                    if (mode === 'saving') { Utils.setClass(this.els.modeSavingBtn, "px-3 py-1.5 text-xs font-bold rounded-md shadow-sm bg-white text-emerald-600 transition-all"); Utils.setClass(this.els.modeSpendingBtn, "px-3 py-1.5 text-xs font-bold rounded-md text-gray-500 hover:text-gray-700 transition-all"); Utils.setText(this.els.projFlowLabel, t.projContribution); } 
-                    else { Utils.setClass(this.els.modeSavingBtn, "px-3 py-1.5 text-xs font-bold rounded-md text-gray-500 hover:text-gray-700 transition-all"); Utils.setClass(this.els.modeSpendingBtn, "px-3 py-1.5 text-xs font-bold rounded-md shadow-sm bg-white text-orange-600 transition-all"); Utils.setText(this.els.projFlowLabel, t.projExpense); }
+                    if (mode === 'saving') { 
+                        Utils.setClass(this.els.modeSavingBtn, "px-3 py-1.5 text-sm font-semibold rounded-md shadow-sm bg-white text-emerald-600 transition-all"); 
+                        Utils.setClass(this.els.modeSpendingBtn, "px-3 py-1.5 text-sm font-semibold rounded-md text-gray-500 hover:text-gray-700 transition-all"); 
+                        Utils.setText(this.els.projFlowLabel, t.projContribution); 
+                        Utils.setText(this.els.projNote, t.projNoteSaving);
+                    } else { 
+                        Utils.setClass(this.els.modeSavingBtn, "px-3 py-1.5 text-sm font-semibold rounded-md text-gray-500 hover:text-gray-700 transition-all"); 
+                        Utils.setClass(this.els.modeSpendingBtn, "px-3 py-1.5 text-sm font-semibold rounded-md shadow-sm bg-white text-orange-600 transition-all"); 
+                        Utils.setText(this.els.projFlowLabel, t.projExpense); 
+                        Utils.setText(this.els.projNote, t.projNoteSpending);
+                    }
+                    this.els.projNote.classList.remove('hidden');
                 },
                 updateThresholdDisplay() { Utils.setText(this.els.thresholdDisplay, State.threshold); this.els.btnMinus.disabled = (State.threshold <= Config.MIN_THRESHOLD); this.els.btnPlus.disabled = (State.threshold >= Config.MAX_THRESHOLD); },
                 renderAll() {
