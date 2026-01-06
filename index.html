@@ -1,26 +1,18 @@
 <!DOCTYPE html>
 <html lang="en" prefix="og: http://ogp.me/ns#">
 <head>
-    <!-- Security & Meta Tags -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; font-src 'self'; connect-src 'self' https://market-proxy.wrx-ai-84.workers.dev https://www.google-analytics.com https://analytics.google.com; img-src 'self' data: https://www.googletagmanager.com;">
-    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>4x25 Strategy & FIRE Tool | 永久投资组合计算器</title>
     <meta name="description" content="Free Permanent Portfolio Rebalancing Tool & FIRE Calculator.">
     
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💰</text></svg>">
+    <link rel="preconnect" href="https://market-proxy.wrx-ai-84.workers.dev" crossorigin>
+    <link rel="dns-prefetch" href="https://market-proxy.wrx-ai-84.workers.dev">
 
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💰</text></svg>">
     <script src="https://cdn.tailwindcss.com/3.4.1"></script>
-    
     <style>
-        /* System Font Stack */
-        body { 
-            font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
-            font-feature-settings: "tnum"; 
-            -webkit-font-smoothing: antialiased;
-        }
-        
+        body { font-family: system-ui, -apple-system, sans-serif; font-feature-settings: "tnum"; -webkit-font-smoothing: antialiased; }
         .lang-btn.active { background-color: #3b82f6; color: white; border-color: #3b82f6; }
         button:disabled { opacity: 0.3; cursor: not-allowed; pointer-events: none; }
         .table-cell-truncate { max-width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -31,23 +23,20 @@
         .faq-icon.rotate { transform: rotate(180deg); }
         .modal-overlay { transition: opacity 0.3s ease; }
         .modal-content { transition: transform 0.3s ease, opacity 0.3s ease; }
-        .chart-segment { transition: stroke-dasharray 0.6s cubic-bezier(0.4, 0, 0.2, 1), stroke-dashoffset 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+        .chart-segment { transition: stroke-dasharray 0.6s cubic-bezier(0.4, 0, 0.2, 1), stroke-dashoffset 0.6s cubic-bezier(0.4, 0, 0.2, 1); will-change: stroke-dasharray, stroke-dashoffset; }
         button:focus-visible, input:focus-visible, a:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
         .season-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
         .season-card:hover { transform: translateY(-2px); box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
         @keyframes textFlash { 0% { color: #10B981; text-shadow: 0 0 5px rgba(16, 185, 129, 0.5); } 100% { color: #94a3b8; text-shadow: none; } }
         .flash-update { animation: textFlash 1s ease-out; }
-        
         #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 100; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
         .toast { pointer-events: auto; min-width: 300px; padding: 16px; border-radius: 12px; background: white; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); border-left: 4px solid; transform: translateX(120%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease; opacity: 0; display: flex; align-items: start; gap: 12px; }
         .toast.show { transform: translateX(0); opacity: 1; }
         .toast-error { border-left-color: #EF4444; }
         .toast-success { border-left-color: #10B981; }
         .toast-info { border-left-color: #3B82F6; }
-
-        /* Chart Animation */
-        .chart-path { transition: d 0.4s ease-out, fill 0.4s ease; }
-
+        .chart-path { transition: d 0.6s ease-out, fill 0.6s ease; }
+        .chart-area-path { opacity: 0.2; transition: d 0.6s ease-out, fill 0.6s ease; }
         .content-auto { content-visibility: auto; contain-intrinsic-size: 1px 1000px; }
         @media (prefers-reduced-motion: reduce) { *, ::before, ::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; } .chart-segment { transition: none; } .flash-update { animation: none; } .toast { transition: none; } .chart-path { transition: none; } }
     </style>
@@ -112,24 +101,24 @@
                                 <span class="text-sm font-bold text-blue-700" data-i18n="seasonStocks">Stocks</span>
                             </div>
                             <div class="season-card bg-violet-50 border border-violet-100 rounded-xl p-3 flex flex-col items-center text-center cursor-default">
-                                <span class="text-xl mb-1" aria-hidden="true">📉</span>
+                                <span class="text-xl mb-1" aria-hidden="true">📜</span>
                                 <span class="text-xs font-bold text-violet-400 uppercase tracking-wide mb-0.5" data-i18n="seasonDeflation">Deflation</span>
                                 <span class="text-sm font-bold text-violet-700" data-i18n="seasonBonds">Bonds</span>
-                            </div>
-                            <div class="season-card bg-amber-50 border border-amber-100 rounded-xl p-3 flex flex-col items-center text-center cursor-default">
-                                <span class="text-xl mb-1" aria-hidden="true">💰</span>
-                                <span class="text-xs font-bold text-amber-400 uppercase tracking-wide mb-0.5" data-i18n="seasonInflation">Inflation</span>
-                                <span class="text-sm font-bold text-amber-700" data-i18n="seasonGold">Gold</span>
                             </div>
                             <div class="season-card bg-emerald-50 border border-emerald-100 rounded-xl p-3 flex flex-col items-center text-center cursor-default">
                                 <span class="text-xl mb-1" aria-hidden="true">🛡️</span>
                                 <span class="text-xs font-bold text-emerald-400 uppercase tracking-wide mb-0.5" data-i18n="seasonRecession">Recession</span>
                                 <span class="text-sm font-bold text-emerald-700" data-i18n="seasonCash">Cash</span>
                             </div>
+                            <div class="season-card bg-amber-50 border border-amber-100 rounded-xl p-3 flex flex-col items-center text-center cursor-default">
+                                <span class="text-xl mb-1" aria-hidden="true">🪙</span>
+                                <span class="text-xs font-bold text-amber-400 uppercase tracking-wide mb-0.5" data-i18n="seasonInflation">Inflation</span>
+                                <span class="text-sm font-bold text-amber-700" data-i18n="seasonGold">Gold</span>
+                            </div>
                         </div>
                         <div class="bg-slate-50 rounded-lg p-3 text-xs text-slate-500 leading-relaxed border border-slate-100">
                             <span class="font-bold text-slate-700"><span aria-hidden="true">💡</span> <span data-i18n="rule72Title">Rule of 72</span>:</span> 
-                            <span data-i18n="rule72Desc">At 6.8% return, your assets double every ~10.6 years.</span>
+                            <span id="rule72-desc">Calculating...</span>
                         </div>
                     </div>
                 </section>
@@ -178,9 +167,10 @@
                         </div>
                     </div>
 
-                    <div class="bg-slate-900 text-white rounded-2xl p-6 shadow-lg overflow-hidden">
+                    <div class="bg-slate-900 text-white rounded-2xl p-6 shadow-lg overflow-hidden transition-colors duration-500" id="fire-card">
                         <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
-                            <span aria-hidden="true">🔥</span> <span data-i18n="fireTitle">FIRE 4% Rule Preview</span>
+                            <span id="fire-header-icon" class="text-2xl transition-all duration-500" aria-hidden="true">🔥</span> 
+                            <span id="fire-header-title" data-i18n="fireTitle">FIRE 4% Rule Preview</span>
                         </h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                             <div class="overflow-hidden">
@@ -207,11 +197,18 @@
                             <div class="h-3 bg-slate-800 rounded-full overflow-hidden mb-2 shadow-inner border border-slate-700/50" role="progressbar" aria-valuemin="0" aria-valuemax="100">
                                 <div id="fire-progress-bar" class="h-full bg-gradient-to-r from-emerald-600 to-emerald-400 transition-all duration-700 ease-out w-0 shadow-[0_0_10px_rgba(16,185,129,0.5)]"></div>
                             </div>
-                            <div class="flex justify-between text-xs text-slate-500 font-mono">
+                            
+                            <!-- Standard Footer -->
+                            <div id="fire-footer-standard" class="flex justify-between text-xs text-slate-500 font-mono transition-opacity duration-300">
                                 <span>0</span>
                                 <div>
                                     <span data-i18n="fireTargetLabel">Target (25x)</span>: <span id="fire-target-display" class="text-slate-400">0</span>
                                 </div>
+                            </div>
+                            
+                            <!-- Diogenes Footer (Hidden by default) -->
+                            <div id="fire-footer-diogenes" class="hidden text-center pt-1 transition-opacity duration-300">
+                                <span class="text-yellow-400 font-bold text-sm italic font-serif tracking-wide" id="diogenes-quote"></span>
                             </div>
                         </div>
                     </div>
@@ -219,11 +216,16 @@
                     <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
                             <h3 class="text-xl font-bold flex items-center gap-2">
-                                <span class="text-purple-500" aria-hidden="true">🔮</span> <span data-i18n="projTitle">Wealth Simulation</span>
+                                <span class="text-purple-500" aria-hidden="true">🎲</span> <span data-i18n="projTitle">Monte Carlo Simulation</span>
                             </h3>
-                            <div class="flex bg-gray-100 p-1 rounded-lg self-start sm:self-auto">
-                                <button type="button" id="mode-saving" class="px-3 py-1.5 text-xs font-bold rounded-md shadow-sm bg-white text-emerald-600 transition-all"><span data-i18n="modeSaving">Saving</span></button>
-                                <button type="button" id="mode-spending" class="px-3 py-1.5 text-xs font-bold rounded-md text-gray-500 hover:text-gray-700 transition-all"><span data-i18n="modeSpending">Spending</span></button>
+                            <div class="flex items-center gap-2">
+                                <button type="button" id="btn-simulate" class="px-3 py-1.5 text-xs font-bold rounded-md shadow-sm bg-purple-100 text-purple-700 hover:bg-purple-200 transition-all flex items-center gap-1">
+                                    <span class="text-lg leading-none">↻</span> <span data-i18n="btnSimulate">Resimulate</span>
+                                </button>
+                                <div class="flex bg-gray-100 p-1 rounded-lg">
+                                    <button type="button" id="mode-saving" class="px-3 py-1.5 text-xs font-bold rounded-md shadow-sm bg-white text-emerald-600 transition-all"><span data-i18n="modeSaving">Saving</span></button>
+                                    <button type="button" id="mode-spending" class="px-3 py-1.5 text-xs font-bold rounded-md text-gray-500 hover:text-gray-700 transition-all"><span data-i18n="modeSpending">Spending</span></button>
+                                </div>
                             </div>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -236,52 +238,49 @@
                                     </div>
                                 </div>
                                 <div class="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1" data-i18n="projRate">Return %</label>
-                                        <div class="relative">
-                                            <input type="text" inputmode="decimal" id="proj-rate" value="6.8" placeholder="0" class="w-full pl-3 pr-6 py-2 bg-gray-50 border border-gray-200 rounded-lg font-mono text-sm focus:ring-2 focus:ring-purple-500 outline-none placeholder-gray-300">
-                                            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-xs">%</span>
+                                    <div class="flex flex-col h-full">
+                                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1" data-i18n="projYears">Years</label>
+                                        <input type="text" inputmode="numeric" id="proj-years" value="10" placeholder="1" class="mt-auto w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg font-mono text-sm focus:ring-2 focus:ring-purple-500 outline-none placeholder-gray-300">
+                                    </div>
+                                    <div class="flex flex-col h-full">
+                                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1" id="proj-flow-label" data-i18n="projContribution">Annual Contribution</label>
+                                        <div class="relative mt-auto">
+                                            <span class="currency-symbol absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-sm"></span>
+                                            <input type="text" id="proj-flow" maxlength="12" class="w-full pl-7 pr-3 py-2 bg-gray-50 border border-gray-200 rounded-lg font-mono text-sm focus:ring-2 focus:ring-purple-500 outline-none placeholder-gray-300" placeholder="0">
                                         </div>
                                     </div>
-                                    <div>
-                                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1" data-i18n="projYears">Years</label>
-                                        <input type="text" inputmode="numeric" id="proj-years" value="10" placeholder="1" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg font-mono text-sm focus:ring-2 focus:ring-purple-500 outline-none placeholder-gray-300">
-                                    </div>
                                 </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1" id="proj-flow-label" data-i18n="projContribution">Annual Contribution</label>
-                                    <div class="relative">
-                                        <span class="currency-symbol absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-sm"></span>
-                                        <input type="text" id="proj-flow" maxlength="12" class="w-full pl-7 pr-3 py-2 bg-gray-50 border border-gray-200 rounded-lg font-mono text-sm focus:ring-2 focus:ring-purple-500 outline-none placeholder-gray-300" placeholder="0">
-                                    </div>
+                                <div class="bg-purple-50 rounded-lg p-3 text-xs text-purple-800 border border-purple-100">
+                                    <p class="font-bold mb-1" data-i18n="monteCarloTitle">Based on US Market Data (1976-2025):</p>
+                                    <p class="opacity-80 leading-relaxed" data-i18n="monteCarloDesc">Simulating 1,000 possible futures by randomly sampling from 50 years of historical US Permanent Portfolio returns.</p>
                                 </div>
-                                <div id="proj-note" class="text-xs text-gray-400 leading-tight pt-1"></div>
                             </div>
                             <div class="flex flex-col h-full">
-                                <div class="bg-purple-50 rounded-xl p-5 flex flex-col justify-center items-center text-center border border-purple-100 overflow-hidden relative flex-grow min-h-[160px] mb-4">
-                                    <p class="text-purple-600 font-medium text-sm mb-2" data-i18n="projResultLabel">Future Total Assets</p>
-                                    <p class="text-3xl md:text-4xl font-bold text-slate-900 font-mono tracking-tight break-all w-full" id="proj-result" data-current-value="0" aria-live="polite" aria-atomic="true">0</p>
-                                    <div class="mt-4 text-xs text-purple-400 font-medium bg-white px-3 py-1 rounded-full shadow-sm max-w-full">
-                                        <span data-i18n="projGain">Total Gain</span>: <span id="proj-gain" class="font-mono break-all" data-current-value="0">0</span>
+                                <div class="bg-white rounded-lg border border-gray-100 overflow-hidden relative flex-grow min-h-[200px] mb-2">
+                                    <div class="absolute top-2 left-3 z-10 pointer-events-none">
+                                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider" data-i18n="projChartTitle">Wealth Projection</p>
                                     </div>
-                                </div>
-                                
-                                <!-- Mini Chart Container -->
-                                <div class="relative h-24 w-full bg-white rounded-lg border border-gray-100 overflow-hidden">
                                     <svg id="proj-chart" class="w-full h-full block" preserveAspectRatio="none" viewBox="0 0 100 100">
                                         <defs>
-                                            <linearGradient id="grad-purple" x1="0%" y1="0%" x2="0%" y2="100%">
-                                                <stop offset="0%" style="stop-color:#a855f7;stop-opacity:0.2" />
-                                                <stop offset="100%" style="stop-color:#a855f7;stop-opacity:0" />
-                                            </linearGradient>
-                                            <linearGradient id="grad-orange" x1="0%" y1="0%" x2="0%" y2="100%">
-                                                <stop offset="0%" style="stop-color:#f97316;stop-opacity:0.2" />
-                                                <stop offset="100%" style="stop-color:#f97316;stop-opacity:0" />
+                                            <linearGradient id="grad-fan" x1="0%" y1="0%" x2="0%" y2="100%">
+                                                <stop offset="0%" style="stop-color:#a855f7;stop-opacity:0.3" />
+                                                <stop offset="100%" style="stop-color:#a855f7;stop-opacity:0.05" />
                                             </linearGradient>
                                         </defs>
-                                        <path id="proj-chart-area" class="chart-path" d="" fill="url(#grad-purple)"></path>
-                                        <path id="proj-chart-line" class="chart-path" d="" fill="none" stroke="#a855f7" stroke-width="2" vector-effect="non-scaling-stroke"></path>
+                                        <!-- Fan Area (10th - 90th percentile) -->
+                                        <path id="proj-chart-fan" class="chart-area-path" d="" fill="url(#grad-fan)"></path>
+                                        <!-- Median Line -->
+                                        <path id="proj-chart-line" class="chart-path" d="" fill="none" stroke="#9333ea" stroke-width="2" vector-effect="non-scaling-stroke"></path>
                                     </svg>
+                                    <!-- Tooltip Overlay -->
+                                    <div class="absolute bottom-2 right-3 pointer-events-none flex items-baseline gap-2 bg-white/90 px-2 rounded-lg backdrop-blur-[2px]">
+                                        <span class="text-xs text-gray-500 font-bold whitespace-nowrap" data-i18n="projMedian">Median Outcome</span>
+                                        <span class="text-xl font-bold text-purple-700 font-mono" id="proj-result">0</span>
+                                    </div>
+                                </div>
+                                <div class="flex justify-between text-xs text-gray-400 px-1">
+                                    <span>Now</span>
+                                    <span id="proj-end-year">Future</span>
                                 </div>
                             </div>
                         </div>
@@ -308,7 +307,7 @@
 
             <section class="mt-10 max-w-4xl mx-auto content-auto">
                 <h3 class="text-lg font-bold text-slate-800 mb-6 text-center" data-i18n="faqTitle">Frequently Asked Questions (FAQ)</h3>
-                <div id="faq-container" class="space-y-4"></div>
+                <div id="faq-container" class="space-y-4 min-h-[100px]"></div>
             </section>
         </div>
 
@@ -363,7 +362,7 @@
         </ul>
         <h4 class="font-bold text-slate-800 mt-4 mb-2">5. 服务变更</h4>
         <p>我们保留随时修改或终止服务、更新本条款的权利，恕不另行通知。</p>
-        <p class="mt-6 text-xs text-slate-400 border-t pt-4">最后更新日期: 2026年1月6日</p>
+        <p class="mt-6 text-xs text-slate-400 border-t pt-4">最后更新日期: 2026年1月7日</p>
     </template>
 
     <template id="tmpl-privacy-en">
@@ -392,7 +391,7 @@
         </ul>
         <h4 class="font-bold text-slate-800 mt-4 mb-2">5. Changes to Service</h4>
         <p>We reserve the right to modify or discontinue the service, or update these terms at any time without prior notice.</p>
-        <p class="mt-6 text-xs text-slate-400 border-t pt-4">Last Updated: January 6, 2026</p>
+        <p class="mt-6 text-xs text-slate-400 border-t pt-4">Last Updated: January 7, 2026</p>
     </template>
 
     <script id="i18n-data" type="application/json">
@@ -410,6 +409,7 @@
             "colTarget": "目标金额",
             "colAction": "操作",
             "fireTitle": "FIRE 4% 法则预览",
+            "diogenesTitle": "第欧根尼模式 (Diogenes)",
             "fireYear": "可支持年支出",
             "fireMonth": "可支持月支出",
             "fireExpenseLabel": "预期年支出目标",
@@ -453,8 +453,8 @@
                     ]
                 },
                 {
-                    "question": "历史年化收益率大概是多少？",
-                    "answer": [ "虽然《永久投资组合》一书指出该策略在过去 40 年（基于美国市场）的年化回报率约为 9-10%。", "但考虑到未来的不确定性及不同的经济周期，我们认为 6% - 8% 是一个更务实、更稳健的长期预期区间。", "因此，本计算器默认采用 6.8% 进行推演——我们在追求增长之前，首先要确保预期的安全性。" ]
+                    "question": "蒙特卡洛模拟是如何工作的？",
+                    "answer": [ "我们收集了永久投资组合在美国市场 1976-2025 年间共 50 年的真实历史回报率。", "模拟器会进行 1000 次推演。每次推演中，未来的每一年都会随机抽取这 50 年中的某一年作为回报率。", "最终的图表展示了这 1000 种可能性的分布：中间的实线代表中位数（最可能发生的情况），浅色区域代表 80% 的可能性范围（从较差运气到较好运气）。" ]
                 },
                 { 
                     "question": "再平衡的阈值设为多少比较好?", 
@@ -464,18 +464,18 @@
             "privacy": "条款与隐私",
             "privacyTitle": "使用条款与隐私政策",
             "closeBtn": "我已了解",
-            "projTitle": "财富变化推演",
+            "projTitle": "蒙特卡洛财富模拟",
             "modeSaving": "定投模式",
             "modeSpending": "消费模式",
             "projCurrent": "当前总资产",
-            "projRate": "年化收益率 (0-100)",
-            "projYears": "推演年限 (1-100)",
+            "projYears": "推演年限 (1-50)",
             "projContribution": "每年定投金额",
             "projExpense": "每年计划开销",
-            "projResultLabel": "未来总资产",
-            "projGain": "累计收益",
-            "projNoteSaving": "注：采用月度复利模型，模拟资金在全年均匀流入。",
-            "projNoteSpending": "注：采用月度复利模型，模拟资金在全年均匀流出。",
+            "projChartTitle": "财富预测区间",
+            "projMedian": "中位数结果",
+            "btnSimulate": "重新模拟",
+            "monteCarloTitle": "基于 1976-2025 美国市场数据:",
+            "monteCarloDesc": "通过随机抽取过去 50 年的美国市场永久组合历史回报率，进行 1,000 次未来路径模拟，展示财富增长的概率分布区间。",
             "rebalanceNote": "注：建议操作金额为理论值，未考虑交易手续费及税务（如资本利得税）影响。",
             "seasonTitle": "经济四季罗盘",
             "seasonProsperity": "繁荣期",
@@ -487,7 +487,7 @@
             "seasonInflation": "通胀期",
             "seasonGold": "黄金 (Gold)",
             "rule72Title": "72法则",
-            "rule72Desc": "按 6.8% 年化收益率计算，您的资产约每 10.6 年翻一番。",
+            "rule72Desc": "基于 1976-2025 美国市场数据（年化 {rate}%），您的资产约每 {years} 年翻一番。",
             "marketTitle": "实时行情看板",
             "marketNames": {
                 "cn_300": "沪深300", "cn_a500": "中证A500", "us_sp500": "标普500", "us_nasdaq": "纳指100",
@@ -495,7 +495,8 @@
                 "gold_etf": "华夏黄金", "money_etf": "银华日利", "usd_cash": "美元短债", "usd_cny": "USD/CNY"
             },
             "errFetch": "获取行情数据失败",
-            "errNetwork": "网络连接错误"
+            "errNetwork": "网络连接错误",
+            "errUnexpected": "发生意外错误"
         },
         "en": {
             "currencyCode": "USD",
@@ -510,6 +511,7 @@
             "colTarget": "Target Value",
             "colAction": "Action",
             "fireTitle": "FIRE 4% Rule Preview",
+            "diogenesTitle": "Diogenes Mode",
             "fireYear": "Safe Annual Withdrawal",
             "fireMonth": "Safe Monthly Withdrawal",
             "fireExpenseLabel": "Annual Expense Goal",
@@ -553,8 +555,8 @@
                     ]
                 },
                 {
-                    "question": "What is the historical annual return?",
-                    "answer": [ "Books on the Permanent Portfolio (like Craig Rowland's) cite historical returns of around 9-10% (based on 40 years of US market data).", "However, past performance does not guarantee future results. A range of 6-8% is generally considered a more realistic and conservative estimate for long-term planning.", "This calculator defaults to 6.8% to prioritize safety in your projections." ]
+                    "question": "How does the Monte Carlo simulation work?",
+                    "answer": [ "We use historical return data from the US Market (1976-2025) for the Permanent Portfolio.", "The simulator runs 1,000 scenarios. In each scenario, the return for each future year is randomly selected from one of those 50 historical years.", "The chart shows the distribution of these 1,000 outcomes: the solid line is the median (most likely), and the shaded area covers 80% of possibilities (from bad luck to good luck)." ]
                 },
                 { 
                     "question": "What is the best rebalancing threshold?", 
@@ -564,18 +566,18 @@
             "privacy": "Terms & Privacy",
             "privacyTitle": "Terms of Service & Privacy Policy",
             "closeBtn": "I Understand",
-            "projTitle": "Wealth Simulation",
+            "projTitle": "Monte Carlo Simulation",
             "modeSaving": "Saving",
             "modeSpending": "Spending",
             "projCurrent": "Current Assets",
-            "projRate": "Return % (0-100)",
-            "projYears": "Years (1-100)",
+            "projYears": "Years (1-50)",
             "projContribution": "Annual Contribution",
             "projExpense": "Annual Expense",
-            "projResultLabel": "Future Total Assets",
-            "projGain": "Total Gain",
-            "projNoteSaving": "Note: Uses monthly compounding to simulate continuous flow.",
-            "projNoteSpending": "Note: Uses monthly compounding to simulate continuous flow.",
+            "projChartTitle": "Wealth Projection Range",
+            "projMedian": "Median Outcome",
+            "btnSimulate": "Resimulate",
+            "monteCarloTitle": "Based on US Market Data (1976-2025):",
+            "monteCarloDesc": "Simulating 1,000 possible futures by randomly sampling from 50 years of historical US Permanent Portfolio returns.",
             "rebalanceNote": "Note: Suggested actions are theoretical and do not account for transaction fees or tax implications.",
             "seasonTitle": "Economic Seasons",
             "seasonProsperity": "Prosperity",
@@ -587,7 +589,7 @@
             "seasonInflation": "Inflation",
             "seasonGold": "Gold",
             "rule72Title": "Rule of 72",
-            "rule72Desc": "At 6.8% return, your assets double every ~10.6 years.",
+            "rule72Desc": "Based on US Market (1976-2025) average return of {rate}%, your assets double every ~{years} years.",
             "marketTitle": "Live Market Ticker",
             "marketNames": {
                 "cn_300": "CSI 300", "cn_a500": "CSI A500", "us_sp500": "S&P 500", "us_nasdaq": "Nasdaq 100",
@@ -595,7 +597,8 @@
                 "gold_etf": "CN Gold ETF", "money_etf": "CN Cash ETF", "usd_cash": "US Short Bond", "usd_cny": "USD/CNY"
             },
             "errFetch": "Failed to fetch market data",
-            "errNetwork": "Network error"
+            "errNetwork": "Network error",
+            "errUnexpected": "An unexpected error occurred"
         }
     }
     </script>
@@ -614,22 +617,37 @@
 
         const App = (() => {
             const Config = {
-                STORAGE_KEY: '4x25_data_v1', 
-                DATA_VERSION: 2, 
+                STORAGE_KEY: '4x25_data_v2', 
+                DATA_VERSION: 3, 
                 TARGET_PERCENT: 25,
                 MIN_THRESHOLD: 5,
                 MAX_THRESHOLD: 15,
                 ASSET_MAX_DIGITS: 8,
                 PROJ_MAX_DIGITS: 12,
-                TIMING: { CALC_DEBOUNCE: 150, SAVE_DEBOUNCE: 1000 },
+                TIMING: { 
+                    CALC_DEBOUNCE: 150, 
+                    PROJ_DEBOUNCE: 600, 
+                    SAVE_DEBOUNCE: 1000,
+                    ANIMATION_DURATION: 800,
+                    TOAST_DISPLAY: 4000,
+                    TOAST_FADEOUT: 300,
+                    MARKET_REFRESH: 5000
+                },
                 MARKET_API: 'https://market-proxy.wrx-ai-84.workers.dev/',
-                REFRESH_INTERVAL: 5000,
                 FORMAT: { SCIENTIFIC_THRESHOLD: 1e15, COMPACT_THRESHOLD: 1000000, MIN_LENGTH_FOR_TRIM: 2 },
                 ASSETS: [
                     { key: 'stocks', color: '#3B82F6', tailwindColor: 'bg-blue-500' },
                     { key: 'bonds', color: '#8B5CF6', tailwindColor: 'bg-violet-500' },
                     { key: 'cash', color: '#10B981', tailwindColor: 'bg-emerald-500' },
                     { key: 'gold', color: '#F59E0B', tailwindColor: 'bg-amber-500' }
+                ],
+                // Historical Returns (1976-2025) - 50 years of data
+                HISTORICAL_RETURNS: [
+                    11.22, 6.43, 12.78, 39.77, 13.65, -5.34, 23.27, 3.46, 2.22, 20.47,
+                    17.64, 7.42, 4.39, 12.90, 1.11, 11.72, 3.57, 12.00, -1.37, 18.11,
+                    5.08, 7.19, 10.09, 5.17, 2.40, -0.52, 5.85, 13.32, 8.91, 10.94,
+                    12.69, 0.87, 7.85, 13.92, 11.11, 6.41, -2.08, 9.40, -3.06, 5.54,
+                    10.97, -1.76, 16.17, 16.10, 4.21, -12.53, 11.55, 11.90, 22.29, 7.50
                 ]
             };
 
@@ -662,25 +680,16 @@
                 },
                 sanitizeInput: (value, maxLength = Config.ASSET_MAX_DIGITS) => {
                     let clean = value.replace(/[^\d]/g, '');
-                    if (clean.length > Config.FORMAT.MIN_LENGTH_FOR_TRIM && clean.startsWith('0')) {
-                        clean = clean.replace(/^0+/, '');
-                    }
+                    if (clean === '') return '';
+                    clean = clean.replace(/^0+(?=\d)/, '');
                     if (clean.length > maxLength) clean = clean.slice(0, maxLength);
                     return clean;
                 },
                 sanitizeInteger: (value, max) => {
                     let clean = value.replace(/\D/g, ''); 
-                    if (clean.length > 1 && clean.startsWith('0')) clean = clean.replace(/^0+/, '');
                     if (clean === '') return '';
-                    if (parseInt(clean) > max) return String(max);
-                    return clean;
-                },
-                sanitizeDecimal: (value, maxVal) => {
-                    let clean = value.replace(/[^0-9.]/g, '');
-                    const parts = clean.split('.');
-                    if (parts.length > 2) clean = parts[0] + '.' + parts.slice(1).join('');
-                    if (parts.length === 2 && parts[1].length > 1) clean = parts[0] + '.' + parts[1].substring(0, 1);
-                    if (parseFloat(clean) > maxVal) return String(maxVal);
+                    clean = clean.replace(/^0+(?=\d)/, '');
+                    if (parseInt(clean, 10) > max) return String(max);
                     return clean;
                 },
                 formatMoney: (num, lang, isCompact, includeCurrency = true) => {
@@ -717,7 +726,7 @@
                     }
 
                     if (el.animationFrame) cancelAnimationFrame(el.animationFrame);
-                    const duration = 800;
+                    const duration = Config.TIMING.ANIMATION_DURATION;
                     const startTime = performance.now();
                     const step = (currentTime) => {
                         const elapsed = currentTime - startTime;
@@ -755,20 +764,43 @@
                 lang: 'en',
                 threshold: 10,
                 holdings: { stocks: 0, bonds: 0, cash: 0, gold: 0 },
-                projection: { mode: 'saving', principal: '', rate: '6.8', years: 10, flow: '' },
+                projection: { mode: 'saving', principal: '', years: 10, flow: '' },
                 fireExpense: '', 
                 marketData: null,
-                debouncedCalc: null,
+                debouncedPortfolioCalc: null, // Fast debounce
+                debouncedProjCalc: null,      // Slow debounce
                 debouncedSave: null,
                 pollingInterval: null,
                 shouldSyncPrincipal: false, 
                 isFirstLoad: true,
+                historicalStats: null,
                 init() { 
                     this.load(); 
-                    this.debouncedCalc = Utils.debounce(() => { this.performCalculation(); }, Config.TIMING.CALC_DEBOUNCE); 
+                    this.calculateHistoricalStats();
+                    // Split calculation into two debounced functions
+                    this.debouncedPortfolioCalc = Utils.debounce(() => { this.performPortfolioCalculation(); }, Config.TIMING.CALC_DEBOUNCE); 
+                    this.debouncedProjCalc = Utils.debounce(() => { this.performProjectionCalculation(); }, Config.TIMING.PROJ_DEBOUNCE);
                     this.debouncedSave = Utils.debounce(() => { this.save(); }, Config.TIMING.SAVE_DEBOUNCE);
                 },
+                calculateHistoricalStats() {
+                    const returns = Config.HISTORICAL_RETURNS;
+                    // Calculate CAGR (Geometric Mean)
+                    const totalGrowth = returns.reduce((acc, val) => acc * (1 + val / 100), 1);
+                    const n = returns.length;
+                    const cagr = (Math.pow(totalGrowth, 1 / n) - 1) * 100;
+                    const doublingTime = 72 / cagr;
+                    this.historicalStats = { cagr, doublingTime };
+                },
+                validate() {
+                    const { threshold, holdings } = this;
+                    if (typeof threshold !== 'number' || threshold < Config.MIN_THRESHOLD || threshold > Config.MAX_THRESHOLD) return false;
+                    if (!holdings || typeof holdings !== 'object') return false;
+                    const validHoldings = Object.values(holdings).every(v => typeof v === 'number' && !isNaN(v) && v >= 0);
+                    if (!validHoldings) return false;
+                    return true;
+                },
                 save() {
+                    if (!this.validate()) { console.warn('State validation failed, skipping save.'); return; }
                     try {
                         const data = {
                             version: Config.DATA_VERSION, 
@@ -779,48 +811,37 @@
                             fireExpense: this.fireExpense
                         };
                         localStorage.setItem(Config.STORAGE_KEY, JSON.stringify(data));
-                    } catch (e) {
-                        console.warn('LocalStorage save skipped.');
-                    }
+                    } catch (e) { console.warn('LocalStorage save skipped.'); }
                 },
                 load() {
                     try {
                         const raw = localStorage.getItem(Config.STORAGE_KEY);
                         if (raw) {
                             let data = JSON.parse(raw);
-                            if (!data.version || data.version < Config.DATA_VERSION) {
-                                data = this.migrate(data);
-                            }
+                            if (!data.version || data.version < Config.DATA_VERSION) { data = this.migrate(data); }
                             if (data.lang) this.lang = data.lang;
                             if (data.threshold) this.threshold = data.threshold;
                             if (data.holdings) this.holdings = { ...this.holdings, ...data.holdings };
                             if (data.projection) this.projection = { ...this.projection, ...data.projection };
                             if (data.fireExpense) this.fireExpense = data.fireExpense;
                         }
-                    } catch (e) {
-                        console.warn('LocalStorage load skipped.');
-                    }
+                    } catch (e) { console.warn('LocalStorage load skipped.'); }
                 },
                 migrate(oldData) {
                     const newData = { ...oldData };
                     if (!newData.version) {
                         if (typeof newData.fireExpense === 'undefined') newData.fireExpense = ''; 
-                        newData.version = 2;
+                        newData.version = 3;
                     }
                     return newData;
                 },
                 startPolling() {
-                    if (this.pollingInterval) return; // Prevent multiple intervals
+                    if (this.pollingInterval) return; 
                     this.fetchMarket(); 
-                    this.pollingInterval = setInterval(() => {
-                        this.fetchMarket();
-                    }, Config.REFRESH_INTERVAL);
+                    this.pollingInterval = setInterval(() => { this.fetchMarket(); }, Config.TIMING.MARKET_REFRESH);
                 },
                 stopPolling() {
-                    if (this.pollingInterval) {
-                        clearInterval(this.pollingInterval);
-                        this.pollingInterval = null;
-                    }
+                    if (this.pollingInterval) { clearInterval(this.pollingInterval); this.pollingInterval = null; }
                 },
                 setLang(l) { this.lang = l; this.emit('langChanged', l); this.debouncedSave(); },
                 setThreshold(t) { 
@@ -838,10 +859,17 @@
                 },
                 setProjMode(mode) { this.projection.mode = mode; this.emit('projModeChanged', mode); this.triggerCalc(); },
                 triggerCalc() { 
-                    if (this.debouncedCalc) this.debouncedCalc(); 
+                    // Fire both debounced functions
+                    if (this.debouncedPortfolioCalc) this.debouncedPortfolioCalc(); 
+                    if (this.debouncedProjCalc) this.debouncedProjCalc();
                     if (this.debouncedSave) this.debouncedSave(); 
                 },
-                performCalculation() {
+                forceResimulate() {
+                    // Directly trigger the projection calculation (no need to recalc portfolio)
+                    this.performProjectionCalculation();
+                },
+                // Light calculation: Portfolio rebalancing & totals
+                performPortfolioCalculation() {
                     const results = Logic.calculatePortfolio(this.holdings, this.threshold);
                     this.emit('calculationDone', results);
 
@@ -849,32 +877,30 @@
                         this.projection.principal = String(results.total);
                         this.emit('principalSynced', results.total);
                         this.shouldSyncPrincipal = false;
+                        // Note: The queued projection calculation will pick up this new principal
+                        // when it runs ~450ms later.
                     }
-                    const projResults = Logic.calculateProjection(this.projection.principal, this.projection.rate, this.projection.years, this.projection.flow, this.projection.mode);
+                },
+                // Heavy calculation: Monte Carlo Simulation
+                performProjectionCalculation() {
+                    const projResults = Logic.runMonteCarlo(this.projection.principal, this.projection.years, this.projection.flow, this.projection.mode);
                     this.emit('projectionDone', projResults);
                 },
                 async fetchMarket(retries = 1) {
                     if (this.isFirstLoad) this.emit('marketLoading', true);
-                    
                     for (let i = 0; i <= retries; i++) {
                         try {
                             const res = await Utils.fetchWithTimeout(Config.MARKET_API, { timeout: 5000 });
                             if (!res.ok) throw new Error(`HTTP ${res.status}`);
                             this.marketData = await res.json();
                             this.emit('marketDataUpdated', this.marketData);
-                            if (this.isFirstLoad) {
-                                this.emit('marketLoading', false);
-                                this.isFirstLoad = false;
-                            }
+                            if (this.isFirstLoad) { this.emit('marketLoading', false); this.isFirstLoad = false; }
                             return; 
                         } catch (e) {
                             if (i === retries) {
                                 console.warn('Market fetch failed after retries:', e);
                                 if (!this.marketData) this.emit('marketError', e);
-                                if (this.isFirstLoad) {
-                                    this.emit('marketLoading', false);
-                                    this.isFirstLoad = false;
-                                }
+                                if (this.isFirstLoad) { this.emit('marketLoading', false); this.isFirstLoad = false; }
                             }
                             await new Promise(r => setTimeout(r, 1000)); 
                         }
@@ -885,13 +911,13 @@
             const Logic = {
                 calculatePortfolio: (holdings, threshold) => {
                     const total = Object.values(holdings).reduce((a, b) => a + b, 0);
-                    const baseTarget = Math.floor(total / 4);
-                    const remainder = total % 4;
+                    const targetVal = total / 4; 
+                    
                     const assetKeys = Config.ASSETS.map(a => a.key);
                     let globalBreach = false;
-                    const assetsData = assetKeys.map((key, index) => {
+                    const assetsData = assetKeys.map((key) => {
                         const value = holdings[key];
-                        const target = baseTarget + (index < remainder ? 1 : 0);
+                        const target = targetVal; 
                         const percent = total === 0 ? 0 : (value / total) * 100;
                         const diff = target - value;
                         const isBreached = total > 0 && (percent > (Config.TARGET_PERCENT + threshold) || percent < (Config.TARGET_PERCENT - threshold));
@@ -900,95 +926,72 @@
                     });
                     return { total, assetsData, globalBreach };
                 },
-                calculateProjection: (principalStr, rateStr, yearsStr, flowStr, mode) => {
-                    // Unified Logic: Monthly Compounding (Approximates Continuous Limit)
-                    // This removes the "Start vs End" of year distinction by smoothing it over 12 months.
-                    
-                    const safeReturn = { futureValue: 0, gain: 0, series: [] };
-                    
+                // Monte Carlo Simulation Engine
+                runMonteCarlo: (principalStr, yearsStr, flowStr, mode) => {
                     const principal = parseFloat(String(principalStr).replace(/[^\d]/g, '')) || 0;
-                    let rawRate = parseFloat(rateStr);
-                    if (!Number.isFinite(rawRate)) rawRate = 0; if (rawRate > 100) rawRate = 100; if (rawRate < 0) rawRate = 0;
-                    const annualRate = rawRate / 100;
-                    
                     let years = parseFloat(yearsStr) || 0;
-                    if (!Number.isFinite(years)) years = 0; if (years > 100) years = 100;
-                    
+                    if (!Number.isFinite(years)) years = 0; if (years > 50) years = 50; // Cap at 50 years
                     let annualFlow = parseFloat(String(flowStr).replace(/[^\d]/g, '')) || 0;
-                    
-                    // Unified Flow Logic:
-                    // Saving = Positive Flow
-                    // Spending = Negative Flow
-                    if (mode === 'spending') {
-                        annualFlow = -annualFlow;
-                    }
+                    if (mode === 'spending') { annualFlow = -annualFlow; }
 
-                    // Convert Annual to Monthly
-                    // 1. Monthly Rate: Geometric mean to preserve APY. (1+r)^(1/12) - 1
-                    const monthlyRate = Math.pow(1 + annualRate, 1/12) - 1;
-                    
-                    // 2. Monthly Flow: Spread the annual amount evenly
-                    const monthlyFlow = annualFlow / 12;
-                    
-                    const totalMonths = Math.floor(years * 12);
-                    let balance = principal;
-                    let totalFlow = 0;
-                    
-                    const series = [principal];
+                    const SIMULATIONS = 1000;
+                    const history = Config.HISTORICAL_RETURNS;
+                    const allPaths = [];
 
-                    // Loop through months (Approximating the limit)
-                    for (let i = 1; i <= totalMonths; i++) {
-                        // Apply Interest
-                        balance = balance * (1 + monthlyRate);
-                        
-                        // Apply Flow (Assumed at end of month, but since it's monthly, deviation is minimal)
-                        balance += monthlyFlow;
-                        
-                        // Prevent negative balance in spending mode
-                        if (balance < 0) balance = 0;
-
-                        // Only push to series once per year to keep chart clean, or if it's the last month
-                        if (i % 12 === 0 || i === totalMonths) {
-                            series.push(balance);
+                    for (let s = 0; s < SIMULATIONS; s++) {
+                        let balance = principal;
+                        const path = [principal];
+                        for (let y = 1; y <= years; y++) {
+                            // Randomly sample one year from history
+                            const randomReturn = history[Math.floor(Math.random() * history.length)];
+                            const rate = randomReturn / 100;
+                            
+                            // Apply annual return
+                            balance = balance * (1 + rate);
+                            // Apply contribution/withdrawal at end of year
+                            balance += annualFlow;
+                            
+                            if (balance < 0) balance = 0;
+                            path.push(balance);
                         }
+                        allPaths.push(path);
                     }
 
-                    // Calculate Total Flow for Gain calculation (Logic differs slightly for display)
-                    // For Gain display:
-                    // If Saving: Gain = Final - Principal - Contribution
-                    // If Spending: Gain = Final + Withdrawal - Principal
-                    
-                    // We track the raw flow sum.
-                    // If mode was spending, annualFlow was negative, so monthlyFlow was negative.
-                    // totalFlowSum will be negative.
-                    const totalFlowSum = monthlyFlow * totalMonths; 
+                    // Calculate percentiles for each year
+                    const percentiles = {
+                        p10: [], // 10th percentile (Bad luck)
+                        p50: [], // Median (Expected)
+                        p90: []  // 90th percentile (Good luck)
+                    };
 
-                    let gain = 0;
-                    // Math: Final = Principal + FlowSum + Gain
-                    // => Gain = Final - Principal - FlowSum
-                    gain = balance - principal - totalFlowSum;
+                    for (let y = 0; y <= years; y++) {
+                        const yearValues = allPaths.map(path => path[y]).sort((a, b) => a - b);
+                        percentiles.p10.push(yearValues[Math.floor(SIMULATIONS * 0.1)]);
+                        percentiles.p50.push(yearValues[Math.floor(SIMULATIONS * 0.5)]);
+                        percentiles.p90.push(yearValues[Math.floor(SIMULATIONS * 0.9)]);
+                    }
 
-                    // If we want to display "Total Withdrawn" as a positive number in the gain calculation logic for spending:
-                    // Spending Mode: Gain = (Final Balance + Total Withdrawn) - Initial Principal
-                    // Since totalFlowSum is negative (e.g. -1000), subtracting it adds the withdrawal back.
-                    // So the formula `balance - principal - totalFlowSum` works for both cases.
-
-                    if (!Number.isFinite(balance)) return safeReturn;
+                    const finalMedian = percentiles.p50[percentiles.p50.length - 1];
                     
                     return { 
-                        futureValue: Utils.roundTo2(balance), 
-                        gain: Utils.roundTo2(gain),
-                        series: series
+                        medianFinal: finalMedian,
+                        percentiles: percentiles,
+                        years: years
                     };
                 }
             };
 
             const UI = {
                 els: { assetInputs: {}, assetLabels: {}, assetLegends: {}, chartCircles: {} },
+                faqObserver: null,
+                hasRenderedFaq: false,
+                tableInited: false, // Flag to prevent double initialization
                 init() {
+                    this.setupErrorHandling();
                     this.cacheDOM();          
                     State.init();             
-                    this.renderInputs();      
+                    this.renderInputs();
+                    this.initResultTable(); // First initialization
                     this.cacheDynamicDOM(); 
                     this.renderLegend(); 
                     this.cacheLegendDOM(); 
@@ -997,6 +1000,9 @@
                     this.renderAll();
                     this.startClock(); 
                     
+                    // Lazy Load FAQ
+                    this.setupLazyLoad();
+
                     const startMarketLater = () => State.startPolling();
                     if ('requestIdleCallback' in window) {
                         requestIdleCallback(startMarketLater, { timeout: 3000 });
@@ -1004,12 +1010,36 @@
                         setTimeout(startMarketLater, 1500);
                     }
                 },
+                setupErrorHandling() {
+                    window.addEventListener('error', (event) => {
+                        if (event.message && event.message.includes('Script error')) return;
+                        console.error('Global error:', event.error);
+                        const msg = Translations[State.lang]?.errUnexpected || 'Unexpected Error';
+                        this.showToast(msg, 'error');
+                    });
+                },
+                setupLazyLoad() {
+                    if ('IntersectionObserver' in window) {
+                        this.faqObserver = new IntersectionObserver((entries) => {
+                            entries.forEach(entry => {
+                                if (entry.isIntersecting) {
+                                    this.renderFAQ();
+                                    this.faqObserver.disconnect();
+                                }
+                            });
+                        }, { rootMargin: '200px' });
+                        this.faqObserver.observe(this.els.faqContainer);
+                    } else {
+                        // Fallback for older browsers
+                        this.renderFAQ();
+                    }
+                },
                 subscribeToState() {
                     State.on('langChanged', () => { this.renderAll(); this.renderTicker(); });
                     State.on('thresholdChanged', () => this.updateThresholdDisplay());
                     State.on('projModeChanged', () => this.renderProjectionUI());
                     State.on('calculationDone', (results) => {
-                        this.renderResults(results);
+                        this.renderResults(results); 
                         this.renderFireProgress(results.total);
                     });
                     State.on('principalSynced', (val) => {
@@ -1017,7 +1047,7 @@
                     });
                     State.on('projectionDone', (results) => {
                         this.renderProjectionResult(results);
-                        this.renderProjectionChart(results.series, State.projection.mode);
+                        this.renderMonteCarloChart(results);
                     });
                     State.on('marketLoading', (isLoading) => this.setTickerLoading(isLoading));
                     State.on('marketDataUpdated', () => this.renderTicker());
@@ -1031,18 +1061,20 @@
                         inputsContainer: document.getElementById('inputs-container'), resultBody: document.getElementById('result-body'), legendContainer: document.getElementById('legend-container'),
                         totalValue: document.getElementById('total-value'), fireYear: document.getElementById('fire-year'), fireMonth: document.getElementById('fire-month'),
                         fireExpenseInput: document.getElementById('fire-expense-input'), fireProgressBar: document.getElementById('fire-progress-bar'), firePercent: document.getElementById('fire-percent'), fireTargetDisplay: document.getElementById('fire-target-display'),
+                        fireHeaderIcon: document.getElementById('fire-header-icon'), fireHeaderTitle: document.getElementById('fire-header-title'), fireFooterStandard: document.getElementById('fire-footer-standard'), fireFooterDiogenes: document.getElementById('fire-footer-diogenes'), diogenesQuote: document.getElementById('diogenes-quote'),
                         statusCard: document.getElementById('status-card'), statusIcon: document.getElementById('status-icon'), statusTitle: document.getElementById('status-title'),
                         statusDesc: document.getElementById('status-desc'), statusNote: document.getElementById('status-note'), thresholdDisplay: document.getElementById('threshold-display'),
                         btnMinus: document.getElementById('btn-minus'), btnPlus: document.getElementById('btn-plus'), btnEn: document.getElementById('btn-en'), btnZh: document.getElementById('btn-zh'),
                         faqContainer: document.getElementById('faq-container'), currencySymbols: document.querySelectorAll('.currency-symbol'), i18nElements: document.querySelectorAll('[data-i18n]'),
                         privacyModal: document.getElementById('privacy-modal'), modalOverlay: document.querySelector('.modal-overlay'), modalCloseBtn: document.getElementById('modal-close-btn'),
                         modalContent: document.querySelector('.modal-content'), modalBody: document.getElementById('modal-body'), appContainer: document.getElementById('app'), projPrincipal: document.getElementById('proj-principal'),
-                        projRate: document.getElementById('proj-rate'), projYears: document.getElementById('proj-years'), projFlow: document.getElementById('proj-flow'),
-                        projResult: document.getElementById('proj-result'), projGain: document.getElementById('proj-gain'), projFlowLabel: document.getElementById('proj-flow-label'),
-                        modeSavingBtn: document.getElementById('mode-saving'), modeSpendingBtn: document.getElementById('mode-spending'),
+                        projYears: document.getElementById('proj-years'), projFlow: document.getElementById('proj-flow'),
+                        projResult: document.getElementById('proj-result'), projFlowLabel: document.getElementById('proj-flow-label'),
+                        modeSavingBtn: document.getElementById('mode-saving'), modeSpendingBtn: document.getElementById('mode-spending'), btnSimulate: document.getElementById('btn-simulate'),
                         tickerLoading: document.getElementById('ticker-loading'), tickerContent: document.getElementById('ticker-content'), tickerTime: document.getElementById('ticker-time'),
-                        toastContainer: document.getElementById('toast-container'), projNote: document.getElementById('proj-note'),
-                        projChartArea: document.getElementById('proj-chart-area'), projChartLine: document.getElementById('proj-chart-line')
+                        toastContainer: document.getElementById('toast-container'), projEndYear: document.getElementById('proj-end-year'),
+                        projChartFan: document.getElementById('proj-chart-fan'), projChartLine: document.getElementById('proj-chart-line'),
+                        rule72Desc: document.getElementById('rule72-desc')
                     };
                 },
                 renderInputs() {
@@ -1056,6 +1088,26 @@
                     });
                     this.els.inputsContainer.replaceChildren(fragment);
                 },
+                initResultTable() {
+                    if (this.tableInited) return; // Guard clause to prevent double init
+
+                    const t = Translations[State.lang];
+                    const fragment = document.createDocumentFragment();
+                    Config.ASSETS.forEach(asset => {
+                        const tr = document.createElement('tr');
+                        tr.className = "hover:bg-gray-50 transition-colors";
+                        tr.setAttribute('data-key', asset.key);
+                        tr.innerHTML = `
+                            <td class="p-3 text-left pl-4"><div class="flex items-center gap-3"><div class="w-3 h-3 rounded-full flex-shrink-0" style="background-color:${asset.color}"></div><span class="font-medium text-slate-700 whitespace-nowrap" data-cell="name"></span></div></td>
+                            <td class="p-3 text-left font-mono"><span data-cell="percent" class="text-slate-600">0.0%</span></td>
+                            <td class="p-3 text-left font-mono text-slate-600 table-cell-truncate" data-cell="target">0</td>
+                            <td class="p-3 text-left pl-4" data-cell="action"></td>
+                        `;
+                        fragment.appendChild(tr);
+                    });
+                    this.els.resultBody.replaceChildren(fragment);
+                    this.tableInited = true;
+                },
                 cacheDynamicDOM() { Config.ASSETS.forEach(asset => { this.els.assetInputs[asset.key] = document.getElementById(`input-${asset.key}`); this.els.assetLabels[asset.key] = document.getElementById(`label-${asset.key}`); this.els.chartCircles[asset.key] = document.getElementById(`chart-${asset.key}`); }); },
                 renderLegend() {
                     const fragment = document.createDocumentFragment();
@@ -1066,29 +1118,31 @@
                 bindEvents() {
                     this.els.btnEn.onclick = () => State.setLang('en'); this.els.btnZh.onclick = () => State.setLang('zh');
                     this.els.btnMinus.onclick = () => State.setThreshold(State.threshold - 1); this.els.btnPlus.onclick = () => State.setThreshold(State.threshold + 1);
-                    document.getElementById('btn-privacy').onclick = (e) => this.openModal(e.target);
+                    document.getElementById('btn-privacy').onclick = (e) => this.openModal(e.currentTarget);
                     this.els.modalCloseBtn.onclick = () => this.closeModal(); this.els.modalOverlay.onclick = () => this.closeModal();
                     this.els.privacyModal.onkeydown = (e) => { if(e.key === "Escape") this.closeModal(); };
                     this.els.faqContainer.onclick = (e) => { const btn = e.target.closest('button[data-faq-toggle]'); if (btn) this.toggleFaq(btn); };
                     
                     document.addEventListener('visibilitychange', () => {
-                        if (document.hidden) {
-                            State.stopPolling();
-                        } else {
-                            State.startPolling();
-                        }
+                        if (document.hidden) { State.stopPolling(); } else { State.startPolling(); }
                     });
 
-                    Config.ASSETS.forEach(asset => { const input = this.els.assetInputs[asset.key]; if (input) { input.oninput = (e) => { const clean = Utils.sanitizeInput(e.target.value, Config.ASSET_MAX_DIGITS); if (e.target.value !== clean) e.target.value = clean; State.updateHolding(asset.key, clean); }; } });
+                    this.els.inputsContainer.addEventListener('input', (e) => {
+                        if (e.target.classList.contains('asset-input')) {
+                            const key = e.target.id.replace('input-', '');
+                            const clean = Utils.sanitizeInput(e.target.value, Config.ASSET_MAX_DIGITS);
+                            if (e.target.value !== clean) e.target.value = clean;
+                            State.updateHolding(key, clean);
+                        }
+                    });
                     
                     const projectionInputs = [
                         { el: this.els.projPrincipal, key: 'principal', type: 'input', max: Config.PROJ_MAX_DIGITS },
                         { el: this.els.projFlow, key: 'flow', type: 'input', max: Config.PROJ_MAX_DIGITS },
-                        { el: this.els.projRate, key: 'rate', type: 'decimal', max: 100 },
-                        { el: this.els.projYears, key: 'years', type: 'integer', max: 100 }
+                        { el: this.els.projYears, key: 'years', type: 'integer', max: 50 }
                     ];
 
-                    const sanitizerMap = { 'input': Utils.sanitizeInput, 'decimal': Utils.sanitizeDecimal, 'integer': Utils.sanitizeInteger };
+                    const sanitizerMap = { 'input': Utils.sanitizeInput, 'integer': Utils.sanitizeInteger };
 
                     projectionInputs.forEach(config => {
                         if (!config.el) return;
@@ -1101,7 +1155,10 @@
                         };
                     });
 
-                    this.els.modeSavingBtn.onclick = () => State.setProjMode('saving'); this.els.modeSpendingBtn.onclick = () => State.setProjMode('spending');
+                    this.els.modeSavingBtn.onclick = () => State.setProjMode('saving'); 
+                    this.els.modeSpendingBtn.onclick = () => State.setProjMode('spending');
+                    this.els.btnSimulate.onclick = () => State.forceResimulate();
+
                     if (this.els.fireExpenseInput) {
                         this.els.fireExpenseInput.oninput = (e) => {
                             const clean = Utils.sanitizeInput(e.target.value, Config.ASSET_MAX_DIGITS);
@@ -1120,8 +1177,8 @@
                     requestAnimationFrame(() => toast.classList.add('show'));
                     setTimeout(() => {
                         toast.classList.remove('show');
-                        setTimeout(() => toast.remove(), 300);
-                    }, 4000);
+                        setTimeout(() => toast.remove(), Config.TIMING.TOAST_FADEOUT);
+                    }, Config.TIMING.TOAST_DISPLAY);
                 },
                 renderResults(data) {
                     const t = Translations[State.lang]; const { total, assetsData, globalBreach } = data;
@@ -1132,23 +1189,57 @@
                     else { statusClass = "bg-emerald-50 border-emerald-200 text-emerald-900"; icon = "✅"; title = t.statusHealthyTitle; desc = t.statusHealthyDesc; showNote = false; }
                     Utils.setClass(this.els.statusCard, `rounded-2xl p-6 border shadow-sm transition-all ${statusClass}`);
                     Utils.setText(this.els.statusIcon, icon); Utils.setText(this.els.statusTitle, title); Utils.setText(this.els.statusDesc, desc); Utils.setText(this.els.statusNote, t.statusActionNote); Utils.setClass(this.els.statusNote, showNote ? "mt-2 text-xs opacity-75" : "hidden");
-                    const fragment = document.createDocumentFragment();
+                    
                     let chartOffset = 0;
-                    assetsData.forEach(asset => {
+                    const rows = this.els.resultBody.children;
+
+                    assetsData.forEach((asset, index) => {
                         const circle = this.els.chartCircles[asset.key];
                         if (allZero) { circle.style.strokeDasharray = `0 100`; } else { circle.style.strokeDasharray = `${asset.percent} 100`; circle.style.strokeDashoffset = -chartOffset; chartOffset += asset.percent; }
-                        const tr = document.createElement('tr'); tr.className = "hover:bg-gray-50 transition-colors";
+                        
+                        const tr = rows[index];
+                        if (!tr) return; 
+
+                        const nameCell = tr.querySelector('[data-cell="name"]');
+                        const percentCell = tr.querySelector('[data-cell="percent"]');
+                        const targetCell = tr.querySelector('[data-cell="target"]');
+                        const actionCell = tr.querySelector('[data-cell="action"]');
+
+                        Utils.setText(nameCell, t[asset.key]);
+                        
+                        const percentClass = asset.isBreached ? 'text-red-500 font-bold' : 'text-slate-600';
+                        Utils.setClass(percentCell, percentClass);
+                        Utils.setText(percentCell, `${asset.percent.toFixed(1)}%`);
+
+                        const targetDisplay = Utils.formatMoney(asset.target, State.lang, true);
+                        Utils.setText(targetCell, targetDisplay);
+                        targetCell.title = targetDisplay;
+
                         let actionHtml = '';
+                        const absDiff = Math.abs(asset.diff);
+                        const locale = State.lang === 'zh' ? 'zh-CN' : 'en-US';
+                        const currencyCode = Translations[State.lang].currencyCode;
+
                         if (allZero) { actionHtml = `<span class="text-gray-300 text-lg font-bold select-none">-</span>`; } 
                         else if (globalBreach) {
-                            if (Math.abs(asset.diff) > 0) { const type = asset.diff > 0 ? t.buy : t.sell; const colorClass = asset.diff > 0 ? 'bg-blue-50 text-blue-700' : 'bg-orange-50 text-orange-700'; actionHtml = `<div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-bold ${colorClass} whitespace-nowrap font-mono">${type} <span class="ml-1">${Utils.formatMoney(Math.abs(asset.diff), State.lang, true, false)}</span></div>`; } 
-                            else { actionHtml = `<span class="text-gray-400 text-sm font-medium pl-1 font-mono">${t.hold}</span>`; }
+                            if (absDiff < 0.01) {
+                                actionHtml = `<span class="text-gray-400 text-sm font-medium pl-1 font-mono">${t.hold}</span>`;
+                            } else {
+                                const type = asset.diff > 0 ? t.buy : t.sell; 
+                                const colorClass = asset.diff > 0 ? 'bg-blue-50 text-blue-700' : 'bg-orange-50 text-orange-700';
+                                
+                                let formattedAmount;
+                                if (absDiff < 1) {
+                                    formattedAmount = Utils.getFormatter(locale, { style: 'currency', currency: currencyCode, minimumFractionDigits: 1, maximumFractionDigits: 2 }).format(absDiff);
+                                } else {
+                                    formattedAmount = Utils.getFormatter(locale, { style: 'currency', currency: currencyCode, maximumFractionDigits: 0 }).format(absDiff);
+                                }
+                                actionHtml = `<div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-bold ${colorClass} whitespace-nowrap font-mono">${type} <span class="ml-1">${formattedAmount}</span></div>`; 
+                            }
                         } else { actionHtml = `<span class="text-gray-400 text-sm font-medium pl-1 font-mono">${t.hold}</span>`; }
-                        const percentClass = asset.isBreached ? 'text-red-500 font-bold' : 'text-slate-600'; const assetConfig = Config.ASSETS.find(a => a.key === asset.key);
-                        tr.innerHTML = `<td class="p-3 text-left pl-4"><div class="flex items-center gap-3"><div class="w-3 h-3 rounded-full flex-shrink-0" style="background-color:${assetConfig.color}"></div><span class="font-medium text-slate-700 whitespace-nowrap">${t[asset.key]}</span></div></td><td class="p-3 text-left font-mono"><span class="${percentClass}">${asset.percent.toFixed(1)}%</span></td><td class="p-3 text-left font-mono text-slate-600 table-cell-truncate" title="${Utils.formatMoney(asset.target, State.lang, true)}">${Utils.formatMoney(asset.target, State.lang, true)}</td><td class="p-3 text-left pl-4">${actionHtml}</td>`;
-                        fragment.appendChild(tr);
+                        
+                        if (actionCell.innerHTML !== actionHtml) actionCell.innerHTML = actionHtml;
                     });
-                    this.els.resultBody.replaceChildren(fragment);
                 },
                 renderFireProgress(totalAssets) {
                     const expenseStr = State.fireExpense;
@@ -1157,6 +1248,12 @@
                     
                     this.els.firePercent.className = 'transition-colors duration-300 font-mono';
                     this.els.fireExpenseInput.classList.remove('ring-2', 'ring-amber-500', 'ring-opacity-50');
+                    this.els.fireProgressBar.className = 'h-full bg-gradient-to-r from-emerald-600 to-emerald-400 transition-all duration-700 ease-out w-0 shadow-[0_0_10px_rgba(16,185,129,0.5)]';
+                    
+                    this.els.fireHeaderIcon.textContent = '🔥';
+                    this.els.fireHeaderTitle.textContent = t.fireTitle;
+                    this.els.fireFooterStandard.classList.remove('hidden');
+                    this.els.fireFooterDiogenes.classList.add('hidden');
 
                     if (expenseStr === '') {
                         this.els.fireProgressBar.style.width = '0%';
@@ -1170,9 +1267,18 @@
                     this.els.firePercent.classList.add('text-2xl', 'text-white', 'font-bold');
 
                     if (expense === 0 && totalAssets > 0) {
+                        this.els.fireHeaderIcon.textContent = '🏺'; 
+                        this.els.fireHeaderTitle.textContent = t.diogenesTitle;
+                        
+                        this.els.fireProgressBar.className = 'h-full transition-all duration-700 ease-out w-0 shadow-[0_0_10px_rgba(251,191,36,0.5)] bg-gradient-to-r from-amber-300 to-yellow-500'; 
                         this.els.fireProgressBar.style.width = '100%';
-                        this.els.firePercent.textContent = '∞%'; 
-                        Utils.setText(this.els.fireTargetDisplay, Utils.formatMoney(0, State.lang, true));
+                        
+                        this.els.firePercent.textContent = '∞';
+                        this.els.firePercent.className = 'text-2xl font-bold text-yellow-400 font-mono';
+
+                        this.els.fireFooterStandard.classList.add('hidden');
+                        this.els.fireFooterDiogenes.classList.remove('hidden');
+                        this.els.diogenesQuote.textContent = State.lang === 'zh' ? '“请不要挡住我的阳光！”' : '“Stand out of my sunshine!”';
                         return;
                     }
 
@@ -1192,49 +1298,73 @@
                     Utils.setText(this.els.fireTargetDisplay, Utils.formatMoney(target, State.lang, true));
                 },
                 renderProjectionResult(data) {
-                    const { futureValue, gain } = data;
-                    Utils.animateTo(this.els.projResult, futureValue, State.lang, true);
-                    Utils.animateTo(this.els.projGain, gain, State.lang, true);
+                    const { medianFinal, years } = data;
+                    Utils.animateTo(this.els.projResult, medianFinal, State.lang, true);
+                    const currentYear = new Date().getFullYear();
+                    this.els.projEndYear.textContent = currentYear + years;
                 },
-                renderProjectionChart(series, mode) {
-                    const svg = this.els.projChartArea.closest('svg');
-                    if (!series || series.length < 2) {
-                        this.els.projChartArea.setAttribute('d', '');
+                renderMonteCarloChart(data) {
+                    const { percentiles, years } = data;
+                    if (!percentiles.p50 || percentiles.p50.length < 2) {
+                        this.els.projChartFan.setAttribute('d', '');
                         this.els.projChartLine.setAttribute('d', '');
                         return;
                     }
 
-                    const maxVal = Math.max(...series, 1); 
-                    const minVal = 0;
-                    const range = maxVal - minVal;
+                    // Calculate global min/max for scaling
+                    const allValues = [...percentiles.p10, ...percentiles.p90];
+                    let globalMin = Math.min(...allValues);
+                    let globalMax = Math.max(...allValues);
+                    
+                    // Prevent division by zero if start == end (e.g. 0 return, 0 flow)
+                    if (globalMax === globalMin) {
+                        globalMax += 1; 
+                    }
+
+                    // Mapping Logic:
+                    // We map the data range [globalMin, globalMax] to SVG Y coordinates [85, 10].
+                    // This leaves the bottom 15% (85-100) empty for labels, and top 10% (0-10) for headroom.
+                    // Importantly, it pushes the "floor" of the chart up.
+                    
+                    const renderRange = globalMax - globalMin;
                     const width = 100;
                     const height = 100;
-                    const stepX = width / (series.length - 1);
-
-                    const points = series.map((val, i) => {
-                        const x = i * stepX;
-                        // Invert Y because SVG 0 is top
-                        const y = height - ((val - minVal) / range) * height;
-                        return `${x},${y}`;
-                    });
-
-                    // Create Line Path
-                    const lineD = `M ${points.join(' L ')}`;
                     
-                    // Create Area Path (close the loop at bottom)
-                    const areaD = `${lineD} L ${width},${height} L 0,${height} Z`;
+                    // SVG Y coordinates (0 is top)
+                    const svgTop = 10;
+                    const svgBottom = 85; 
+                    const svgHeight = svgBottom - svgTop;
 
-                    this.els.projChartArea.setAttribute('d', areaD);
+                    const stepX = width / years;
+
+                    // Helper to map point
+                    const mapPt = (val, i) => {
+                        const x = i * stepX;
+                        // Normalize value 0..1
+                        const normalizedVal = (val - globalMin) / renderRange;
+                        // Map to SVG Y (inverted)
+                        const y = svgBottom - (normalizedVal * svgHeight);
+                        return { x, y };
+                    };
+
+                    // Draw Median Line
+                    const medianPoints = percentiles.p50.map((val, i) => {
+                        const pt = mapPt(val, i);
+                        return `${pt.x},${pt.y}`;
+                    });
+                    const lineD = `M ${medianPoints.join(' L ')}`;
                     this.els.projChartLine.setAttribute('d', lineD);
 
-                    // Color logic
-                    if (mode === 'saving') {
-                        this.els.projChartArea.setAttribute('fill', 'url(#grad-purple)');
-                        this.els.projChartLine.setAttribute('stroke', '#a855f7'); // purple-500
-                    } else {
-                        this.els.projChartArea.setAttribute('fill', 'url(#grad-orange)');
-                        this.els.projChartLine.setAttribute('stroke', '#f97316'); // orange-500
-                    }
+                    // Draw Fan Area (p90 top line -> p10 bottom line reversed)
+                    const topPoints = percentiles.p90.map((val, i) => mapPt(val, i));
+                    const bottomPoints = percentiles.p10.map((val, i) => mapPt(val, i)).reverse();
+                    
+                    let areaD = `M ${topPoints[0].x},${topPoints[0].y}`;
+                    topPoints.forEach(p => areaD += ` L ${p.x},${p.y}`);
+                    bottomPoints.forEach(p => areaD += ` L ${p.x},${p.y}`);
+                    areaD += ' Z';
+
+                    this.els.projChartFan.setAttribute('d', areaD);
                 },
                 startClock() {
                     const update = () => {
@@ -1275,7 +1405,11 @@
                     const bgUp = isZh ? 'bg-red-50' : 'bg-emerald-50';
                     const bgDown = isZh ? 'bg-emerald-50' : 'bg-red-50';
                     data.forEach(item => {
-                        const changeVal = parseFloat(item.change);
+                        let changeVal = parseFloat(item.change);
+                        if (item.key === 'usd_cny' && Math.abs(changeVal) > 20) {
+                            changeVal = 0;
+                            item.change = "0.00";
+                        }
                         const isUp = changeVal > 0;
                         const isZero = changeVal === 0;
                         const colorClass = isZero ? 'text-gray-500' : (isUp ? upColor : downColor);
@@ -1313,25 +1447,17 @@
                         Utils.setClass(this.els.modeSavingBtn, "px-3 py-1.5 text-sm font-semibold rounded-md shadow-sm bg-white text-emerald-600 transition-all"); 
                         Utils.setClass(this.els.modeSpendingBtn, "px-3 py-1.5 text-sm font-semibold rounded-md text-gray-500 hover:text-gray-700 transition-all"); 
                         Utils.setText(this.els.projFlowLabel, t.projContribution); 
-                        Utils.setText(this.els.projNote, t.projNoteSaving);
                     } else { 
                         Utils.setClass(this.els.modeSavingBtn, "px-3 py-1.5 text-sm font-semibold rounded-md text-gray-500 hover:text-gray-700 transition-all"); 
                         Utils.setClass(this.els.modeSpendingBtn, "px-3 py-1.5 text-sm font-semibold rounded-md shadow-sm bg-white text-orange-600 transition-all"); 
                         Utils.setText(this.els.projFlowLabel, t.projExpense); 
-                        Utils.setText(this.els.projNote, t.projNoteSpending);
                     }
-                    this.els.projNote.classList.remove('hidden');
                 },
                 updateThresholdDisplay() { Utils.setText(this.els.thresholdDisplay, State.threshold); this.els.btnMinus.disabled = (State.threshold <= Config.MIN_THRESHOLD); this.els.btnPlus.disabled = (State.threshold >= Config.MAX_THRESHOLD); },
-                renderAll() {
-                    const lang = State.lang; const t = Translations[lang];
-                    document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
-                    document.title = lang === 'en' ? "4x25 Strategy & FIRE Tool | Permanent Portfolio Calculator" : "4x25 Strategy & FIRE Tool | 永久投资组合计算器";
-                    this.els.i18nElements.forEach(el => { const key = el.getAttribute('data-i18n'); if (t[key]) { if (el.dataset.i18nHtml === 'true') { Utils.setTrustedHtml(el, t[key]); } else { Utils.setText(el, t[key]); } } });
-                    Config.ASSETS.forEach(asset => { Utils.setText(this.els.assetLabels[asset.key], t[asset.key]); Utils.setText(this.els.assetLegends[asset.key], t[asset.key]); });
-                    const symbol = new Intl.NumberFormat(lang === 'zh' ? 'zh-CN' : 'en-US', { style: 'currency', currency: t.currencyCode }).formatToParts(0).find(x => x.type === 'currency').value;
-                    this.els.currencySymbols.forEach(el => Utils.setText(el, symbol));
-                    this.els.faqContainer.innerHTML = ''; const faqFragment = document.createDocumentFragment();
+                renderFAQ() {
+                    const t = Translations[State.lang];
+                    this.els.faqContainer.innerHTML = ''; 
+                    const faqFragment = document.createDocumentFragment();
                     t.faqData.forEach((item, index) => {
                         const container = document.createElement('div'); container.className = 'border border-gray-200 rounded-xl overflow-hidden bg-white';
                         const btn = document.createElement('button'); btn.type = 'button'; btn.className = 'w-full flex justify-between items-center p-4 bg-gray-50 hover:bg-gray-100 transition-colors text-left focus:outline-none'; btn.setAttribute('data-faq-toggle', 'true'); btn.setAttribute('data-index', index); btn.setAttribute('aria-expanded', 'false');
@@ -1343,13 +1469,42 @@
                         inner.appendChild(body); content.appendChild(inner); container.appendChild(btn); container.appendChild(content); faqFragment.appendChild(container);
                     });
                     this.els.faqContainer.replaceChildren(faqFragment);
+                    this.hasRenderedFaq = true;
+                },
+                renderAll() {
+                    const lang = State.lang; const t = Translations[lang];
+                    document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
+                    document.title = lang === 'en' ? "4x25 Strategy & FIRE Tool | Permanent Portfolio Calculator" : "4x25 Strategy & FIRE Tool | 永久投资组合计算器";
+                    this.els.i18nElements.forEach(el => { const key = el.getAttribute('data-i18n'); if (t[key]) { if (el.dataset.i18nHtml === 'true') { Utils.setTrustedHtml(el, t[key]); } else { Utils.setText(el, t[key]); } } });
+                    Config.ASSETS.forEach(asset => { Utils.setText(this.els.assetLabels[asset.key], t[asset.key]); Utils.setText(this.els.assetLegends[asset.key], t[asset.key]); });
+                    const symbol = new Intl.NumberFormat(lang === 'zh' ? 'zh-CN' : 'en-US', { style: 'currency', currency: t.currencyCode }).formatToParts(0).find(x => x.type === 'currency').value;
+                    this.els.currencySymbols.forEach(el => Utils.setText(el, symbol));
+                    
+                    // Only re-render FAQ if it was already rendered (e.g. user scrolled down then switched lang)
+                    // If it hasn't been rendered yet, the Observer will handle it when it comes into view.
+                    if (this.hasRenderedFaq) {
+                        this.renderFAQ();
+                    }
+
                     Utils.setClass(this.els.btnZh, `lang-btn w-20 flex justify-center px-4 py-3 text-sm font-bold hover:bg-gray-50 transition-colors ${lang === 'zh' ? 'active' : ''}`);
                     Utils.setClass(this.els.btnEn, `lang-btn w-20 flex justify-center px-4 py-3 text-sm font-bold hover:bg-gray-50 transition-colors ${lang === 'en' ? 'active' : ''}`);
+                    
+                    // Guard clause added to initResultTable prevents double execution
+                    this.initResultTable();
+
                     if (this.els.projPrincipal) this.els.projPrincipal.value = State.projection.principal;
-                    if (this.els.projRate) this.els.projRate.value = State.projection.rate;
                     if (this.els.projYears) this.els.projYears.value = State.projection.years;
                     if (this.els.projFlow) this.els.projFlow.value = State.projection.flow;
                     if (this.els.fireExpenseInput) this.els.fireExpenseInput.value = State.fireExpense;
+                    
+                    // Update Rule of 72 Text dynamically
+                    if (State.historicalStats && this.els.rule72Desc) {
+                        const { cagr, doublingTime } = State.historicalStats;
+                        const rawText = t.rule72Desc;
+                        const filledText = rawText.replace('{rate}', cagr.toFixed(1)).replace('{years}', doublingTime.toFixed(1));
+                        this.els.rule72Desc.textContent = filledText;
+                    }
+
                     this.renderProjectionUI(); this.updateThresholdDisplay(); State.triggerCalc();
                 },
                 toggleFaq(btn) {
