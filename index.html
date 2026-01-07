@@ -6,9 +6,6 @@
     <title>4x25 Strategy & FIRE Tool | 永久投资组合计算器</title>
     <meta name="description" content="Free Permanent Portfolio Rebalancing Tool & FIRE Calculator.">
     
-    <link rel="preconnect" href="https://api.coingecko.com" crossorigin>
-    <link rel="dns-prefetch" href="https://api.coingecko.com">
-
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💰</text></svg>">
     
     <script src="https://cdn.tailwindcss.com/3.4.1"></script>
@@ -33,7 +30,13 @@
             transform: translateZ(0); 
         }
         
-        button:focus-visible, input:focus-visible, a:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
+        /* 焦点状态优化 (无障碍) */
+        button:focus-visible, input:focus-visible, a:focus-visible, .season-card:focus-visible { 
+            outline: 2px solid #2563eb; 
+            outline-offset: 2px; 
+            z-index: 10;
+        }
+        
         .season-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
         .season-card:hover { transform: translateY(-2px); box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
         @keyframes textFlash { 0% { color: #10B981; text-shadow: 0 0 5px rgba(16, 185, 129, 0.5); } 100% { color: #94a3b8; text-shadow: none; } }
@@ -69,10 +72,10 @@
                     </h1>
                     <h2 class="text-slate-500 mt-3 text-base md:text-lg font-medium" data-i18n="subtitle">Permanent Portfolio Strategy & FIRE Tool</h2>
                 </div>
-                <div class="flex rounded-lg shadow-sm overflow-hidden border border-gray-300 bg-white self-start md:self-end" role="group">
-                    <button type="button" id="btn-en" class="lang-btn w-20 flex justify-center px-4 py-3 text-sm font-bold hover:bg-gray-50 transition-colors active">EN</button>
+                <div class="flex rounded-lg shadow-sm overflow-hidden border border-gray-300 bg-white self-start md:self-end" role="group" aria-label="Language Switcher">
+                    <button type="button" id="btn-en" class="lang-btn w-20 flex justify-center px-4 py-3 text-sm font-bold hover:bg-gray-50 transition-colors active" aria-label="Switch to English">EN</button>
                     <div class="w-px bg-gray-300"></div>
-                    <button type="button" id="btn-zh" class="lang-btn w-20 flex justify-center px-4 py-3 text-sm font-bold hover:bg-gray-50 transition-colors">中文</button>
+                    <button type="button" id="btn-zh" class="lang-btn w-20 flex justify-center px-4 py-3 text-sm font-bold hover:bg-gray-50 transition-colors" aria-label="切换到中文">中文</button>
                 </div>
             </header>
 
@@ -89,7 +92,7 @@
                     </div>
 
                     <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 flex flex-col items-center">
-                        <div class="relative w-48 h-48 mb-6">
+                        <div class="relative w-48 h-48 mb-6" role="img" aria-label="Portfolio Allocation Chart">
                             <svg viewBox="0 0 32 32" class="w-full h-full transform -rotate-90" aria-hidden="true">
                                 <circle r="15.9155" cx="16" cy="16" fill="transparent" stroke="#f3f4f6" stroke-width="6"></circle>
                                 <circle id="chart-stocks" class="chart-segment" r="15.9155" cx="16" cy="16" fill="transparent" stroke="#3B82F6" stroke-width="6" stroke-dasharray="0 100" stroke-dashoffset="0"></circle>
@@ -108,23 +111,24 @@
                         <h3 class="text-base font-bold text-slate-900 mb-4 flex items-center gap-2">
                             <span class="text-xl" aria-hidden="true">🧭</span> <span data-i18n="seasonTitle">Economic Seasons</span>
                         </h3>
+                        <!-- A11y Fix: Added role, aria-label, and tabindex for keyboard navigation -->
                         <div class="grid grid-cols-2 gap-3 mb-4">
-                            <div class="season-card bg-blue-50 border border-blue-100 rounded-xl p-3 flex flex-col items-center text-center cursor-default">
+                            <div class="season-card bg-blue-50 border border-blue-100 rounded-xl p-3 flex flex-col items-center text-center cursor-default outline-none" role="region" aria-label="Prosperity Season Strategy: Stocks" tabindex="0">
                                 <span class="text-xl mb-1" aria-hidden="true">📈</span>
                                 <span class="text-xs font-bold text-blue-400 uppercase tracking-wide mb-0.5" data-i18n="seasonProsperity">Prosperity</span>
                                 <span class="text-sm font-bold text-blue-700" data-i18n="seasonStocks">Stocks</span>
                             </div>
-                            <div class="season-card bg-violet-50 border border-violet-100 rounded-xl p-3 flex flex-col items-center text-center cursor-default">
+                            <div class="season-card bg-violet-50 border border-violet-100 rounded-xl p-3 flex flex-col items-center text-center cursor-default outline-none" role="region" aria-label="Deflation Season Strategy: Bonds" tabindex="0">
                                 <span class="text-xl mb-1" aria-hidden="true">📜</span>
                                 <span class="text-xs font-bold text-violet-400 uppercase tracking-wide mb-0.5" data-i18n="seasonDeflation">Deflation</span>
                                 <span class="text-sm font-bold text-violet-700" data-i18n="seasonBonds">Bonds</span>
                             </div>
-                            <div class="season-card bg-emerald-50 border border-emerald-100 rounded-xl p-3 flex flex-col items-center text-center cursor-default">
+                            <div class="season-card bg-emerald-50 border border-emerald-100 rounded-xl p-3 flex flex-col items-center text-center cursor-default outline-none" role="region" aria-label="Recession Season Strategy: Cash" tabindex="0">
                                 <span class="text-xl mb-1" aria-hidden="true">🛡️</span>
                                 <span class="text-xs font-bold text-emerald-400 uppercase tracking-wide mb-0.5" data-i18n="seasonRecession">Recession</span>
                                 <span class="text-sm font-bold text-emerald-700" data-i18n="seasonCash">Cash</span>
                             </div>
-                            <div class="season-card bg-amber-50 border border-amber-100 rounded-xl p-3 flex flex-col items-center text-center cursor-default">
+                            <div class="season-card bg-amber-50 border border-amber-100 rounded-xl p-3 flex flex-col items-center text-center cursor-default outline-none" role="region" aria-label="Inflation Season Strategy: Gold" tabindex="0">
                                 <span class="text-xl mb-1" aria-hidden="true">🪙</span>
                                 <span class="text-xs font-bold text-amber-400 uppercase tracking-wide mb-0.5" data-i18n="seasonInflation">Inflation</span>
                                 <span class="text-sm font-bold text-amber-700" data-i18n="seasonGold">Gold</span>
@@ -274,7 +278,7 @@
                                     <div class="absolute top-2 left-3 z-10 pointer-events-none">
                                         <p class="text-xs font-bold text-gray-400 uppercase tracking-wider" data-i18n="projChartTitle">Wealth Projection</p>
                                     </div>
-                                    <svg id="proj-chart" class="w-full h-full block" preserveAspectRatio="none" viewBox="0 0 100 100">
+                                    <svg id="proj-chart" class="w-full h-full block" preserveAspectRatio="none" viewBox="0 0 100 100" role="img" aria-label="Monte Carlo Simulation Chart">
                                         <defs>
                                             <linearGradient id="grad-fan" x1="0%" y1="0%" x2="0%" y2="100%">
                                                 <stop offset="0%" style="stop-color:#a855f7;stop-opacity:0.3" />
@@ -297,25 +301,6 @@
                                     <span id="proj-end-year">Future</span>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-
-                    <!-- Simplified Market Ticker using Stablecoins -->
-                    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-                        <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-sm font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2">
-                                <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                                <span data-i18n="marketTitle">Reference Rates</span>
-                            </h3>
-                            <span class="text-xs text-slate-400 font-mono transition-colors" id="ticker-time">--</span>
-                        </div>
-                        <div id="ticker-loading" class="grid grid-cols-2 gap-3">
-                            <div class="h-16 bg-gray-50 rounded-xl animate-pulse"></div>
-                            <div class="h-16 bg-gray-50 rounded-xl animate-pulse"></div>
-                        </div>
-                        <div id="ticker-content" class="grid grid-cols-2 gap-3 hidden"></div>
-                        <div class="mt-3 text-right">
-                             <p class="text-[10px] text-slate-400">Source: CoinGecko (USDT & PAXG)</p>
                         </div>
                     </div>
                 </section>
@@ -506,14 +491,7 @@
             "seasonGold": "黄金 (Gold)",
             "rule72Title": "72法则",
             "rule72Desc": "基于 1976-2025 美国市场数据（年化 {rate}%），您的资产约每 {years} 年翻一番。",
-            "marketTitle": "实时参考汇率",
-            "marketNames": {
-                "tether": "USD/CNY (USDT)", 
-                "pax-gold": "Gold/CNY (PAXG)"
-            },
-            "errFetch": "获取行情数据失败",
-            "errNetwork": "网络连接错误",
-            "errUnexpected": "发生意外错误"
+            "errUnexpected": "发生意外错误，请刷新页面重试。"
         },
         "en": {
             "currencyCode": "USD",
@@ -607,14 +585,7 @@
             "seasonGold": "Gold",
             "rule72Title": "Rule of 72",
             "rule72Desc": "Based on US Market (1976-2025) average return of {rate}%, your assets double every ~{years} years.",
-            "marketTitle": "Live Reference Rates",
-            "marketNames": {
-                "tether": "USD/CNY (USDT)", 
-                "pax-gold": "Gold/CNY (PAXG)"
-            },
-            "errFetch": "Failed to fetch market data",
-            "errNetwork": "Network error",
-            "errUnexpected": "An unexpected error occurred"
+            "errUnexpected": "An unexpected error occurred. Please refresh the page."
         }
     }
     </script>
@@ -626,7 +597,6 @@
                 if (!this.events[event]) this.events[event] = [];
                 this.events[event].push(listener);
             }
-            // ✅ 优化点 #5: 添加 off 方法，防止潜在内存泄漏
             off(event, listener) {
                 if (!this.events[event]) return;
                 this.events[event] = this.events[event].filter(l => l !== listener);
@@ -651,10 +621,8 @@
                     SAVE_DEBOUNCE: 1000,
                     ANIMATION_DURATION: 800,
                     TOAST_DISPLAY: 4000,
-                    TOAST_FADEOUT: 300,
-                    MARKET_REFRESH: 15000
+                    TOAST_FADEOUT: 300
                 },
-                MARKET_API: 'https://api.coingecko.com/api/v3/simple/price?ids=tether,pax-gold&vs_currencies=cny&include_24hr_change=true',
                 FORMAT: { SCIENTIFIC_THRESHOLD: 1e15, COMPACT_THRESHOLD: 1000000, MIN_LENGTH_FOR_TRIM: 2 },
                 ASSETS: [
                     { key: 'stocks', color: '#3B82F6', tailwindColor: 'bg-blue-500' },
@@ -748,33 +716,30 @@
                     if (el.animationFrame) cancelAnimationFrame(el.animationFrame);
                     const duration = Config.TIMING.ANIMATION_DURATION;
                     const startTime = performance.now();
+                    
                     const step = (currentTime) => {
                         const elapsed = currentTime - startTime;
                         const progress = Math.min(elapsed / duration, 1);
                         const ease = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
                         const current = startValue + (endValue - startValue) * ease;
-                        el.textContent = Utils.formatMoney(current, lang, isCompact, includeCurrency);
-                        if (progress < 1) { el.animationFrame = requestAnimationFrame(step); } 
-                        else { el.textContent = Utils.formatMoney(endValue, lang, isCompact, includeCurrency); el.dataset.currentValue = endValue; }
+                        
+                        if (progress < 1) { 
+                            el.textContent = Math.floor(current).toLocaleString('en-US'); 
+                            el.animationFrame = requestAnimationFrame(step); 
+                        } else { 
+                            el.textContent = Utils.formatMoney(endValue, lang, isCompact, includeCurrency); 
+                            el.dataset.currentValue = endValue; 
+                        }
                     };
                     el.animationFrame = requestAnimationFrame(step);
                 },
                 setText: (el, text) => { if (el && el.textContent !== text) el.textContent = text; },
-                setTrustedHtml: (el, html) => { 
-                    if (!el) return; 
-                    const clean = html.replace(/<script\b[^>]*>([\s\S]*?)<\/script>/gim, "").replace(/ on\w+="[^"]*"/g, "");
-                    const t = document.createElement('template'); 
-                    t.innerHTML = clean.trim(); 
-                    el.replaceChildren(t.content); 
-                },
                 setClass: (el, cls) => { if (el && el.className !== cls) el.className = cls; },
-                fetchWithTimeout: async (resource, options = {}) => {
-                    const { timeout = 10000 } = options;
-                    const controller = new AbortController();
-                    const id = setTimeout(() => controller.abort(), timeout);
-                    const response = await fetch(resource, { ...options, signal: controller.signal });
-                    clearTimeout(id);
-                    return response;
+                createEl: (tag, cls, text) => {
+                    const el = document.createElement(tag);
+                    if (cls) el.className = cls;
+                    if (text) el.textContent = text;
+                    return el;
                 }
             };
 
@@ -785,14 +750,10 @@
                 holdings: { stocks: 0, bonds: 0, cash: 0, gold: 0 },
                 projection: { mode: 'saving', principal: '', years: 10, flow: '' },
                 fireExpense: '', 
-                marketData: null,
-                lastMarketFetch: 0,
                 debouncedPortfolioCalc: null, 
                 debouncedProjCalc: null,      
                 debouncedSave: null,
-                pollingInterval: null,
                 shouldSyncPrincipal: false, 
-                isFirstLoad: true,
                 historicalStats: null,
                 init() { 
                     this.load(); 
@@ -827,7 +788,14 @@
                             fireExpense: this.fireExpense
                         };
                         localStorage.setItem(Config.STORAGE_KEY, JSON.stringify(data));
-                    } catch (e) { console.warn('LocalStorage save skipped.'); }
+                    } catch (e) { 
+                        // UX Fix: Handle storage quota errors
+                        if (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
+                            console.warn('LocalStorage quota exceeded. Auto-save disabled.');
+                        } else {
+                            console.warn('LocalStorage save failed:', e);
+                        }
+                    }
                 },
                 load() {
                     try {
@@ -856,14 +824,6 @@
                         newData.version = 3;
                     }
                     return newData;
-                },
-                startPolling() {
-                    if (this.pollingInterval) return; 
-                    this.fetchMarket(); 
-                    this.pollingInterval = setInterval(() => { this.fetchMarket(); }, Config.TIMING.MARKET_REFRESH);
-                },
-                stopPolling() {
-                    if (this.pollingInterval) { clearInterval(this.pollingInterval); this.pollingInterval = null; }
                 },
                 setLang(l) { this.lang = l; this.emit('langChanged', l); this.debouncedSave(); },
                 setThreshold(t) { 
@@ -900,52 +860,6 @@
                 performProjectionCalculation() {
                     const projResults = Logic.runMonteCarlo(this.projection.principal, this.projection.years, this.projection.flow, this.projection.mode);
                     this.emit('projectionDone', projResults);
-                },
-                async fetchMarket(retries = 1) {
-                    const now = Date.now();
-                    if (this.marketData && (now - this.lastMarketFetch < Config.TIMING.MARKET_REFRESH)) {
-                        return;
-                    }
-
-                    if (this.isFirstLoad) this.emit('marketLoading', true);
-                    if (document.hidden) return;
-
-                    for (let i = 0; i <= retries; i++) {
-                        try {
-                            const res = await Utils.fetchWithTimeout(Config.MARKET_API, { 
-                                timeout: 10000, 
-                                credentials: 'omit',
-                                cache: 'no-store'
-                            });
-                            if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                            const rawData = await res.json();
-                            
-                            const mappedData = [
-                                {
-                                    key: 'tether',
-                                    price: Utils.getFormatter('zh-CN', { style: 'currency', currency: 'CNY' }).format(rawData.tether.cny),
-                                    change: rawData.tether.cny_24h_change.toFixed(2)
-                                },
-                                {
-                                    key: 'pax-gold',
-                                    price: Utils.getFormatter('zh-CN', { style: 'currency', currency: 'CNY', maximumFractionDigits: 0 }).format(rawData['pax-gold'].cny),
-                                    change: rawData['pax-gold'].cny_24h_change.toFixed(2)
-                                }
-                            ];
-
-                            this.marketData = mappedData;
-                            this.lastMarketFetch = Date.now();
-                            this.emit('marketDataUpdated', this.marketData);
-                            if (this.isFirstLoad) { this.emit('marketLoading', false); this.isFirstLoad = false; }
-                            return; 
-                        } catch (e) {
-                            if (i === retries) {
-                                if (!this.marketData) this.emit('marketError', e);
-                                if (this.isFirstLoad) { this.emit('marketLoading', false); this.isFirstLoad = false; }
-                            }
-                            await new Promise(r => setTimeout(r, 1000)); 
-                        }
-                    }
                 }
             });
 
@@ -977,29 +891,6 @@
                     const history = Config.HISTORICAL_RETURNS;
                     const historyLen = history.length;
                     
-                    // 优化：预分配数组，减少 GC 压力
-                    const p10 = new Float64Array(years + 1);
-                    const p50 = new Float64Array(years + 1);
-                    const p90 = new Float64Array(years + 1);
-                    
-                    // 临时存储每年的所有模拟结果，用于计算分位数
-                    const yearlyResults = new Float64Array(SIMULATIONS);
-
-                    // 初始值
-                    p10[0] = p50[0] = p90[0] = principal;
-
-                    // 逐年计算
-                    for (let y = 1; y <= years; y++) {
-                        for (let s = 0; s < SIMULATIONS; s++) {
-                            // 如果是第一年，基于本金计算；否则基于上一年的结果（这里简化逻辑，每次重新计算路径太慢，改为逐年推进）
-                            // 为了保持独立性，我们需要保存每个模拟的状态。
-                            // 重构逻辑：外层循环模拟，内层循环年份，记录路径。
-                        }
-                    }
-                    
-                    // 重新实现更高效的逻辑：
-                    // 我们需要记录所有路径的每一年数据来算分位数。
-                    // allPaths[simulationIndex][yearIndex]
                     const allPaths = new Array(SIMULATIONS);
                     
                     for (let s = 0; s < SIMULATIONS; s++) {
@@ -1008,7 +899,6 @@
                         let currentBalance = principal;
                         
                         for (let y = 1; y <= years; y++) {
-                            // 快速随机索引
                             const randomReturn = history[(Math.random() * historyLen) | 0];
                             currentBalance = currentBalance * (1 + randomReturn / 100) + annualFlow;
                             if (currentBalance < 0) currentBalance = 0;
@@ -1017,7 +907,6 @@
                         allPaths[s] = path;
                     }
 
-                    // 计算分位数
                     const p10Arr = [], p50Arr = [], p90Arr = [];
                     const tempYearValues = new Float64Array(SIMULATIONS);
                     
@@ -1025,7 +914,7 @@
                         for(let s = 0; s < SIMULATIONS; s++) {
                             tempYearValues[s] = allPaths[s][y];
                         }
-                        tempYearValues.sort(); // 默认是字典序，Float64Array.sort() 是数值序，这很好
+                        tempYearValues.sort(); 
                         p10Arr.push(tempYearValues[(SIMULATIONS * 0.1) | 0]);
                         p50Arr.push(tempYearValues[(SIMULATIONS * 0.5) | 0]);
                         p90Arr.push(tempYearValues[(SIMULATIONS * 0.9) | 0]);
@@ -1052,20 +941,18 @@
                     this.bindEvents(); 
                     this.subscribeToState(); 
                     this.renderAll();
-                    this.startClock(); 
                     this.setupLazyLoad();
 
                     const onIdle = window.requestIdleCallback || function(cb) { setTimeout(cb, 2000); };
                     
                     onIdle(() => {
                         State.calculateHistoricalStats(); 
-                        State.startPolling();             
                     }, { timeout: 3000 });
                 },
                 setupErrorHandling() {
                     window.addEventListener('error', (event) => {
                         if (event.message && event.message.includes('Script error')) return;
-                        const msg = Translations[State.lang]?.errUnexpected || 'Unexpected Error';
+                        const msg = Translations[State.lang]?.errUnexpected || 'Unexpected Error. Please refresh.';
                         this.showToast(msg, 'error');
                     });
                 },
@@ -1085,7 +972,7 @@
                     }
                 },
                 subscribeToState() {
-                    State.on('langChanged', () => { this.renderAll(); this.renderTicker(); });
+                    State.on('langChanged', () => { this.renderAll(); });
                     State.on('thresholdChanged', () => this.updateThresholdDisplay());
                     State.on('projModeChanged', () => this.renderProjectionUI());
                     State.on('calculationDone', (results) => {
@@ -1098,11 +985,6 @@
                     State.on('projectionDone', (results) => {
                         this.renderProjectionResult(results);
                         this.renderMonteCarloChart(results);
-                    });
-                    State.on('marketLoading', (isLoading) => this.setTickerLoading(isLoading));
-                    State.on('marketDataUpdated', () => this.renderTicker());
-                    State.on('marketError', () => {
-                        this.showTickerError();
                     });
                 },
                 cacheDOM() {
@@ -1120,7 +1002,6 @@
                         projYears: document.getElementById('proj-years'), projFlow: document.getElementById('proj-flow'),
                         projResult: document.getElementById('proj-result'), projFlowLabel: document.getElementById('proj-flow-label'),
                         modeSavingBtn: document.getElementById('mode-saving'), modeSpendingBtn: document.getElementById('mode-spending'), btnSimulate: document.getElementById('btn-simulate'),
-                        tickerLoading: document.getElementById('ticker-loading'), tickerContent: document.getElementById('ticker-content'), tickerTime: document.getElementById('ticker-time'),
                         toastContainer: document.getElementById('toast-container'), projEndYear: document.getElementById('proj-end-year'),
                         projChartFan: document.getElementById('proj-chart-fan'), projChartLine: document.getElementById('proj-chart-line'),
                         rule72Desc: document.getElementById('rule72-desc')
@@ -1130,28 +1011,67 @@
                     this.els.inputsContainer.innerHTML = ''; 
                     const fragment = document.createDocumentFragment();
                     Config.ASSETS.forEach(asset => {
-                        const div = document.createElement('div');
-                        const val = State.holdings[asset.key] === 0 ? '' : State.holdings[asset.key];
-                        div.innerHTML = `<label class="block text-sm font-medium text-gray-700 mb-1.5" id="label-${asset.key}" for="input-${asset.key}"></label><div class="relative"><span class="currency-symbol absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold select-none"></span><input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="${Config.ASSET_MAX_DIGITS}" id="input-${asset.key}" placeholder="0" value="${val}" class="asset-input w-full pl-8 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none font-mono text-lg placeholder-gray-300 transition-shadow"></div>`;
+                        const div = Utils.createEl('div');
+                        
+                        const label = Utils.createEl('label', 'block text-sm font-medium text-gray-700 mb-1.5');
+                        label.id = `label-${asset.key}`;
+                        label.htmlFor = `input-${asset.key}`;
+                        
+                        const relativeDiv = Utils.createEl('div', 'relative');
+                        
+                        const symbol = Utils.createEl('span', 'currency-symbol absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold select-none');
+                        
+                        const input = Utils.createEl('input', 'asset-input w-full pl-8 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none font-mono text-lg placeholder-gray-300 transition-shadow');
+                        input.type = 'text';
+                        input.inputMode = 'numeric';
+                        input.pattern = '[0-9]*';
+                        input.maxLength = Config.ASSET_MAX_DIGITS;
+                        input.id = `input-${asset.key}`;
+                        input.placeholder = '0';
+                        input.value = State.holdings[asset.key] === 0 ? '' : State.holdings[asset.key];
+                        
+                        relativeDiv.appendChild(symbol);
+                        relativeDiv.appendChild(input);
+                        div.appendChild(label);
+                        div.appendChild(relativeDiv);
+                        
                         fragment.appendChild(div);
                     });
-                    this.els.inputsContainer.replaceChildren(fragment);
+                    this.els.inputsContainer.appendChild(fragment);
                 },
                 initResultTable() {
                     if (this.tableInited) return; 
 
-                    const t = Translations[State.lang];
                     const fragment = document.createDocumentFragment();
                     Config.ASSETS.forEach(asset => {
-                        const tr = document.createElement('tr');
-                        tr.className = "hover:bg-gray-50 transition-colors";
+                        const tr = Utils.createEl('tr', 'hover:bg-gray-50 transition-colors');
                         tr.setAttribute('data-key', asset.key);
-                        tr.innerHTML = `
-                            <td class="p-3 text-left pl-4"><div class="flex items-center gap-3"><div class="w-3 h-3 rounded-full flex-shrink-0" style="background-color:${asset.color}"></div><span class="font-medium text-slate-700 whitespace-nowrap" data-cell="name"></span></div></td>
-                            <td class="p-3 text-left font-mono"><span data-cell="percent" class="text-slate-600">0.0%</span></td>
-                            <td class="p-3 text-left font-mono text-slate-600 table-cell-truncate" data-cell="target">0</td>
-                            <td class="p-3 text-left pl-4" data-cell="action"></td>
-                        `;
+                        
+                        // Asset Name Cell
+                        const tdName = Utils.createEl('td', 'p-3 text-left pl-4');
+                        const divName = Utils.createEl('div', 'flex items-center gap-3');
+                        const dot = Utils.createEl('div', 'w-3 h-3 rounded-full flex-shrink-0');
+                        dot.style.backgroundColor = asset.color;
+                        const spanName = Utils.createEl('span', 'font-medium text-slate-700 whitespace-nowrap');
+                        spanName.setAttribute('data-cell', 'name');
+                        divName.append(dot, spanName);
+                        tdName.appendChild(divName);
+                        
+                        // Percent Cell
+                        const tdPercent = Utils.createEl('td', 'p-3 text-left font-mono');
+                        const spanPercent = Utils.createEl('span', 'text-slate-600', '0.0%');
+                        spanPercent.setAttribute('data-cell', 'percent');
+                        tdPercent.appendChild(spanPercent);
+                        
+                        // Target Cell
+                        const tdTarget = Utils.createEl('td', 'p-3 text-left font-mono text-slate-600 table-cell-truncate', '0');
+                        tdTarget.setAttribute('data-cell', 'target');
+                        
+                        // Action Cell
+                        const tdAction = Utils.createEl('td', 'p-3 text-left pl-4');
+                        tdAction.setAttribute('data-cell', 'action');
+                        
+                        tr.append(tdName, tdPercent, tdTarget, tdAction);
                         fragment.appendChild(tr);
                     });
                     this.els.resultBody.replaceChildren(fragment);
@@ -1160,7 +1080,14 @@
                 cacheDynamicDOM() { Config.ASSETS.forEach(asset => { this.els.assetInputs[asset.key] = document.getElementById(`input-${asset.key}`); this.els.assetLabels[asset.key] = document.getElementById(`label-${asset.key}`); this.els.chartCircles[asset.key] = document.getElementById(`chart-${asset.key}`); }); },
                 renderLegend() {
                     const fragment = document.createDocumentFragment();
-                    Config.ASSETS.forEach(asset => { const div = document.createElement('div'); div.className = "flex items-center gap-3"; div.innerHTML = `<span class="w-3 h-3 rounded-full ${asset.tailwindColor} flex-shrink-0 shadow-sm"></span><span class="text-sm font-medium text-slate-600" id="legend-${asset.key}"></span>`; fragment.appendChild(div); });
+                    Config.ASSETS.forEach(asset => { 
+                        const div = Utils.createEl('div', 'flex items-center gap-3');
+                        const dot = Utils.createEl('span', `w-3 h-3 rounded-full ${asset.tailwindColor} flex-shrink-0 shadow-sm`);
+                        const text = Utils.createEl('span', 'text-sm font-medium text-slate-600');
+                        text.id = `legend-${asset.key}`;
+                        div.append(dot, text);
+                        fragment.appendChild(div); 
+                    });
                     this.els.legendContainer.replaceChildren(fragment);
                 },
                 cacheLegendDOM() { Config.ASSETS.forEach(asset => { this.els.assetLegends[asset.key] = document.getElementById(`legend-${asset.key}`); }); },
@@ -1172,14 +1099,6 @@
                     this.els.privacyModal.onkeydown = (e) => { if(e.key === "Escape") this.closeModal(); };
                     this.els.faqContainer.onclick = (e) => { const btn = e.target.closest('button[data-faq-toggle]'); if (btn) this.toggleFaq(btn); };
                     
-                    document.addEventListener('visibilitychange', () => {
-                        if (document.hidden) { 
-                            State.stopPolling(); 
-                        } else { 
-                            setTimeout(() => State.startPolling(), 1000); 
-                        }
-                    });
-
                     this.els.inputsContainer.addEventListener('input', (e) => {
                         if (e.target.classList.contains('asset-input')) {
                             const key = e.target.id.replace('input-', '');
@@ -1222,10 +1141,10 @@
                     }
                 },
                 showToast(message, type = 'info') {
-                    const toast = document.createElement('div');
-                    toast.className = `toast toast-${type}`;
-                    const icon = type === 'error' ? '⚠️' : (type === 'success' ? '✅' : 'ℹ️');
-                    toast.innerHTML = `<span class="text-lg">${icon}</span><span class="text-sm font-medium text-slate-800 pt-0.5">${message}</span>`;
+                    const toast = Utils.createEl('div', `toast toast-${type}`);
+                    const iconSpan = Utils.createEl('span', 'text-lg', type === 'error' ? '⚠️' : (type === 'success' ? '✅' : 'ℹ️'));
+                    const msgSpan = Utils.createEl('span', 'text-sm font-medium text-slate-800 pt-0.5', message);
+                    toast.append(iconSpan, msgSpan);
                     this.els.toastContainer.appendChild(toast);
                     requestAnimationFrame(() => toast.classList.add('show'));
                     setTimeout(() => {
@@ -1240,8 +1159,15 @@
                     if (allZero) { statusClass = "bg-blue-50 border-blue-200 text-blue-900"; icon = "⚖️"; title = t.statusEmptyTitle; desc = t.statusEmptyDesc; showNote = false; } 
                     else if (globalBreach) { statusClass = "bg-amber-50 border-amber-200 text-amber-900"; icon = "⚠️"; title = t.statusActionTitle; desc = t.statusActionDesc.replace('{threshold}', State.threshold).replace('{min}', Config.TARGET_PERCENT - State.threshold).replace('{max}', Config.TARGET_PERCENT + State.threshold); showNote = true; } 
                     else { statusClass = "bg-emerald-50 border-emerald-200 text-emerald-900"; icon = "✅"; title = t.statusHealthyTitle; desc = t.statusHealthyDesc; showNote = false; }
-                    Utils.setClass(this.els.statusCard, `rounded-2xl p-6 border shadow-sm transition-all ${statusClass}`);
-                    Utils.setText(this.els.statusIcon, icon); Utils.setText(this.els.statusTitle, title); Utils.setText(this.els.statusDesc, desc); Utils.setText(this.els.statusNote, t.statusActionNote); Utils.setClass(this.els.statusNote, showNote ? "mt-2 text-xs opacity-75" : "hidden");
+                    
+                    requestAnimationFrame(() => {
+                        Utils.setClass(this.els.statusCard, `rounded-2xl p-6 border shadow-sm transition-all ${statusClass}`);
+                        Utils.setText(this.els.statusIcon, icon); 
+                        Utils.setText(this.els.statusTitle, title); 
+                        Utils.setText(this.els.statusDesc, desc); 
+                        Utils.setText(this.els.statusNote, t.statusActionNote); 
+                        Utils.setClass(this.els.statusNote, showNote ? "mt-2 text-xs opacity-75" : "hidden");
+                    });
                     
                     let chartOffset = 0;
                     const rows = this.els.resultBody.children;
@@ -1268,15 +1194,21 @@
                         Utils.setText(targetCell, targetDisplay);
                         targetCell.title = targetDisplay;
 
-                        let actionHtml = '';
+                        // Clear previous action content
+                        actionCell.textContent = '';
+                        
                         const absDiff = Math.abs(asset.diff);
                         const locale = State.lang === 'zh' ? 'zh-CN' : 'en-US';
                         const currencyCode = Translations[State.lang].currencyCode;
 
-                        if (allZero) { actionHtml = `<span class="text-gray-300 text-lg font-bold select-none">-</span>`; } 
+                        if (allZero) { 
+                            const dash = Utils.createEl('span', 'text-gray-300 text-lg font-bold select-none', '-');
+                            actionCell.appendChild(dash);
+                        } 
                         else if (globalBreach) {
                             if (absDiff < 0.01) {
-                                actionHtml = `<span class="text-gray-400 text-sm font-medium pl-1 font-mono">${t.hold}</span>`;
+                                const holdSpan = Utils.createEl('span', 'text-gray-400 text-sm font-medium pl-1 font-mono', t.hold);
+                                actionCell.appendChild(holdSpan);
                             } else {
                                 const type = asset.diff > 0 ? t.buy : t.sell; 
                                 const colorClass = asset.diff > 0 ? 'bg-blue-50 text-blue-700' : 'bg-orange-50 text-orange-700';
@@ -1287,11 +1219,17 @@
                                 } else {
                                     formattedAmount = Utils.getFormatter(locale, { style: 'currency', currency: currencyCode, maximumFractionDigits: 0 }).format(absDiff);
                                 }
-                                actionHtml = `<div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-bold ${colorClass} whitespace-nowrap font-mono">${type} <span class="ml-1">${formattedAmount}</span></div>`; 
+                                
+                                const badge = Utils.createEl('div', `inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-bold ${colorClass} whitespace-nowrap font-mono`);
+                                badge.textContent = type + ' ';
+                                const amountSpan = Utils.createEl('span', 'ml-1', formattedAmount);
+                                badge.appendChild(amountSpan);
+                                actionCell.appendChild(badge);
                             }
-                        } else { actionHtml = `<span class="text-gray-400 text-sm font-medium pl-1 font-mono">${t.hold}</span>`; }
-                        
-                        if (actionCell.innerHTML !== actionHtml) actionCell.innerHTML = actionHtml;
+                        } else { 
+                            const holdSpan = Utils.createEl('span', 'text-gray-400 text-sm font-medium pl-1 font-mono', t.hold);
+                            actionCell.appendChild(holdSpan);
+                        }
                     });
                 },
                 renderFireProgress(totalAssets) {
@@ -1346,6 +1284,136 @@
                     this.els.fireProgressBar.style.width = `${visualPercent}%`;
                     this.els.firePercent.textContent = `${percent.toFixed(1)}%`;
                     Utils.setText(this.els.fireTargetDisplay, Utils.formatMoney(target, State.lang, true));
+                },
+                renderProjectionUI() {
+                    const t = Translations[State.lang]; const mode = State.projection.mode;
+                    if (mode === 'saving') { 
+                        Utils.setClass(this.els.modeSavingBtn, "px-3 py-1.5 text-sm font-semibold rounded-md shadow-sm bg-white text-emerald-600 transition-all"); 
+                        Utils.setClass(this.els.modeSpendingBtn, "px-3 py-1.5 text-sm font-semibold rounded-md text-gray-500 hover:text-gray-700 transition-all"); 
+                        Utils.setText(this.els.projFlowLabel, t.projContribution); 
+                    } else { 
+                        Utils.setClass(this.els.modeSavingBtn, "px-3 py-1.5 text-sm font-semibold rounded-md text-gray-500 hover:text-gray-700 transition-all"); 
+                        Utils.setClass(this.els.modeSpendingBtn, "px-3 py-1.5 text-sm font-semibold rounded-md shadow-sm bg-white text-orange-600 transition-all"); 
+                        Utils.setText(this.els.projFlowLabel, t.projExpense); 
+                    }
+                },
+                updateThresholdDisplay() { Utils.setText(this.els.thresholdDisplay, State.threshold); this.els.btnMinus.disabled = (State.threshold <= Config.MIN_THRESHOLD); this.els.btnPlus.disabled = (State.threshold >= Config.MAX_THRESHOLD); },
+                renderFAQ() {
+                    const t = Translations[State.lang];
+                    this.els.faqContainer.innerHTML = ''; 
+                    const faqFragment = document.createDocumentFragment();
+                    
+                    t.faqData.forEach((item, index) => {
+                        const container = Utils.createEl('div', 'border border-gray-200 rounded-xl overflow-hidden bg-white');
+                        
+                        const btn = Utils.createEl('button', 'w-full flex justify-between items-center p-4 bg-gray-50 hover:bg-gray-100 transition-colors text-left focus:outline-none');
+                        btn.type = 'button';
+                        btn.setAttribute('data-faq-toggle', 'true');
+                        btn.setAttribute('data-index', index);
+                        btn.setAttribute('aria-expanded', 'false');
+                        
+                        const qSpan = Utils.createEl('span', 'font-bold text-slate-800 text-sm', item.question);
+                        
+                        // Create SVG Icon manually
+                        const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+                        svg.setAttribute("class", "faq-icon w-5 h-5 text-slate-400 flex-shrink-0 ml-4");
+                        svg.setAttribute("fill", "none");
+                        svg.setAttribute("stroke", "currentColor");
+                        svg.setAttribute("viewBox", "0 0 24 24");
+                        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                        path.setAttribute("stroke-linecap", "round");
+                        path.setAttribute("stroke-linejoin", "round");
+                        path.setAttribute("stroke-width", "2");
+                        path.setAttribute("d", "M19 9l-7 7-7-7");
+                        svg.appendChild(path);
+                        
+                        btn.append(qSpan, svg);
+                        
+                        const content = Utils.createEl('div', 'faq-content bg-white');
+                        content.id = `faq-content-${index}`;
+                        
+                        const inner = Utils.createEl('div', 'faq-inner');
+                        const body = Utils.createEl('div', 'p-4 text-sm text-slate-600 leading-relaxed border-t border-gray-100 space-y-2');
+                        
+                        if (Array.isArray(item.answer)) {
+                            item.answer.forEach(paraText => {
+                                const p = Utils.createEl('p', '', paraText);
+                                body.appendChild(p);
+                            });
+                        } else {
+                            const p = Utils.createEl('p', '', item.answer);
+                            body.appendChild(p);
+                        }
+                        
+                        inner.appendChild(body);
+                        content.appendChild(inner);
+                        container.append(btn, content);
+                        faqFragment.appendChild(container);
+                    });
+                    this.els.faqContainer.appendChild(faqFragment);
+                    this.hasRenderedFaq = true;
+                },
+                renderAll() {
+                    const lang = State.lang; const t = Translations[lang];
+                    document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
+                    document.title = lang === 'en' ? "4x25 Strategy & FIRE Tool | Permanent Portfolio Calculator" : "4x25 Strategy & FIRE Tool | 永久投资组合计算器";
+                    
+                    this.els.i18nElements.forEach(el => { 
+                        const key = el.getAttribute('data-i18n'); 
+                        if (t[key]) { 
+                            Utils.setText(el, t[key]); 
+                        } 
+                    });
+                    
+                    Config.ASSETS.forEach(asset => { Utils.setText(this.els.assetLabels[asset.key], t[asset.key]); Utils.setText(this.els.assetLegends[asset.key], t[asset.key]); });
+                    const symbol = new Intl.NumberFormat(lang === 'zh' ? 'zh-CN' : 'en-US', { style: 'currency', currency: t.currencyCode }).formatToParts(0).find(x => x.type === 'currency').value;
+                    this.els.currencySymbols.forEach(el => Utils.setText(el, symbol));
+                    
+                    if (this.hasRenderedFaq) {
+                        this.renderFAQ();
+                    }
+
+                    Utils.setClass(this.els.btnZh, `lang-btn w-20 flex justify-center px-4 py-3 text-sm font-bold hover:bg-gray-50 transition-colors ${lang === 'zh' ? 'active' : ''}`);
+                    Utils.setClass(this.els.btnEn, `lang-btn w-20 flex justify-center px-4 py-3 text-sm font-bold hover:bg-gray-50 transition-colors ${lang === 'en' ? 'active' : ''}`);
+                    
+                    this.initResultTable();
+
+                    if (this.els.projPrincipal) this.els.projPrincipal.value = State.projection.principal;
+                    if (this.els.projYears) this.els.projYears.value = State.projection.years;
+                    if (this.els.projFlow) this.els.projFlow.value = State.projection.flow;
+                    if (this.els.fireExpenseInput) this.els.fireExpenseInput.value = State.fireExpense;
+                    
+                    this.renderRule72();
+
+                    this.renderProjectionUI(); this.updateThresholdDisplay(); State.triggerCalc();
+                },
+                toggleFaq(btn) {
+                    const content = btn.nextElementSibling; const icon = btn.querySelector('.faq-icon'); const isOpen = content.classList.contains('open');
+                    if (isOpen) { content.classList.remove('open'); icon.classList.remove('rotate'); btn.setAttribute('aria-expanded', 'false'); } else { content.classList.add('open'); icon.classList.add('rotate'); btn.setAttribute('aria-expanded', 'true'); }
+                },
+                setInert(element, isInert) {
+                    if ('inert' in HTMLElement.prototype) { element.inert = isInert; } 
+                    else {
+                        if (isInert) { element.setAttribute('aria-hidden', 'true'); element.style.pointerEvents = 'none'; const focusables = element.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'); focusables.forEach(el => { if (!el.hasAttribute('data-original-tabindex')) { el.setAttribute('data-original-tabindex', el.getAttribute('tabindex', '-1') || ''); } el.setAttribute('tabindex', '-1'); }); } 
+                        else { element.removeAttribute('aria-hidden'); element.style.pointerEvents = ''; const focusables = element.querySelectorAll('[data-original-tabindex]'); focusables.forEach(el => { const original = el.getAttribute('data-original-tabindex'); if (original === '') { el.removeAttribute('tabindex'); } else { el.setAttribute('tabindex', original); } el.removeAttribute('data-original-tabindex'); }); }
+                    }
+                },
+                openModal(triggerElement) {
+                    const lang = State.lang;
+                    const tmplId = lang === 'zh' ? 'tmpl-privacy-zh' : 'tmpl-privacy-en';
+                    const tmpl = document.getElementById(tmplId);
+                    if (tmpl && this.els.modalBody) {
+                        this.els.modalBody.replaceChildren(tmpl.content.cloneNode(true));
+                    }
+                    
+                    this.lastFocusedElement = triggerElement; document.body.style.overflow = 'hidden'; this.els.privacyModal.classList.remove('hidden');
+                    this.setInert(this.els.appContainer, true);
+                    setTimeout(() => { this.els.modalOverlay.classList.remove('opacity-0'); this.els.modalContent.classList.remove('opacity-0', 'translate-y-4', 'sm:translate-y-0', 'sm:scale-95'); this.els.modalContent.classList.add('opacity-100', 'translate-y-0', 'sm:scale-100'); this.els.modalCloseBtn.focus(); }, 10);
+                },
+                closeModal() {
+                    this.els.modalOverlay.classList.add('opacity-0'); this.els.modalContent.classList.remove('opacity-100', 'translate-y-0', 'sm:scale-100'); this.els.modalContent.classList.add('opacity-0', 'translate-y-4', 'sm:translate-y-0', 'sm:scale-95'); document.body.style.overflow = '';
+                    this.setInert(this.els.appContainer, false);
+                    setTimeout(() => { this.els.privacyModal.classList.add('hidden'); if (this.lastFocusedElement) this.lastFocusedElement.focus(); }, 300);
                 },
                 renderProjectionResult(data) {
                     const { medianFinal, years } = data;
@@ -1403,167 +1471,6 @@
                         const filledText = rawText.replace('{rate}', cagr.toFixed(1)).replace('{years}', doublingTime.toFixed(1));
                         this.els.rule72Desc.textContent = filledText;
                     }
-                },
-                startClock() {
-                    const update = () => {
-                        const now = new Date();
-                        const year = now.getFullYear();
-                        const month = String(now.getMonth() + 1).padStart(2, '0');
-                        const day = String(now.getDate()).padStart(2, '0');
-                        const hours = String(now.getHours()).padStart(2, '0');
-                        const minutes = String(now.getMinutes()).padStart(2, '0');
-                        const seconds = String(now.getSeconds()).padStart(2, '0');
-                        this.els.tickerTime.textContent = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-                    };
-                    update(); 
-                    setInterval(update, 1000);
-                },
-                setTickerLoading(isLoading) {
-                    if (isLoading) {
-                        this.els.tickerLoading.style.display = 'grid';
-                        this.els.tickerContent.classList.add('hidden');
-                    } else {
-                        this.els.tickerLoading.style.display = 'none';
-                        this.els.tickerContent.classList.remove('hidden');
-                    }
-                },
-                showTickerError() {
-                    this.els.tickerLoading.style.display = 'none';
-                    this.els.tickerContent.classList.remove('hidden');
-                    this.els.tickerContent.innerHTML = `<div class="col-span-full text-center text-gray-400 text-sm py-2 bg-gray-50 rounded-lg">Market data unavailable</div>`;
-                },
-                renderTicker() {
-                    const data = State.marketData;
-                    if (!data) return;
-                    const fragment = document.createDocumentFragment();
-                    const t = Translations[State.lang];
-                    const isZh = State.lang === 'zh';
-                    const upColor = isZh ? 'text-red-600' : 'text-emerald-600';
-                    const downColor = isZh ? 'text-emerald-600' : 'text-red-600';
-                    const bgUp = isZh ? 'bg-red-50' : 'bg-emerald-50';
-                    const bgDown = isZh ? 'bg-emerald-50' : 'bg-red-50';
-                    data.forEach(item => {
-                        let changeVal = parseFloat(item.change);
-                        const isUp = changeVal > 0;
-                        const isZero = changeVal === 0;
-                        const colorClass = isZero ? 'text-gray-500' : (isUp ? upColor : downColor);
-                        const bgClass = isZero ? 'bg-gray-50' : (isUp ? bgUp : bgDown);
-                        const arrow = isZero ? '' : (isUp ? '▲' : '▼');
-                        const sign = isZero ? '' : (isUp ? '+' : '');
-                        const displayName = t.marketNames[item.key] || item.key;
-                        const card = document.createElement('div');
-                        card.className = `flex flex-col justify-center px-4 py-4 rounded-xl ${bgClass} border border-transparent hover:border-gray-200 transition-all cursor-default`;
-                        
-                        const nameRow = document.createElement('div');
-                        nameRow.className = "text-xs text-slate-500 font-bold mb-1.5 truncate uppercase tracking-wider";
-                        nameRow.textContent = displayName; 
-                        card.appendChild(nameRow);
-                        
-                        const dataRow = document.createElement('div');
-                        dataRow.className = "flex items-baseline justify-between gap-2";
-                        
-                        const priceSpan = document.createElement('span');
-                        priceSpan.className = "font-mono font-bold text-slate-800 text-lg";
-                        priceSpan.textContent = item.price; 
-                        dataRow.appendChild(priceSpan);
-                        
-                        const changeSpan = document.createElement('span');
-                        changeSpan.className = `font-mono text-sm font-bold ${colorClass}`;
-                        changeSpan.textContent = `${arrow}${sign}${item.change}%`; 
-                        dataRow.appendChild(changeSpan);
-                        
-                        card.appendChild(dataRow);
-                        fragment.appendChild(card);
-                    });
-                    this.els.tickerContent.replaceChildren(fragment);
-                    this.els.tickerTime.classList.remove('flash-update');
-                    void this.els.tickerTime.offsetWidth; 
-                    this.els.tickerTime.classList.add('flash-update');
-                },
-                renderProjectionUI() {
-                    const t = Translations[State.lang]; const mode = State.projection.mode;
-                    if (mode === 'saving') { 
-                        Utils.setClass(this.els.modeSavingBtn, "px-3 py-1.5 text-sm font-semibold rounded-md shadow-sm bg-white text-emerald-600 transition-all"); 
-                        Utils.setClass(this.els.modeSpendingBtn, "px-3 py-1.5 text-sm font-semibold rounded-md text-gray-500 hover:text-gray-700 transition-all"); 
-                        Utils.setText(this.els.projFlowLabel, t.projContribution); 
-                    } else { 
-                        Utils.setClass(this.els.modeSavingBtn, "px-3 py-1.5 text-sm font-semibold rounded-md text-gray-500 hover:text-gray-700 transition-all"); 
-                        Utils.setClass(this.els.modeSpendingBtn, "px-3 py-1.5 text-sm font-semibold rounded-md shadow-sm bg-white text-orange-600 transition-all"); 
-                        Utils.setText(this.els.projFlowLabel, t.projExpense); 
-                    }
-                },
-                updateThresholdDisplay() { Utils.setText(this.els.thresholdDisplay, State.threshold); this.els.btnMinus.disabled = (State.threshold <= Config.MIN_THRESHOLD); this.els.btnPlus.disabled = (State.threshold >= Config.MAX_THRESHOLD); },
-                renderFAQ() {
-                    const t = Translations[State.lang];
-                    this.els.faqContainer.innerHTML = ''; 
-                    const faqFragment = document.createDocumentFragment();
-                    t.faqData.forEach((item, index) => {
-                        const container = document.createElement('div'); container.className = 'border border-gray-200 rounded-xl overflow-hidden bg-white';
-                        const btn = document.createElement('button'); btn.type = 'button'; btn.className = 'w-full flex justify-between items-center p-4 bg-gray-50 hover:bg-gray-100 transition-colors text-left focus:outline-none'; btn.setAttribute('data-faq-toggle', 'true'); btn.setAttribute('data-index', index); btn.setAttribute('aria-expanded', 'false');
-                        btn.innerHTML = `<span class="font-bold text-slate-800 text-sm">${item.question}</span><svg class="faq-icon w-5 h-5 text-slate-400 flex-shrink-0 ml-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>`;
-                        const content = document.createElement('div'); content.className = 'faq-content bg-white'; content.id = `faq-content-${index}`;
-                        const inner = document.createElement('div'); inner.className = 'faq-inner';
-                        const body = document.createElement('div'); body.className = 'p-4 text-sm text-slate-600 leading-relaxed border-t border-gray-100 space-y-2';
-                        if (Array.isArray(item.answer)) { item.answer.forEach(paraText => { const p = document.createElement('p'); p.innerHTML = paraText; body.appendChild(p); }); } else { body.innerHTML = item.answer; }
-                        inner.appendChild(body); content.appendChild(inner); container.appendChild(btn); container.appendChild(content); faqFragment.appendChild(container);
-                    });
-                    this.els.faqContainer.replaceChildren(faqFragment);
-                    this.hasRenderedFaq = true;
-                },
-                renderAll() {
-                    const lang = State.lang; const t = Translations[lang];
-                    document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
-                    document.title = lang === 'en' ? "4x25 Strategy & FIRE Tool | Permanent Portfolio Calculator" : "4x25 Strategy & FIRE Tool | 永久投资组合计算器";
-                    this.els.i18nElements.forEach(el => { const key = el.getAttribute('data-i18n'); if (t[key]) { if (el.dataset.i18nHtml === 'true') { Utils.setTrustedHtml(el, t[key]); } else { Utils.setText(el, t[key]); } } });
-                    Config.ASSETS.forEach(asset => { Utils.setText(this.els.assetLabels[asset.key], t[asset.key]); Utils.setText(this.els.assetLegends[asset.key], t[asset.key]); });
-                    const symbol = new Intl.NumberFormat(lang === 'zh' ? 'zh-CN' : 'en-US', { style: 'currency', currency: t.currencyCode }).formatToParts(0).find(x => x.type === 'currency').value;
-                    this.els.currencySymbols.forEach(el => Utils.setText(el, symbol));
-                    
-                    if (this.hasRenderedFaq) {
-                        this.renderFAQ();
-                    }
-
-                    Utils.setClass(this.els.btnZh, `lang-btn w-20 flex justify-center px-4 py-3 text-sm font-bold hover:bg-gray-50 transition-colors ${lang === 'zh' ? 'active' : ''}`);
-                    Utils.setClass(this.els.btnEn, `lang-btn w-20 flex justify-center px-4 py-3 text-sm font-bold hover:bg-gray-50 transition-colors ${lang === 'en' ? 'active' : ''}`);
-                    
-                    this.initResultTable();
-
-                    if (this.els.projPrincipal) this.els.projPrincipal.value = State.projection.principal;
-                    if (this.els.projYears) this.els.projYears.value = State.projection.years;
-                    if (this.els.projFlow) this.els.projFlow.value = State.projection.flow;
-                    if (this.els.fireExpenseInput) this.els.fireExpenseInput.value = State.fireExpense;
-                    
-                    this.renderRule72();
-
-                    this.renderProjectionUI(); this.updateThresholdDisplay(); State.triggerCalc();
-                },
-                toggleFaq(btn) {
-                    const content = btn.nextElementSibling; const icon = btn.querySelector('.faq-icon'); const isOpen = content.classList.contains('open');
-                    if (isOpen) { content.classList.remove('open'); icon.classList.remove('rotate'); btn.setAttribute('aria-expanded', 'false'); } else { content.classList.add('open'); icon.classList.add('rotate'); btn.setAttribute('aria-expanded', 'true'); }
-                },
-                setInert(element, isInert) {
-                    if ('inert' in HTMLElement.prototype) { element.inert = isInert; } 
-                    else {
-                        if (isInert) { element.setAttribute('aria-hidden', 'true'); element.style.pointerEvents = 'none'; const focusables = element.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'); focusables.forEach(el => { if (!el.hasAttribute('data-original-tabindex')) { el.setAttribute('data-original-tabindex', el.getAttribute('tabindex', '-1') || ''); } el.setAttribute('tabindex', '-1'); }); } 
-                        else { element.removeAttribute('aria-hidden'); element.style.pointerEvents = ''; const focusables = element.querySelectorAll('[data-original-tabindex]'); focusables.forEach(el => { const original = el.getAttribute('data-original-tabindex'); if (original === '') { el.removeAttribute('tabindex'); } else { el.setAttribute('tabindex', original); } el.removeAttribute('data-original-tabindex'); }); }
-                    }
-                },
-                openModal(triggerElement) {
-                    const lang = State.lang;
-                    const tmplId = lang === 'zh' ? 'tmpl-privacy-zh' : 'tmpl-privacy-en';
-                    const tmpl = document.getElementById(tmplId);
-                    if (tmpl && this.els.modalBody) {
-                        this.els.modalBody.replaceChildren(tmpl.content.cloneNode(true));
-                    }
-                    
-                    this.lastFocusedElement = triggerElement; document.body.style.overflow = 'hidden'; this.els.privacyModal.classList.remove('hidden');
-                    this.setInert(this.els.appContainer, true);
-                    setTimeout(() => { this.els.modalOverlay.classList.remove('opacity-0'); this.els.modalContent.classList.remove('opacity-0', 'translate-y-4', 'sm:translate-y-0', 'sm:scale-95'); this.els.modalContent.classList.add('opacity-100', 'translate-y-0', 'sm:scale-100'); this.els.modalCloseBtn.focus(); }, 10);
-                },
-                closeModal() {
-                    this.els.modalOverlay.classList.add('opacity-0'); this.els.modalContent.classList.remove('opacity-100', 'translate-y-0', 'sm:scale-100'); this.els.modalContent.classList.add('opacity-0', 'translate-y-4', 'sm:translate-y-0', 'sm:scale-95'); document.body.style.overflow = '';
-                    this.setInert(this.els.appContainer, false);
-                    setTimeout(() => { this.els.privacyModal.classList.add('hidden'); if (this.lastFocusedElement) this.lastFocusedElement.focus(); }, 300);
                 }
             };
             return { init: () => UI.init() };
