@@ -2,7 +2,7 @@
 <html lang="en" prefix="og: http://ogp.me/ns#">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>4x25 Strategy & FIRE Tool | 永久投资组合计算器</title>
     <meta name="description" content="Free Permanent Portfolio Rebalancing Tool & FIRE Calculator.">
     
@@ -12,7 +12,7 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💰</text></svg>">
     <script src="https://cdn.tailwindcss.com/3.4.1"></script>
     <style>
-        body { font-family: system-ui, -apple-system, sans-serif; font-feature-settings: "tnum"; -webkit-font-smoothing: antialiased; }
+        body { font-family: system-ui, -apple-system, sans-serif; font-feature-settings: "tnum"; -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; }
         .lang-btn.active { background-color: #3b82f6; color: white; border-color: #3b82f6; }
         button:disabled { opacity: 0.3; cursor: not-allowed; pointer-events: none; }
         .table-cell-truncate { max-width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -22,7 +22,7 @@
         .faq-icon { transition: transform 0.3s ease; }
         .faq-icon.rotate { transform: rotate(180deg); }
         .modal-overlay { transition: opacity 0.3s ease; }
-        .modal-content { transition: transform 0.3s ease, opacity 0.3s ease; }
+        .modal-content { transition: transform 0.3s ease, opacity 0.3s ease; max-height: 90vh; display: flex; flex-direction: column; }
         .chart-segment { transition: stroke-dasharray 0.6s cubic-bezier(0.4, 0, 0.2, 1), stroke-dashoffset 0.6s cubic-bezier(0.4, 0, 0.2, 1); will-change: stroke-dasharray, stroke-dashoffset; }
         button:focus-visible, input:focus-visible, a:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
         .season-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
@@ -39,6 +39,12 @@
         .chart-area-path { opacity: 0.2; transition: d 0.6s ease-out, fill 0.6s ease; }
         .content-auto { content-visibility: auto; contain-intrinsic-size: 1px 1000px; }
         @media (prefers-reduced-motion: reduce) { *, ::before, ::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; } .chart-segment { transition: none; } .flash-update { animation: none; } .toast { transition: none; } .chart-path { transition: none; } }
+        /* Mobile specific adjustments */
+        @media (max-width: 640px) {
+            .modal-content { max-height: 85vh; width: 92%; margin: 0 auto; }
+            #toast-container { right: 50%; transform: translateX(50%); width: 90%; bottom: 10px; }
+            .toast { min-width: 0; width: 100%; }
+        }
     </style>
 </head>
 <body class="bg-gray-50 text-slate-800 min-h-screen flex flex-col">
@@ -324,12 +330,14 @@
     <div id="privacy-modal" class="fixed inset-0 z-50 hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
         <div class="modal-overlay absolute inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity opacity-0"></div>
         <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-            <div class="modal-content relative transform overflow-hidden rounded-2xl bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-xl opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" id="modal-panel">
-                <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
-                    <h3 class="text-xl font-bold leading-6 text-slate-900 mb-4" id="modal-title" data-i18n="privacyTitle">Terms & Privacy Policy</h3>
-                    <div id="modal-body" class="mt-2 text-sm text-slate-600 space-y-4 leading-relaxed max-h-[80vh] overflow-y-auto pr-2"></div>
+            <div class="modal-content relative transform rounded-2xl bg-white text-left shadow-xl transition-all opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" id="modal-panel">
+                <div class="bg-white px-4 pt-5 sm:p-6 border-b border-gray-100 flex-shrink-0">
+                    <h3 class="text-xl font-bold leading-6 text-slate-900" id="modal-title" data-i18n="privacyTitle">Terms & Privacy Policy</h3>
                 </div>
-                <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 border-t border-gray-100">
+                <div class="flex-1 overflow-y-auto px-4 py-4 sm:px-6">
+                    <div id="modal-body" class="text-sm text-slate-600 space-y-4 leading-relaxed"></div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 border-t border-gray-100 flex-shrink-0">
                     <button type="button" id="modal-close-btn" class="inline-flex w-full justify-center rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-50 sm:ml-3 sm:w-auto transition-colors" data-i18n="closeBtn">Close</button>
                 </div>
             </div>
@@ -337,7 +345,7 @@
     </div>
 
     <template id="tmpl-privacy-zh">
-        <h4 class="font-bold text-slate-800 mt-4 mb-2">1. 条款接受</h4>
+        <h4 class="font-bold text-slate-800 mt-2 mb-2">1. 条款接受</h4>
         <p>访问并使用本网站 ("4x25 Tools") ，即表示您同意遵守以下条款。如果您不同意这些条款的任何部分，请勿使用本服务。</p>
         <h4 class="font-bold text-slate-800 mt-4 mb-2">2. 免责声明 (无财务建议)</h4>
         <p>本网站提供的计算结果、图表及信息仅供<strong>教育和参考用途</strong>。它们不构成任何形式的财务、投资、税务或法律建议。</p>
@@ -366,7 +374,7 @@
     </template>
 
     <template id="tmpl-privacy-en">
-        <h4 class="font-bold text-slate-800 mt-4 mb-2">1. Acceptance of Terms</h4>
+        <h4 class="font-bold text-slate-800 mt-2 mb-2">1. Acceptance of Terms</h4>
         <p>By accessing and using this website ("4x25 Tools"), you agree to be bound by these terms. If you do not agree, please do not use this service.</p>
         <h4 class="font-bold text-slate-800 mt-4 mb-2">2. Disclaimer (No Financial Advice)</h4>
         <p>The calculations, charts, and information provided on this website are for <strong>educational and informational purposes only</strong>. They do not constitute financial, investment, tax, or legal advice.</p>
@@ -750,7 +758,7 @@
                 setClass: (el, cls) => { if (el && el.className !== cls) el.className = cls; },
                 roundTo2: (num) => Math.round((num + Number.EPSILON) * 100) / 100,
                 fetchWithTimeout: async (resource, options = {}) => {
-                    const { timeout = 5000 } = options;
+                    const { timeout = 10000 } = options; // Increased timeout for mobile
                     const controller = new AbortController();
                     const id = setTimeout(() => controller.abort(), timeout);
                     const response = await fetch(resource, { ...options, signal: controller.signal });
@@ -888,9 +896,18 @@
                 },
                 async fetchMarket(retries = 1) {
                     if (this.isFirstLoad) this.emit('marketLoading', true);
+                    
+                    // Don't fetch if page is hidden
+                    if (document.hidden) return;
+
                     for (let i = 0; i <= retries; i++) {
                         try {
-                            const res = await Utils.fetchWithTimeout(Config.MARKET_API, { timeout: 5000 });
+                            // Add cache busting and credentials omit for mobile stability
+                            const res = await Utils.fetchWithTimeout(Config.MARKET_API, { 
+                                timeout: 10000, 
+                                credentials: 'omit',
+                                cache: 'no-store'
+                            });
                             if (!res.ok) throw new Error(`HTTP ${res.status}`);
                             this.marketData = await res.json();
                             this.emit('marketDataUpdated', this.marketData);
@@ -899,6 +916,7 @@
                         } catch (e) {
                             if (i === retries) {
                                 console.warn('Market fetch failed after retries:', e);
+                                // Only emit error if we don't have stale data to show
                                 if (!this.marketData) this.emit('marketError', e);
                                 if (this.isFirstLoad) { this.emit('marketLoading', false); this.isFirstLoad = false; }
                             }
@@ -1053,7 +1071,10 @@
                     State.on('marketDataUpdated', () => this.renderTicker());
                     State.on('marketError', () => {
                         this.showTickerError();
-                        this.showToast(Translations[State.lang].errFetch, 'error');
+                        // Only show toast if it's not the initial load to avoid spamming on weak connections
+                        if (!State.isFirstLoad) {
+                            this.showToast(Translations[State.lang].errFetch, 'error');
+                        }
                     });
                 },
                 cacheDOM() {
@@ -1124,7 +1145,12 @@
                     this.els.faqContainer.onclick = (e) => { const btn = e.target.closest('button[data-faq-toggle]'); if (btn) this.toggleFaq(btn); };
                     
                     document.addEventListener('visibilitychange', () => {
-                        if (document.hidden) { State.stopPolling(); } else { State.startPolling(); }
+                        if (document.hidden) { 
+                            State.stopPolling(); 
+                        } else { 
+                            // Delay slightly to allow network radio to wake up on mobile
+                            setTimeout(() => State.startPolling(), 1000); 
+                        }
                     });
 
                     this.els.inputsContainer.addEventListener('input', (e) => {
