@@ -5,11 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>4x25 Strategy & FIRE Tool | 永久投资组合计算器</title>
     <meta name="description" content="Free Permanent Portfolio Rebalancing Tool & FIRE Calculator.">
-    
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💰</text></svg>">
-    
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍀</text></svg>">
     <script src="https://cdn.tailwindcss.com/3.4.1"></script>
-    
     <style>
         body { font-family: system-ui, -apple-system, sans-serif; font-feature-settings: "tnum"; -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; margin: 0; }
         .lang-btn.active { background-color: #3b82f6; color: white; border-color: #3b82f6; }
@@ -22,21 +19,8 @@
         .faq-icon.rotate { transform: rotate(180deg); }
         .modal-overlay { transition: opacity 0.3s ease; }
         .modal-content { transition: transform 0.3s ease, opacity 0.3s ease; max-height: 85vh; display: flex; flex-direction: column; }
-        
-        /* 硬件加速优化 */
-        .chart-segment { 
-            transition: stroke-dasharray 0.6s cubic-bezier(0.4, 0, 0.2, 1), stroke-dashoffset 0.6s cubic-bezier(0.4, 0, 0.2, 1); 
-            will-change: stroke-dasharray, stroke-dashoffset; 
-            transform: translateZ(0); 
-        }
-        
-        /* 焦点状态优化 (无障碍) */
-        button:focus-visible, input:focus-visible, a:focus-visible, .season-card:focus-visible { 
-            outline: 2px solid #2563eb; 
-            outline-offset: 2px; 
-            z-index: 10;
-        }
-        
+        .chart-segment { transition: stroke-dasharray 0.6s cubic-bezier(0.4, 0, 0.2, 1), stroke-dashoffset 0.6s cubic-bezier(0.4, 0, 0.2, 1); will-change: stroke-dasharray, stroke-dashoffset; transform: translateZ(0); }
+        button:focus-visible, input:focus-visible, a:focus-visible, .season-card:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; z-index: 10; }
         .season-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
         .season-card:hover { transform: translateY(-2px); box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
         @keyframes textFlash { 0% { color: #10B981; text-shadow: 0 0 5px rgba(16, 185, 129, 0.5); } 100% { color: #94a3b8; text-shadow: none; } }
@@ -50,20 +34,45 @@
         .chart-path { transition: d 0.6s ease-out, fill 0.6s ease; }
         .chart-area-path { opacity: 0.2; transition: d 0.6s ease-out, fill 0.6s ease; }
         .content-auto { content-visibility: auto; contain-intrinsic-size: 1px 1000px; }
-        @media (prefers-reduced-motion: reduce) { *, ::before, ::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; } .chart-segment { transition: none; } .flash-update { animation: none; } .toast { transition: none; } .chart-path { transition: none; } }
-        @media (max-width: 640px) {
-            .modal-content { max-height: 80vh; width: 92%; margin: 0 auto; }
-            #toast-container { right: 50%; transform: translateX(50%); width: 90%; bottom: 10px; }
-            .toast { min-width: 0; width: 100%; }
+        
+        /* --- Ambient Background Effect --- */
+        .ambient-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; z-index: -1; pointer-events: none; opacity: 0.6; }
+        .orb { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.4; animation: float 20s infinite ease-in-out alternate; will-change: transform; }
+        
+        /* Stocks (Blue) */
+        .orb-1 { width: 50vw; height: 50vw; background: #3B82F6; top: -10%; left: -10%; animation-duration: 25s; }
+        /* Bonds (Purple) */
+        .orb-2 { width: 40vw; height: 40vw; background: #8B5CF6; top: 10%; right: -10%; animation-duration: 28s; animation-delay: -5s; }
+        /* Cash (Green) */
+        .orb-3 { width: 45vw; height: 45vw; background: #10B981; bottom: -10%; left: 10%; animation-duration: 32s; animation-delay: -10s; }
+        /* Gold (Yellow/Amber) */
+        .orb-4 { width: 35vw; height: 35vw; background: #F59E0B; bottom: 10%; right: 20%; animation-duration: 22s; animation-delay: -2s; }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -50px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.9); }
+            100% { transform: translate(0, 0) scale(1); }
         }
+
+        @media (prefers-reduced-motion: reduce) { *, ::before, ::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; } .chart-segment { transition: none; } .flash-update { animation: none; } .toast { transition: none; } .chart-path { transition: none; } .orb { animation: none; } }
+        @media (max-width: 640px) { .modal-content { max-height: 80vh; width: 92%; margin: 0 auto; } #toast-container { right: 50%; transform: translateX(50%); width: 90%; bottom: 10px; } .toast { min-width: 0; width: 100%; } .orb { filter: blur(50px); opacity: 0.3; } }
     </style>
 </head>
-<body class="bg-gray-50 text-slate-800 min-h-screen flex flex-col">
+<body class="bg-gray-50/80 text-slate-800 min-h-screen flex flex-col relative">
 
-    <div id="app" class="flex flex-col min-h-screen p-4 md:p-8">
+    <!-- Ambient Background Layer -->
+    <div class="ambient-bg" aria-hidden="true">
+        <div class="orb orb-1"></div> <!-- Stocks: Blue -->
+        <div class="orb orb-2"></div> <!-- Bonds: Purple -->
+        <div class="orb orb-3"></div> <!-- Cash: Green -->
+        <div class="orb orb-4"></div> <!-- Gold: Amber -->
+    </div>
+
+    <div id="app" class="flex flex-col min-h-screen p-4 md:p-8 relative z-10">
         <div class="max-w-5xl mx-auto w-full flex-grow">
             <!-- Header -->
-            <header class="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-gray-100 pb-6">
+            <header class="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-gray-200/60 pb-6 backdrop-blur-sm">
                 <div class="flex flex-col justify-center">
                     <h1 class="flex items-center tracking-tighter select-none group cursor-default">
                         <span class="text-5xl md:text-6xl font-black text-slate-900 tracking-tight">4</span>
@@ -72,7 +81,7 @@
                     </h1>
                     <h2 class="text-slate-500 mt-3 text-base md:text-lg font-medium" data-i18n="subtitle">Permanent Portfolio Strategy & FIRE Tool</h2>
                 </div>
-                <div class="flex rounded-lg shadow-sm overflow-hidden border border-gray-300 bg-white self-start md:self-end" role="group" aria-label="Language Switcher">
+                <div class="flex rounded-lg shadow-sm overflow-hidden border border-gray-300 bg-white/90 self-start md:self-end" role="group" aria-label="Language Switcher">
                     <button type="button" id="btn-en" class="lang-btn w-20 flex justify-center px-4 py-3 text-sm font-bold hover:bg-gray-50 transition-colors active" aria-label="Switch to English">EN</button>
                     <div class="w-px bg-gray-300"></div>
                     <button type="button" id="btn-zh" class="lang-btn w-20 flex justify-center px-4 py-3 text-sm font-bold hover:bg-gray-50 transition-colors" aria-label="切换到中文">中文</button>
@@ -82,7 +91,7 @@
             <main class="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 <!-- Left Column -->
                 <section class="lg:col-span-4 space-y-6">
-                    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+                    <div class="bg-white/80 backdrop-blur-md rounded-2xl shadow-sm border border-white/50 p-6">
                         <h3 class="text-xl font-bold mb-6 flex items-center gap-2" data-i18n="inputTitle">💰 Current Holdings</h3>
                         <div class="space-y-5" id="inputs-container"></div>
                         <div class="mt-8 pt-6 border-t border-gray-100 flex justify-between items-center overflow-hidden">
@@ -91,7 +100,7 @@
                         </div>
                     </div>
 
-                    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 flex flex-col items-center">
+                    <div class="bg-white/80 backdrop-blur-md rounded-2xl shadow-sm border border-white/50 p-6 flex flex-col items-center">
                         <div class="relative w-48 h-48 mb-6" role="img" aria-label="Portfolio Allocation Chart">
                             <svg viewBox="0 0 32 32" class="w-full h-full transform -rotate-90" aria-hidden="true">
                                 <circle r="15.9155" cx="16" cy="16" fill="transparent" stroke="#f3f4f6" stroke-width="6"></circle>
@@ -107,34 +116,33 @@
                         <div class="w-full px-6 space-y-3" id="legend-container"></div>
                     </div>
 
-                    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+                    <div class="bg-white/80 backdrop-blur-md rounded-2xl shadow-sm border border-white/50 p-6">
                         <h3 class="text-base font-bold text-slate-900 mb-4 flex items-center gap-2">
                             <span class="text-xl" aria-hidden="true">🧭</span> <span data-i18n="seasonTitle">Economic Seasons</span>
                         </h3>
-                        <!-- A11y Fix: Added role, aria-label, and tabindex for keyboard navigation -->
                         <div class="grid grid-cols-2 gap-3 mb-4">
-                            <div class="season-card bg-blue-50 border border-blue-100 rounded-xl p-3 flex flex-col items-center text-center cursor-default outline-none" role="region" aria-label="Prosperity Season Strategy: Stocks" tabindex="0">
+                            <div class="season-card bg-blue-50/80 border border-blue-100 rounded-xl p-3 flex flex-col items-center text-center cursor-default outline-none" role="region" aria-label="Prosperity Season Strategy: Stocks" tabindex="0">
                                 <span class="text-xl mb-1" aria-hidden="true">📈</span>
                                 <span class="text-xs font-bold text-blue-400 uppercase tracking-wide mb-0.5" data-i18n="seasonProsperity">Prosperity</span>
                                 <span class="text-sm font-bold text-blue-700" data-i18n="seasonStocks">Stocks</span>
                             </div>
-                            <div class="season-card bg-violet-50 border border-violet-100 rounded-xl p-3 flex flex-col items-center text-center cursor-default outline-none" role="region" aria-label="Deflation Season Strategy: Bonds" tabindex="0">
+                            <div class="season-card bg-violet-50/80 border border-violet-100 rounded-xl p-3 flex flex-col items-center text-center cursor-default outline-none" role="region" aria-label="Deflation Season Strategy: Bonds" tabindex="0">
                                 <span class="text-xl mb-1" aria-hidden="true">📜</span>
                                 <span class="text-xs font-bold text-violet-400 uppercase tracking-wide mb-0.5" data-i18n="seasonDeflation">Deflation</span>
                                 <span class="text-sm font-bold text-violet-700" data-i18n="seasonBonds">Bonds</span>
                             </div>
-                            <div class="season-card bg-emerald-50 border border-emerald-100 rounded-xl p-3 flex flex-col items-center text-center cursor-default outline-none" role="region" aria-label="Recession Season Strategy: Cash" tabindex="0">
+                            <div class="season-card bg-emerald-50/80 border border-emerald-100 rounded-xl p-3 flex flex-col items-center text-center cursor-default outline-none" role="region" aria-label="Recession Season Strategy: Cash" tabindex="0">
                                 <span class="text-xl mb-1" aria-hidden="true">🛡️</span>
                                 <span class="text-xs font-bold text-emerald-400 uppercase tracking-wide mb-0.5" data-i18n="seasonRecession">Recession</span>
                                 <span class="text-sm font-bold text-emerald-700" data-i18n="seasonCash">Cash</span>
                             </div>
-                            <div class="season-card bg-amber-50 border border-amber-100 rounded-xl p-3 flex flex-col items-center text-center cursor-default outline-none" role="region" aria-label="Inflation Season Strategy: Gold" tabindex="0">
+                            <div class="season-card bg-amber-50/80 border border-amber-100 rounded-xl p-3 flex flex-col items-center text-center cursor-default outline-none" role="region" aria-label="Inflation Season Strategy: Gold" tabindex="0">
                                 <span class="text-xl mb-1" aria-hidden="true">🪙</span>
                                 <span class="text-xs font-bold text-amber-400 uppercase tracking-wide mb-0.5" data-i18n="seasonInflation">Inflation</span>
                                 <span class="text-sm font-bold text-amber-700" data-i18n="seasonGold">Gold</span>
                             </div>
                         </div>
-                        <div class="bg-slate-50 rounded-lg p-3 text-xs text-slate-500 leading-relaxed border border-slate-100">
+                        <div class="bg-slate-50/80 rounded-lg p-3 text-xs text-slate-500 leading-relaxed border border-slate-100">
                             <span class="font-bold text-slate-700"><span aria-hidden="true">💡</span> <span data-i18n="rule72Title">Rule of 72</span>:</span> 
                             <span id="rule72-desc">Calculating...</span>
                         </div>
@@ -143,7 +151,7 @@
 
                 <!-- Right Column -->
                 <section class="lg:col-span-8 space-y-6">
-                    <div id="status-card" class="rounded-2xl p-6 border shadow-sm transition-all bg-blue-50 border-blue-200 text-blue-900" role="status" aria-live="polite">
+                    <div id="status-card" class="rounded-2xl p-6 border shadow-sm transition-all bg-blue-50/90 border-blue-200 text-blue-900 backdrop-blur-sm" role="status" aria-live="polite">
                         <div class="flex items-start gap-4">
                             <div id="status-icon" class="text-2xl" aria-hidden="true">⚖️</div>
                             <div>
@@ -154,11 +162,11 @@
                         </div>
                     </div>
 
-                    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="bg-white/80 backdrop-blur-md rounded-2xl shadow-sm border border-white/50 overflow-hidden">
                         <div class="p-6 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                             <h3 class="text-xl font-bold" data-i18n="rebalanceTitle">🔄 Rebalancing Suggestions</h3>
                             <div class="flex flex-wrap items-center gap-3 sm:gap-4">
-                                <div class="bg-gray-50 px-2 py-1 rounded-lg border border-gray-200 flex items-center gap-2 select-none">
+                                <div class="bg-gray-50/80 px-2 py-1 rounded-lg border border-gray-200 flex items-center gap-2 select-none">
                                     <span class="text-xs font-bold text-gray-500 ml-1" data-i18n="thresholdLabel" id="threshold-label">Threshold: ±</span>
                                     <div class="flex items-center bg-white rounded border border-gray-200 shadow-sm">
                                         <button type="button" id="btn-minus" class="w-6 h-6 flex items-center justify-center text-slate-600 hover:text-blue-600 hover:bg-blue-50 transition-all font-bold text-base rounded-l" aria-label="Decrease threshold">-</button>
@@ -167,13 +175,13 @@
                                     </div>
                                     <span class="text-xs font-bold text-slate-400 mr-1">%</span>
                                 </div>
-                                <span class="text-xs font-mono bg-gray-100 text-gray-600 px-2 py-1.5 rounded border border-gray-200" data-i18n="targetLabel">Target: 25%</span>
+                                <span class="text-xs font-mono bg-gray-100/80 text-gray-600 px-2 py-1.5 rounded border border-gray-200" data-i18n="targetLabel">Target: 25%</span>
                             </div>
                         </div>
                         <div class="overflow-x-auto">
                             <table class="w-full text-left border-collapse">
                                 <thead>
-                                    <tr class="bg-gray-50 text-gray-500 text-sm uppercase tracking-wider">
+                                    <tr class="bg-gray-50/50 text-gray-500 text-sm uppercase tracking-wider">
                                         <th class="p-3 font-medium whitespace-nowrap text-left pl-4" data-i18n="colAsset">Asset</th>
                                         <th class="p-3 font-medium whitespace-nowrap text-left" data-i18n="colCurrent">Current %</th>
                                         <th class="p-3 font-medium whitespace-nowrap text-left" data-i18n="colTarget">Target Value</th>
@@ -185,7 +193,7 @@
                         </div>
                     </div>
 
-                    <div class="bg-slate-900 text-white rounded-2xl p-6 shadow-lg overflow-hidden transition-colors duration-500" id="fire-card">
+                    <div class="bg-slate-900/95 backdrop-blur-xl text-white rounded-2xl p-6 shadow-lg overflow-hidden transition-colors duration-500" id="fire-card">
                         <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
                             <span id="fire-header-icon" class="text-2xl transition-all duration-500" aria-hidden="true">🔥</span> 
                             <span id="fire-header-title" data-i18n="fireTitle">FIRE 4% Rule Preview</span>
@@ -216,7 +224,6 @@
                                 <div id="fire-progress-bar" class="h-full bg-gradient-to-r from-emerald-600 to-emerald-400 transition-all duration-700 ease-out w-0 shadow-[0_0_10px_rgba(16,185,129,0.5)]"></div>
                             </div>
                             
-                            <!-- Standard Footer -->
                             <div id="fire-footer-standard" class="flex justify-between text-xs text-slate-500 font-mono transition-opacity duration-300">
                                 <span>0</span>
                                 <div>
@@ -224,14 +231,13 @@
                                 </div>
                             </div>
                             
-                            <!-- Diogenes Footer (Hidden by default) -->
                             <div id="fire-footer-diogenes" class="hidden text-center pt-1 transition-opacity duration-300">
                                 <span class="text-yellow-400 font-bold text-sm italic font-serif tracking-wide" id="diogenes-quote"></span>
                             </div>
                         </div>
                     </div>
 
-                    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+                    <div class="bg-white/80 backdrop-blur-md rounded-2xl shadow-sm border border-white/50 p-6">
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
                             <h3 class="text-xl font-bold flex items-center gap-2">
                                 <span class="text-purple-500" aria-hidden="true">🎲</span> <span data-i18n="projTitle">Monte Carlo Simulation</span>
@@ -252,29 +258,38 @@
                                     <div class="mb-1"><label class="block text-xs font-bold text-gray-500 uppercase" data-i18n="projCurrent">Current Assets</label></div>
                                     <div class="relative">
                                         <span class="currency-symbol absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-sm"></span>
-                                        <input type="text" id="proj-principal" maxlength="12" class="w-full pl-7 pr-3 py-2 bg-gray-50 border border-gray-200 rounded-lg font-mono text-sm focus:ring-2 focus:ring-purple-500 outline-none placeholder-gray-300 transition-colors" placeholder="0">
+                                        <input type="text" id="proj-principal" maxlength="12" class="w-full pl-7 pr-3 py-2 bg-gray-50/50 border border-gray-200 rounded-lg font-mono text-sm focus:ring-2 focus:ring-purple-500 outline-none placeholder-gray-300 transition-colors" placeholder="0">
                                     </div>
                                 </div>
                                 <div class="grid grid-cols-2 gap-4">
                                     <div class="flex flex-col h-full">
                                         <label class="block text-xs font-bold text-gray-500 uppercase mb-1" data-i18n="projYears">Years</label>
-                                        <input type="text" inputmode="numeric" id="proj-years" value="10" placeholder="1" class="mt-auto w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg font-mono text-sm focus:ring-2 focus:ring-purple-500 outline-none placeholder-gray-300">
+                                        <input type="text" inputmode="numeric" id="proj-years" value="10" placeholder="1" class="mt-auto w-full px-3 py-2 bg-gray-50/50 border border-gray-200 rounded-lg font-mono text-sm focus:ring-2 focus:ring-purple-500 outline-none placeholder-gray-300">
                                     </div>
                                     <div class="flex flex-col h-full">
                                         <label class="block text-xs font-bold text-gray-500 uppercase mb-1" id="proj-flow-label" data-i18n="projContribution">Annual Contribution</label>
                                         <div class="relative mt-auto">
                                             <span class="currency-symbol absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-sm"></span>
-                                            <input type="text" id="proj-flow" maxlength="12" class="w-full pl-7 pr-3 py-2 bg-gray-50 border border-gray-200 rounded-lg font-mono text-sm focus:ring-2 focus:ring-purple-500 outline-none placeholder-gray-300" placeholder="0">
+                                            <input type="text" id="proj-flow" maxlength="12" class="w-full pl-7 pr-3 py-2 bg-gray-50/50 border border-gray-200 rounded-lg font-mono text-sm focus:ring-2 focus:ring-purple-500 outline-none placeholder-gray-300" placeholder="0">
                                         </div>
                                     </div>
                                 </div>
-                                <div class="bg-purple-50 rounded-lg p-3 text-xs text-purple-800 border border-purple-100">
-                                    <p class="font-bold mb-1" data-i18n="monteCarloTitle">Based on US Market Data (1976-2025):</p>
-                                    <p class="opacity-80 leading-relaxed" data-i18n="monteCarloDesc">Simulating 1,000 possible futures by randomly sampling from 50 years of historical US Permanent Portfolio returns.</p>
+                                <div class="bg-purple-50/80 rounded-lg p-3 text-xs text-purple-800 border border-purple-100 space-y-2">
+                                    <div>
+                                        <p class="font-bold mb-1" data-i18n="monteCarloTitle">Based on US Market Data (1976-2025):</p>
+                                        <p class="opacity-80 leading-relaxed" data-i18n="monteCarloDesc">Simulating 1,000 possible futures by randomly sampling from 50 years of historical US Permanent Portfolio returns.</p>
+                                    </div>
+                                    <div class="border-t border-purple-200 pt-2 mt-2">
+                                        <p class="font-bold flex items-center gap-1">
+                                            <span class="text-sm italic font-serif">e</span>
+                                            <span data-i18n="continuousCompoundingTitle">Continuous Compounding Model</span>
+                                        </p>
+                                        <p class="opacity-80 leading-relaxed mt-1" data-i18n="continuousCompoundingDesc">Using Euler's number (e) to simulate continuous cash flows (daily contributions/spending) rather than lump-sum year-end transactions.</p>
+                                    </div>
                                 </div>
                             </div>
                             <div class="flex flex-col h-full">
-                                <div class="bg-white rounded-lg border border-gray-100 overflow-hidden relative flex-grow min-h-[200px] mb-2">
+                                <div class="bg-white/50 rounded-lg border border-gray-100 overflow-hidden relative flex-grow min-h-[200px] mb-2">
                                     <div class="absolute top-2 left-3 z-10 pointer-events-none">
                                         <p class="text-xs font-bold text-gray-400 uppercase tracking-wider" data-i18n="projChartTitle">Wealth Projection</p>
                                     </div>
@@ -285,12 +300,9 @@
                                                 <stop offset="100%" style="stop-color:#a855f7;stop-opacity:0.05" />
                                             </linearGradient>
                                         </defs>
-                                        <!-- Fan Area (10th - 90th percentile) -->
                                         <path id="proj-chart-fan" class="chart-area-path" d="" fill="url(#grad-fan)"></path>
-                                        <!-- Median Line -->
                                         <path id="proj-chart-line" class="chart-path" d="" fill="none" stroke="#9333ea" stroke-width="2" vector-effect="non-scaling-stroke"></path>
                                     </svg>
-                                    <!-- Tooltip Overlay -->
                                     <div class="absolute bottom-2 right-3 pointer-events-none flex items-baseline gap-2 bg-white/90 px-2 rounded-lg backdrop-blur-[2px]">
                                         <span class="text-xs text-gray-500 font-bold whitespace-nowrap" data-i18n="projMedian">Median Outcome</span>
                                         <span class="text-xl font-bold text-purple-700 font-mono" id="proj-result">0</span>
@@ -312,14 +324,13 @@
             </section>
         </div>
 
-        <footer class="mt-12 text-center pb-8 px-4 border-t border-gray-100 pt-8">
+        <footer class="mt-12 text-center pb-8 px-4 border-t border-gray-200/60 pt-8">
             <p class="text-slate-400 text-sm">
                 &copy; 2026 4x25 · <button type="button" id="btn-privacy" class="cursor-pointer hover:text-slate-600 transition-colors underline decoration-slate-300 underline-offset-2" data-i18n="privacy">Terms & Privacy</button>
             </p>
         </footer>
     </div>
 
-    <!-- Toast Container -->
     <div id="toast-container"></div>
 
     <div id="privacy-modal" class="fixed inset-0 z-50 hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
@@ -479,6 +490,8 @@
             "btnSimulate": "重新模拟",
             "monteCarloTitle": "基于 1976-2025 美国市场数据:",
             "monteCarloDesc": "通过随机抽取过去 50 年的美国市场永久组合历史回报率，进行 1,000 次未来路径模拟，展示财富增长的概率分布区间。",
+            "continuousCompoundingTitle": "连续复利模型 (Continuous Compounding)",
+            "continuousCompoundingDesc": "使用欧拉数 (e) 模拟连续的现金流（即假设定投/消费是每日均匀发生的），而非传统的年末一次性结算，结果更贴近真实情况。",
             "rebalanceNote": "注：建议操作金额为理论值，未考虑交易手续费及税务（如资本利得税）影响。",
             "seasonTitle": "经济四季罗盘",
             "seasonProsperity": "繁荣期",
@@ -573,6 +586,8 @@
             "btnSimulate": "Resimulate",
             "monteCarloTitle": "Based on US Market Data (1976-2025):",
             "monteCarloDesc": "Simulating 1,000 possible futures by randomly sampling from 50 years of historical US Permanent Portfolio returns.",
+            "continuousCompoundingTitle": "Continuous Compounding Model",
+            "continuousCompoundingDesc": "Using Euler's number (e) to simulate continuous cash flows (daily contributions/spending) rather than lump-sum year-end transactions.",
             "rebalanceNote": "Note: Suggested actions are theoretical and do not account for transaction fees or tax implications.",
             "seasonTitle": "Economic Seasons",
             "seasonProsperity": "Prosperity",
@@ -789,7 +804,6 @@
                         };
                         localStorage.setItem(Config.STORAGE_KEY, JSON.stringify(data));
                     } catch (e) { 
-                        // UX Fix: Handle storage quota errors
                         if (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
                             console.warn('LocalStorage quota exceeded. Auto-save disabled.');
                         } else {
@@ -900,7 +914,15 @@
                         
                         for (let y = 1; y <= years; y++) {
                             const randomReturn = history[(Math.random() * historyLen) | 0];
-                            currentBalance = currentBalance * (1 + randomReturn / 100) + annualFlow;
+                            const k = Math.log(1 + randomReturn / 100);
+                            
+                            if (Math.abs(k) < 1e-9) {
+                                currentBalance = currentBalance + annualFlow;
+                            } else {
+                                const growthFactor = Math.exp(k);
+                                currentBalance = currentBalance * growthFactor + (annualFlow / k) * (growthFactor - 1);
+                            }
+                            
                             if (currentBalance < 0) currentBalance = 0;
                             path[y] = currentBalance;
                         }
@@ -1044,7 +1066,7 @@
 
                     const fragment = document.createDocumentFragment();
                     Config.ASSETS.forEach(asset => {
-                        const tr = Utils.createEl('tr', 'hover:bg-gray-50 transition-colors');
+                        const tr = Utils.createEl('tr', 'hover:bg-gray-50/50 transition-colors');
                         tr.setAttribute('data-key', asset.key);
                         
                         // Asset Name Cell
@@ -1156,12 +1178,12 @@
                     const t = Translations[State.lang]; const { total, assetsData, globalBreach } = data;
                     Utils.animateTo(this.els.totalValue, total, State.lang, true); Utils.animateTo(this.els.fireYear, total * 0.04, State.lang, true); Utils.animateTo(this.els.fireMonth, total * 0.04 / 12, State.lang, true);
                     let statusClass, icon, title, desc, showNote; const allZero = total === 0;
-                    if (allZero) { statusClass = "bg-blue-50 border-blue-200 text-blue-900"; icon = "⚖️"; title = t.statusEmptyTitle; desc = t.statusEmptyDesc; showNote = false; } 
-                    else if (globalBreach) { statusClass = "bg-amber-50 border-amber-200 text-amber-900"; icon = "⚠️"; title = t.statusActionTitle; desc = t.statusActionDesc.replace('{threshold}', State.threshold).replace('{min}', Config.TARGET_PERCENT - State.threshold).replace('{max}', Config.TARGET_PERCENT + State.threshold); showNote = true; } 
-                    else { statusClass = "bg-emerald-50 border-emerald-200 text-emerald-900"; icon = "✅"; title = t.statusHealthyTitle; desc = t.statusHealthyDesc; showNote = false; }
+                    if (allZero) { statusClass = "bg-blue-50/90 border-blue-200 text-blue-900"; icon = "⚖️"; title = t.statusEmptyTitle; desc = t.statusEmptyDesc; showNote = false; } 
+                    else if (globalBreach) { statusClass = "bg-amber-50/90 border-amber-200 text-amber-900"; icon = "⚠️"; title = t.statusActionTitle; desc = t.statusActionDesc.replace('{threshold}', State.threshold).replace('{min}', Config.TARGET_PERCENT - State.threshold).replace('{max}', Config.TARGET_PERCENT + State.threshold); showNote = true; } 
+                    else { statusClass = "bg-emerald-50/90 border-emerald-200 text-emerald-900"; icon = "✅"; title = t.statusHealthyTitle; desc = t.statusHealthyDesc; showNote = false; }
                     
                     requestAnimationFrame(() => {
-                        Utils.setClass(this.els.statusCard, `rounded-2xl p-6 border shadow-sm transition-all ${statusClass}`);
+                        Utils.setClass(this.els.statusCard, `rounded-2xl p-6 border shadow-sm transition-all backdrop-blur-sm ${statusClass}`);
                         Utils.setText(this.els.statusIcon, icon); 
                         Utils.setText(this.els.statusTitle, title); 
                         Utils.setText(this.els.statusDesc, desc); 
@@ -1211,7 +1233,7 @@
                                 actionCell.appendChild(holdSpan);
                             } else {
                                 const type = asset.diff > 0 ? t.buy : t.sell; 
-                                const colorClass = asset.diff > 0 ? 'bg-blue-50 text-blue-700' : 'bg-orange-50 text-orange-700';
+                                const colorClass = asset.diff > 0 ? 'bg-blue-50/80 text-blue-700' : 'bg-orange-50/80 text-orange-700';
                                 
                                 let formattedAmount;
                                 if (absDiff < 1) {
@@ -1304,9 +1326,9 @@
                     const faqFragment = document.createDocumentFragment();
                     
                     t.faqData.forEach((item, index) => {
-                        const container = Utils.createEl('div', 'border border-gray-200 rounded-xl overflow-hidden bg-white');
+                        const container = Utils.createEl('div', 'border border-gray-200 rounded-xl overflow-hidden bg-white/80 backdrop-blur-sm');
                         
-                        const btn = Utils.createEl('button', 'w-full flex justify-between items-center p-4 bg-gray-50 hover:bg-gray-100 transition-colors text-left focus:outline-none');
+                        const btn = Utils.createEl('button', 'w-full flex justify-between items-center p-4 bg-gray-50/50 hover:bg-gray-100/50 transition-colors text-left focus:outline-none');
                         btn.type = 'button';
                         btn.setAttribute('data-faq-toggle', 'true');
                         btn.setAttribute('data-index', index);
@@ -1329,7 +1351,7 @@
                         
                         btn.append(qSpan, svg);
                         
-                        const content = Utils.createEl('div', 'faq-content bg-white');
+                        const content = Utils.createEl('div', 'faq-content bg-white/50');
                         content.id = `faq-content-${index}`;
                         
                         const inner = Utils.createEl('div', 'faq-inner');
