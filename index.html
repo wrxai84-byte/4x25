@@ -6,13 +6,15 @@
     <title>4x25 Strategy & FIRE Tool | 永久投资组合计算器</title>
     <meta name="description" content="Free Permanent Portfolio Rebalancing Tool & FIRE Calculator.">
     
-    <link rel="preconnect" href="https://market-proxy.wrx-ai-84.workers.dev" crossorigin>
-    <link rel="dns-prefetch" href="https://market-proxy.wrx-ai-84.workers.dev">
+    <link rel="preconnect" href="https://api.coingecko.com" crossorigin>
+    <link rel="dns-prefetch" href="https://api.coingecko.com">
 
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💰</text></svg>">
+    
     <script src="https://cdn.tailwindcss.com/3.4.1"></script>
+    
     <style>
-        body { font-family: system-ui, -apple-system, sans-serif; font-feature-settings: "tnum"; -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; }
+        body { font-family: system-ui, -apple-system, sans-serif; font-feature-settings: "tnum"; -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; margin: 0; }
         .lang-btn.active { background-color: #3b82f6; color: white; border-color: #3b82f6; }
         button:disabled { opacity: 0.3; cursor: not-allowed; pointer-events: none; }
         .table-cell-truncate { max-width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -22,8 +24,15 @@
         .faq-icon { transition: transform 0.3s ease; }
         .faq-icon.rotate { transform: rotate(180deg); }
         .modal-overlay { transition: opacity 0.3s ease; }
-        .modal-content { transition: transform 0.3s ease, opacity 0.3s ease; max-height: 90vh; display: flex; flex-direction: column; }
-        .chart-segment { transition: stroke-dasharray 0.6s cubic-bezier(0.4, 0, 0.2, 1), stroke-dashoffset 0.6s cubic-bezier(0.4, 0, 0.2, 1); will-change: stroke-dasharray, stroke-dashoffset; }
+        .modal-content { transition: transform 0.3s ease, opacity 0.3s ease; max-height: 85vh; display: flex; flex-direction: column; }
+        
+        /* 硬件加速优化 */
+        .chart-segment { 
+            transition: stroke-dasharray 0.6s cubic-bezier(0.4, 0, 0.2, 1), stroke-dashoffset 0.6s cubic-bezier(0.4, 0, 0.2, 1); 
+            will-change: stroke-dasharray, stroke-dashoffset; 
+            transform: translateZ(0); 
+        }
+        
         button:focus-visible, input:focus-visible, a:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
         .season-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
         .season-card:hover { transform: translateY(-2px); box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
@@ -39,9 +48,8 @@
         .chart-area-path { opacity: 0.2; transition: d 0.6s ease-out, fill 0.6s ease; }
         .content-auto { content-visibility: auto; contain-intrinsic-size: 1px 1000px; }
         @media (prefers-reduced-motion: reduce) { *, ::before, ::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; } .chart-segment { transition: none; } .flash-update { animation: none; } .toast { transition: none; } .chart-path { transition: none; } }
-        /* Mobile specific adjustments */
         @media (max-width: 640px) {
-            .modal-content { max-height: 85vh; width: 92%; margin: 0 auto; }
+            .modal-content { max-height: 80vh; width: 92%; margin: 0 auto; }
             #toast-container { right: 50%; transform: translateX(50%); width: 90%; bottom: 10px; }
             .toast { min-width: 0; width: 100%; }
         }
@@ -292,21 +300,23 @@
                         </div>
                     </div>
 
+                    <!-- Simplified Market Ticker using Stablecoins -->
                     <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
                         <div class="flex items-center justify-between mb-4">
                             <h3 class="text-sm font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2">
                                 <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                                <span data-i18n="marketTitle">Live Market</span>
+                                <span data-i18n="marketTitle">Reference Rates</span>
                             </h3>
                             <span class="text-xs text-slate-400 font-mono transition-colors" id="ticker-time">--</span>
                         </div>
-                        <div id="ticker-loading" class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                            <div class="h-16 bg-gray-50 rounded-xl animate-pulse"></div>
-                            <div class="h-16 bg-gray-50 rounded-xl animate-pulse"></div>
+                        <div id="ticker-loading" class="grid grid-cols-2 gap-3">
                             <div class="h-16 bg-gray-50 rounded-xl animate-pulse"></div>
                             <div class="h-16 bg-gray-50 rounded-xl animate-pulse"></div>
                         </div>
-                        <div id="ticker-content" class="grid grid-cols-2 md:grid-cols-4 gap-3 hidden"></div>
+                        <div id="ticker-content" class="grid grid-cols-2 gap-3 hidden"></div>
+                        <div class="mt-3 text-right">
+                             <p class="text-[10px] text-slate-400">Source: CoinGecko (USDT & PAXG)</p>
+                        </div>
                     </div>
                 </section>
             </main>
@@ -496,11 +506,10 @@
             "seasonGold": "黄金 (Gold)",
             "rule72Title": "72法则",
             "rule72Desc": "基于 1976-2025 美国市场数据（年化 {rate}%），您的资产约每 {years} 年翻一番。",
-            "marketTitle": "实时行情看板",
+            "marketTitle": "实时参考汇率",
             "marketNames": {
-                "cn_300": "沪深300", "cn_a500": "中证A500", "us_sp500": "标普500", "us_nasdaq": "纳指100",
-                "cn_bond_30": "30年国债", "cn_bond_10": "10年国债", "us_bond_long": "美长债TLT", "gold_london": "伦敦金",
-                "gold_etf": "华夏黄金", "money_etf": "银华日利", "usd_cash": "美元短债", "usd_cny": "USD/CNY"
+                "tether": "USD/CNY (USDT)", 
+                "pax-gold": "Gold/CNY (PAXG)"
             },
             "errFetch": "获取行情数据失败",
             "errNetwork": "网络连接错误",
@@ -598,11 +607,10 @@
             "seasonGold": "Gold",
             "rule72Title": "Rule of 72",
             "rule72Desc": "Based on US Market (1976-2025) average return of {rate}%, your assets double every ~{years} years.",
-            "marketTitle": "Live Market Ticker",
+            "marketTitle": "Live Reference Rates",
             "marketNames": {
-                "cn_300": "CSI 300", "cn_a500": "CSI A500", "us_sp500": "S&P 500", "us_nasdaq": "Nasdaq 100",
-                "cn_bond_30": "CN 30Y Bond", "cn_bond_10": "CN 10Y Bond", "us_bond_long": "US 20Y+ Bond", "gold_london": "London Gold",
-                "gold_etf": "CN Gold ETF", "money_etf": "CN Cash ETF", "usd_cash": "US Short Bond", "usd_cny": "USD/CNY"
+                "tether": "USD/CNY (USDT)", 
+                "pax-gold": "Gold/CNY (PAXG)"
             },
             "errFetch": "Failed to fetch market data",
             "errNetwork": "Network error",
@@ -617,6 +625,11 @@
             on(event, listener) {
                 if (!this.events[event]) this.events[event] = [];
                 this.events[event].push(listener);
+            }
+            // ✅ 优化点 #5: 添加 off 方法，防止潜在内存泄漏
+            off(event, listener) {
+                if (!this.events[event]) return;
+                this.events[event] = this.events[event].filter(l => l !== listener);
             }
             emit(event, data) {
                 if (this.events[event]) this.events[event].forEach(listener => listener(data));
@@ -639,9 +652,9 @@
                     ANIMATION_DURATION: 800,
                     TOAST_DISPLAY: 4000,
                     TOAST_FADEOUT: 300,
-                    MARKET_REFRESH: 5000
+                    MARKET_REFRESH: 15000
                 },
-                MARKET_API: 'https://market-proxy.wrx-ai-84.workers.dev/',
+                MARKET_API: 'https://api.coingecko.com/api/v3/simple/price?ids=tether,pax-gold&vs_currencies=cny&include_24hr_change=true',
                 FORMAT: { SCIENTIFIC_THRESHOLD: 1e15, COMPACT_THRESHOLD: 1000000, MIN_LENGTH_FOR_TRIM: 2 },
                 ASSETS: [
                     { key: 'stocks', color: '#3B82F6', tailwindColor: 'bg-blue-500' },
@@ -649,7 +662,6 @@
                     { key: 'cash', color: '#10B981', tailwindColor: 'bg-emerald-500' },
                     { key: 'gold', color: '#F59E0B', tailwindColor: 'bg-amber-500' }
                 ],
-                // Historical Returns (1976-2025) - 50 years of data
                 HISTORICAL_RETURNS: [
                     11.22, 6.43, 12.78, 39.77, 13.65, -5.34, 23.27, 3.46, 2.22, 20.47,
                     17.64, 7.42, 4.39, 12.90, 1.11, 11.72, 3.57, 12.00, -1.37, 18.11,
@@ -670,7 +682,7 @@
             const Utils = {
                 formatterCache: new Map(),
                 getFormatter: (locale, options) => {
-                    const key = locale + '|' + JSON.stringify(options);
+                    const key = `${locale}|${options.style}|${options.currency}|${options.notation || 'std'}|${options.maximumFractionDigits || 0}`;
                     let formatter = Utils.formatterCache.get(key);
                     if (!formatter) {
                         formatter = new Intl.NumberFormat(locale, options);
@@ -756,9 +768,8 @@
                     el.replaceChildren(t.content); 
                 },
                 setClass: (el, cls) => { if (el && el.className !== cls) el.className = cls; },
-                roundTo2: (num) => Math.round((num + Number.EPSILON) * 100) / 100,
                 fetchWithTimeout: async (resource, options = {}) => {
-                    const { timeout = 10000 } = options; // Increased timeout for mobile
+                    const { timeout = 10000 } = options;
                     const controller = new AbortController();
                     const id = setTimeout(() => controller.abort(), timeout);
                     const response = await fetch(resource, { ...options, signal: controller.signal });
@@ -775,8 +786,9 @@
                 projection: { mode: 'saving', principal: '', years: 10, flow: '' },
                 fireExpense: '', 
                 marketData: null,
-                debouncedPortfolioCalc: null, // Fast debounce
-                debouncedProjCalc: null,      // Slow debounce
+                lastMarketFetch: 0,
+                debouncedPortfolioCalc: null, 
+                debouncedProjCalc: null,      
                 debouncedSave: null,
                 pollingInterval: null,
                 shouldSyncPrincipal: false, 
@@ -784,31 +796,27 @@
                 historicalStats: null,
                 init() { 
                     this.load(); 
-                    this.calculateHistoricalStats();
-                    // Split calculation into two debounced functions
                     this.debouncedPortfolioCalc = Utils.debounce(() => { this.performPortfolioCalculation(); }, Config.TIMING.CALC_DEBOUNCE); 
                     this.debouncedProjCalc = Utils.debounce(() => { this.performProjectionCalculation(); }, Config.TIMING.PROJ_DEBOUNCE);
                     this.debouncedSave = Utils.debounce(() => { this.save(); }, Config.TIMING.SAVE_DEBOUNCE);
                 },
                 calculateHistoricalStats() {
                     const returns = Config.HISTORICAL_RETURNS;
-                    // Calculate CAGR (Geometric Mean)
                     const totalGrowth = returns.reduce((acc, val) => acc * (1 + val / 100), 1);
                     const n = returns.length;
                     const cagr = (Math.pow(totalGrowth, 1 / n) - 1) * 100;
                     const doublingTime = 72 / cagr;
                     this.historicalStats = { cagr, doublingTime };
+                    if (UI && UI.renderRule72) UI.renderRule72();
                 },
                 validate() {
                     const { threshold, holdings } = this;
                     if (typeof threshold !== 'number' || threshold < Config.MIN_THRESHOLD || threshold > Config.MAX_THRESHOLD) return false;
                     if (!holdings || typeof holdings !== 'object') return false;
-                    const validHoldings = Object.values(holdings).every(v => typeof v === 'number' && !isNaN(v) && v >= 0);
-                    if (!validHoldings) return false;
                     return true;
                 },
                 save() {
-                    if (!this.validate()) { console.warn('State validation failed, skipping save.'); return; }
+                    if (!this.validate()) return;
                     try {
                         const data = {
                             version: Config.DATA_VERSION, 
@@ -832,8 +840,14 @@
                             if (data.holdings) this.holdings = { ...this.holdings, ...data.holdings };
                             if (data.projection) this.projection = { ...this.projection, ...data.projection };
                             if (data.fireExpense) this.fireExpense = data.fireExpense;
+                        } else {
+                            const browserLang = navigator.language || navigator.userLanguage; 
+                            if (browserLang && (browserLang.toLowerCase().startsWith('zh'))) { this.lang = 'zh'; } else { this.lang = 'en'; }
                         }
-                    } catch (e) { console.warn('LocalStorage load skipped.'); }
+                    } catch (e) { 
+                        const browserLang = navigator.language || navigator.userLanguage; 
+                        if (browserLang && (browserLang.toLowerCase().startsWith('zh'))) { this.lang = 'zh'; }
+                    }
                 },
                 migrate(oldData) {
                     const newData = { ...oldData };
@@ -867,56 +881,65 @@
                 },
                 setProjMode(mode) { this.projection.mode = mode; this.emit('projModeChanged', mode); this.triggerCalc(); },
                 triggerCalc() { 
-                    // Fire both debounced functions
                     if (this.debouncedPortfolioCalc) this.debouncedPortfolioCalc(); 
                     if (this.debouncedProjCalc) this.debouncedProjCalc();
                     if (this.debouncedSave) this.debouncedSave(); 
                 },
                 forceResimulate() {
-                    // Directly trigger the projection calculation (no need to recalc portfolio)
                     this.performProjectionCalculation();
                 },
-                // Light calculation: Portfolio rebalancing & totals
                 performPortfolioCalculation() {
                     const results = Logic.calculatePortfolio(this.holdings, this.threshold);
                     this.emit('calculationDone', results);
-
                     if (this.shouldSyncPrincipal) {
                         this.projection.principal = String(results.total);
                         this.emit('principalSynced', results.total);
                         this.shouldSyncPrincipal = false;
-                        // Note: The queued projection calculation will pick up this new principal
-                        // when it runs ~450ms later.
                     }
                 },
-                // Heavy calculation: Monte Carlo Simulation
                 performProjectionCalculation() {
                     const projResults = Logic.runMonteCarlo(this.projection.principal, this.projection.years, this.projection.flow, this.projection.mode);
                     this.emit('projectionDone', projResults);
                 },
                 async fetchMarket(retries = 1) {
+                    const now = Date.now();
+                    if (this.marketData && (now - this.lastMarketFetch < Config.TIMING.MARKET_REFRESH)) {
+                        return;
+                    }
+
                     if (this.isFirstLoad) this.emit('marketLoading', true);
-                    
-                    // Don't fetch if page is hidden
                     if (document.hidden) return;
 
                     for (let i = 0; i <= retries; i++) {
                         try {
-                            // Add cache busting and credentials omit for mobile stability
                             const res = await Utils.fetchWithTimeout(Config.MARKET_API, { 
                                 timeout: 10000, 
                                 credentials: 'omit',
                                 cache: 'no-store'
                             });
                             if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                            this.marketData = await res.json();
+                            const rawData = await res.json();
+                            
+                            const mappedData = [
+                                {
+                                    key: 'tether',
+                                    price: Utils.getFormatter('zh-CN', { style: 'currency', currency: 'CNY' }).format(rawData.tether.cny),
+                                    change: rawData.tether.cny_24h_change.toFixed(2)
+                                },
+                                {
+                                    key: 'pax-gold',
+                                    price: Utils.getFormatter('zh-CN', { style: 'currency', currency: 'CNY', maximumFractionDigits: 0 }).format(rawData['pax-gold'].cny),
+                                    change: rawData['pax-gold'].cny_24h_change.toFixed(2)
+                                }
+                            ];
+
+                            this.marketData = mappedData;
+                            this.lastMarketFetch = Date.now();
                             this.emit('marketDataUpdated', this.marketData);
                             if (this.isFirstLoad) { this.emit('marketLoading', false); this.isFirstLoad = false; }
                             return; 
                         } catch (e) {
                             if (i === retries) {
-                                console.warn('Market fetch failed after retries:', e);
-                                // Only emit error if we don't have stale data to show
                                 if (!this.marketData) this.emit('marketError', e);
                                 if (this.isFirstLoad) { this.emit('marketLoading', false); this.isFirstLoad = false; }
                             }
@@ -930,7 +953,6 @@
                 calculatePortfolio: (holdings, threshold) => {
                     const total = Object.values(holdings).reduce((a, b) => a + b, 0);
                     const targetVal = total / 4; 
-                    
                     const assetKeys = Config.ASSETS.map(a => a.key);
                     let globalBreach = false;
                     const assetsData = assetKeys.map((key) => {
@@ -944,58 +966,72 @@
                     });
                     return { total, assetsData, globalBreach };
                 },
-                // Monte Carlo Simulation Engine
                 runMonteCarlo: (principalStr, yearsStr, flowStr, mode) => {
                     const principal = parseFloat(String(principalStr).replace(/[^\d]/g, '')) || 0;
                     let years = parseFloat(yearsStr) || 0;
-                    if (!Number.isFinite(years)) years = 0; if (years > 50) years = 50; // Cap at 50 years
+                    if (!Number.isFinite(years)) years = 0; if (years > 50) years = 50; 
                     let annualFlow = parseFloat(String(flowStr).replace(/[^\d]/g, '')) || 0;
                     if (mode === 'spending') { annualFlow = -annualFlow; }
 
                     const SIMULATIONS = 1000;
                     const history = Config.HISTORICAL_RETURNS;
-                    const allPaths = [];
-
-                    for (let s = 0; s < SIMULATIONS; s++) {
-                        let balance = principal;
-                        const path = [principal];
-                        for (let y = 1; y <= years; y++) {
-                            // Randomly sample one year from history
-                            const randomReturn = history[Math.floor(Math.random() * history.length)];
-                            const rate = randomReturn / 100;
-                            
-                            // Apply annual return
-                            balance = balance * (1 + rate);
-                            // Apply contribution/withdrawal at end of year
-                            balance += annualFlow;
-                            
-                            if (balance < 0) balance = 0;
-                            path.push(balance);
-                        }
-                        allPaths.push(path);
-                    }
-
-                    // Calculate percentiles for each year
-                    const percentiles = {
-                        p10: [], // 10th percentile (Bad luck)
-                        p50: [], // Median (Expected)
-                        p90: []  // 90th percentile (Good luck)
-                    };
-
-                    for (let y = 0; y <= years; y++) {
-                        const yearValues = allPaths.map(path => path[y]).sort((a, b) => a - b);
-                        percentiles.p10.push(yearValues[Math.floor(SIMULATIONS * 0.1)]);
-                        percentiles.p50.push(yearValues[Math.floor(SIMULATIONS * 0.5)]);
-                        percentiles.p90.push(yearValues[Math.floor(SIMULATIONS * 0.9)]);
-                    }
-
-                    const finalMedian = percentiles.p50[percentiles.p50.length - 1];
+                    const historyLen = history.length;
                     
-                    return { 
-                        medianFinal: finalMedian,
-                        percentiles: percentiles,
-                        years: years
-                    };
+                    // 优化：预分配数组，减少 GC 压力
+                    const p10 = new Float64Array(years + 1);
+                    const p50 = new Float64Array(years + 1);
+                    const p90 = new Float64Array(years + 1);
+                    
+                    // 临时存储每年的所有模拟结果，用于计算分位数
+                    const yearlyResults = new Float64Array(SIMULATIONS);
+
+                    // 初始值
+                    p10[0] = p50[0] = p90[0] = principal;
+
+                    // 逐年计算
+                    for (let y = 1; y <= years; y++) {
+                        for (let s = 0; s < SIMULATIONS; s++) {
+                            // 如果是第一年，基于本金计算；否则基于上一年的结果（这里简化逻辑，每次重新计算路径太慢，改为逐年推进）
+                            // 为了保持独立性，我们需要保存每个模拟的状态。
+                            // 重构逻辑：外层循环模拟，内层循环年份，记录路径。
+                        }
+                    }
+                    
+                    // 重新实现更高效的逻辑：
+                    // 我们需要记录所有路径的每一年数据来算分位数。
+                    // allPaths[simulationIndex][yearIndex]
+                    const allPaths = new Array(SIMULATIONS);
+                    
+                    for (let s = 0; s < SIMULATIONS; s++) {
+                        const path = new Float64Array(years + 1);
+                        path[0] = principal;
+                        let currentBalance = principal;
+                        
+                        for (let y = 1; y <= years; y++) {
+                            // 快速随机索引
+                            const randomReturn = history[(Math.random() * historyLen) | 0];
+                            currentBalance = currentBalance * (1 + randomReturn / 100) + annualFlow;
+                            if (currentBalance < 0) currentBalance = 0;
+                            path[y] = currentBalance;
+                        }
+                        allPaths[s] = path;
+                    }
+
+                    // 计算分位数
+                    const p10Arr = [], p50Arr = [], p90Arr = [];
+                    const tempYearValues = new Float64Array(SIMULATIONS);
+                    
+                    for (let y = 0; y <= years; y++) {
+                        for(let s = 0; s < SIMULATIONS; s++) {
+                            tempYearValues[s] = allPaths[s][y];
+                        }
+                        tempYearValues.sort(); // 默认是字典序，Float64Array.sort() 是数值序，这很好
+                        p10Arr.push(tempYearValues[(SIMULATIONS * 0.1) | 0]);
+                        p50Arr.push(tempYearValues[(SIMULATIONS * 0.5) | 0]);
+                        p90Arr.push(tempYearValues[(SIMULATIONS * 0.9) | 0]);
+                    }
+
+                    return { medianFinal: p50Arr[years], percentiles: { p10: p10Arr, p50: p50Arr, p90: p90Arr }, years: years };
                 }
             };
 
@@ -1003,13 +1039,13 @@
                 els: { assetInputs: {}, assetLabels: {}, assetLegends: {}, chartCircles: {} },
                 faqObserver: null,
                 hasRenderedFaq: false,
-                tableInited: false, // Flag to prevent double initialization
+                tableInited: false, 
                 init() {
                     this.setupErrorHandling();
                     this.cacheDOM();          
                     State.init();             
                     this.renderInputs();
-                    this.initResultTable(); // First initialization
+                    this.initResultTable(); 
                     this.cacheDynamicDOM(); 
                     this.renderLegend(); 
                     this.cacheLegendDOM(); 
@@ -1017,21 +1053,18 @@
                     this.subscribeToState(); 
                     this.renderAll();
                     this.startClock(); 
-                    
-                    // Lazy Load FAQ
                     this.setupLazyLoad();
 
-                    const startMarketLater = () => State.startPolling();
-                    if ('requestIdleCallback' in window) {
-                        requestIdleCallback(startMarketLater, { timeout: 3000 });
-                    } else {
-                        setTimeout(startMarketLater, 1500);
-                    }
+                    const onIdle = window.requestIdleCallback || function(cb) { setTimeout(cb, 2000); };
+                    
+                    onIdle(() => {
+                        State.calculateHistoricalStats(); 
+                        State.startPolling();             
+                    }, { timeout: 3000 });
                 },
                 setupErrorHandling() {
                     window.addEventListener('error', (event) => {
                         if (event.message && event.message.includes('Script error')) return;
-                        console.error('Global error:', event.error);
                         const msg = Translations[State.lang]?.errUnexpected || 'Unexpected Error';
                         this.showToast(msg, 'error');
                     });
@@ -1048,7 +1081,6 @@
                         }, { rootMargin: '200px' });
                         this.faqObserver.observe(this.els.faqContainer);
                     } else {
-                        // Fallback for older browsers
                         this.renderFAQ();
                     }
                 },
@@ -1071,10 +1103,6 @@
                     State.on('marketDataUpdated', () => this.renderTicker());
                     State.on('marketError', () => {
                         this.showTickerError();
-                        // Only show toast if it's not the initial load to avoid spamming on weak connections
-                        if (!State.isFirstLoad) {
-                            this.showToast(Translations[State.lang].errFetch, 'error');
-                        }
                     });
                 },
                 cacheDOM() {
@@ -1110,7 +1138,7 @@
                     this.els.inputsContainer.replaceChildren(fragment);
                 },
                 initResultTable() {
-                    if (this.tableInited) return; // Guard clause to prevent double init
+                    if (this.tableInited) return; 
 
                     const t = Translations[State.lang];
                     const fragment = document.createDocumentFragment();
@@ -1148,7 +1176,6 @@
                         if (document.hidden) { 
                             State.stopPolling(); 
                         } else { 
-                            // Delay slightly to allow network radio to wake up on mobile
                             setTimeout(() => State.startPolling(), 1000); 
                         }
                     });
@@ -1295,13 +1322,10 @@
                     if (expense === 0 && totalAssets > 0) {
                         this.els.fireHeaderIcon.textContent = '🏺'; 
                         this.els.fireHeaderTitle.textContent = t.diogenesTitle;
-                        
                         this.els.fireProgressBar.className = 'h-full transition-all duration-700 ease-out w-0 shadow-[0_0_10px_rgba(251,191,36,0.5)] bg-gradient-to-r from-amber-300 to-yellow-500'; 
                         this.els.fireProgressBar.style.width = '100%';
-                        
                         this.els.firePercent.textContent = '∞';
                         this.els.firePercent.className = 'text-2xl font-bold text-yellow-400 font-mono';
-
                         this.els.fireFooterStandard.classList.add('hidden');
                         this.els.fireFooterDiogenes.classList.remove('hidden');
                         this.els.diogenesQuote.textContent = State.lang === 'zh' ? '“请不要挡住我的阳光！”' : '“Stand out of my sunshine!”';
@@ -1337,51 +1361,30 @@
                         return;
                     }
 
-                    // Calculate global min/max for scaling
                     const allValues = [...percentiles.p10, ...percentiles.p90];
                     let globalMin = Math.min(...allValues);
                     let globalMax = Math.max(...allValues);
-                    
-                    // Prevent division by zero if start == end (e.g. 0 return, 0 flow)
-                    if (globalMax === globalMin) {
-                        globalMax += 1; 
-                    }
+                    if (globalMax === globalMin) { globalMax += 1; }
 
-                    // Mapping Logic:
-                    // We map the data range [globalMin, globalMax] to SVG Y coordinates [85, 10].
-                    // This leaves the bottom 15% (85-100) empty for labels, and top 10% (0-10) for headroom.
-                    // Importantly, it pushes the "floor" of the chart up.
-                    
                     const renderRange = globalMax - globalMin;
                     const width = 100;
                     const height = 100;
-                    
-                    // SVG Y coordinates (0 is top)
                     const svgTop = 10;
                     const svgBottom = 85; 
                     const svgHeight = svgBottom - svgTop;
-
                     const stepX = width / years;
 
-                    // Helper to map point
                     const mapPt = (val, i) => {
                         const x = i * stepX;
-                        // Normalize value 0..1
                         const normalizedVal = (val - globalMin) / renderRange;
-                        // Map to SVG Y (inverted)
                         const y = svgBottom - (normalizedVal * svgHeight);
                         return { x, y };
                     };
 
-                    // Draw Median Line
-                    const medianPoints = percentiles.p50.map((val, i) => {
-                        const pt = mapPt(val, i);
-                        return `${pt.x},${pt.y}`;
-                    });
+                    const medianPoints = percentiles.p50.map((val, i) => { const pt = mapPt(val, i); return `${pt.x},${pt.y}`; });
                     const lineD = `M ${medianPoints.join(' L ')}`;
                     this.els.projChartLine.setAttribute('d', lineD);
 
-                    // Draw Fan Area (p90 top line -> p10 bottom line reversed)
                     const topPoints = percentiles.p90.map((val, i) => mapPt(val, i));
                     const bottomPoints = percentiles.p10.map((val, i) => mapPt(val, i)).reverse();
                     
@@ -1391,6 +1394,15 @@
                     areaD += ' Z';
 
                     this.els.projChartFan.setAttribute('d', areaD);
+                },
+                renderRule72() {
+                    if (State.historicalStats && this.els.rule72Desc) {
+                        const t = Translations[State.lang];
+                        const { cagr, doublingTime } = State.historicalStats;
+                        const rawText = t.rule72Desc;
+                        const filledText = rawText.replace('{rate}', cagr.toFixed(1)).replace('{years}', doublingTime.toFixed(1));
+                        this.els.rule72Desc.textContent = filledText;
+                    }
                 },
                 startClock() {
                     const update = () => {
@@ -1432,33 +1444,34 @@
                     const bgDown = isZh ? 'bg-emerald-50' : 'bg-red-50';
                     data.forEach(item => {
                         let changeVal = parseFloat(item.change);
-                        if (item.key === 'usd_cny' && Math.abs(changeVal) > 20) {
-                            changeVal = 0;
-                            item.change = "0.00";
-                        }
                         const isUp = changeVal > 0;
                         const isZero = changeVal === 0;
                         const colorClass = isZero ? 'text-gray-500' : (isUp ? upColor : downColor);
                         const bgClass = isZero ? 'bg-gray-50' : (isUp ? bgUp : bgDown);
                         const arrow = isZero ? '' : (isUp ? '▲' : '▼');
                         const sign = isZero ? '' : (isUp ? '+' : '');
-                        const displayName = t.marketNames[item.key] || item.name;
+                        const displayName = t.marketNames[item.key] || item.key;
                         const card = document.createElement('div');
-                        card.className = `flex flex-col justify-center px-3 py-3 rounded-xl ${bgClass} border border-transparent hover:border-gray-200 transition-all cursor-default`;
+                        card.className = `flex flex-col justify-center px-4 py-4 rounded-xl ${bgClass} border border-transparent hover:border-gray-200 transition-all cursor-default`;
+                        
                         const nameRow = document.createElement('div');
-                        nameRow.className = "text-xs text-slate-500 font-bold mb-1 truncate";
+                        nameRow.className = "text-xs text-slate-500 font-bold mb-1.5 truncate uppercase tracking-wider";
                         nameRow.textContent = displayName; 
                         card.appendChild(nameRow);
+                        
                         const dataRow = document.createElement('div');
-                        dataRow.className = "flex items-baseline justify-between gap-1";
+                        dataRow.className = "flex items-baseline justify-between gap-2";
+                        
                         const priceSpan = document.createElement('span');
-                        priceSpan.className = "font-mono font-bold text-slate-800 text-sm";
+                        priceSpan.className = "font-mono font-bold text-slate-800 text-lg";
                         priceSpan.textContent = item.price; 
                         dataRow.appendChild(priceSpan);
+                        
                         const changeSpan = document.createElement('span');
-                        changeSpan.className = `font-mono text-xs font-bold ${colorClass}`;
+                        changeSpan.className = `font-mono text-sm font-bold ${colorClass}`;
                         changeSpan.textContent = `${arrow}${sign}${item.change}%`; 
                         dataRow.appendChild(changeSpan);
+                        
                         card.appendChild(dataRow);
                         fragment.appendChild(card);
                     });
@@ -1506,8 +1519,6 @@
                     const symbol = new Intl.NumberFormat(lang === 'zh' ? 'zh-CN' : 'en-US', { style: 'currency', currency: t.currencyCode }).formatToParts(0).find(x => x.type === 'currency').value;
                     this.els.currencySymbols.forEach(el => Utils.setText(el, symbol));
                     
-                    // Only re-render FAQ if it was already rendered (e.g. user scrolled down then switched lang)
-                    // If it hasn't been rendered yet, the Observer will handle it when it comes into view.
                     if (this.hasRenderedFaq) {
                         this.renderFAQ();
                     }
@@ -1515,7 +1526,6 @@
                     Utils.setClass(this.els.btnZh, `lang-btn w-20 flex justify-center px-4 py-3 text-sm font-bold hover:bg-gray-50 transition-colors ${lang === 'zh' ? 'active' : ''}`);
                     Utils.setClass(this.els.btnEn, `lang-btn w-20 flex justify-center px-4 py-3 text-sm font-bold hover:bg-gray-50 transition-colors ${lang === 'en' ? 'active' : ''}`);
                     
-                    // Guard clause added to initResultTable prevents double execution
                     this.initResultTable();
 
                     if (this.els.projPrincipal) this.els.projPrincipal.value = State.projection.principal;
@@ -1523,13 +1533,7 @@
                     if (this.els.projFlow) this.els.projFlow.value = State.projection.flow;
                     if (this.els.fireExpenseInput) this.els.fireExpenseInput.value = State.fireExpense;
                     
-                    // Update Rule of 72 Text dynamically
-                    if (State.historicalStats && this.els.rule72Desc) {
-                        const { cagr, doublingTime } = State.historicalStats;
-                        const rawText = t.rule72Desc;
-                        const filledText = rawText.replace('{rate}', cagr.toFixed(1)).replace('{years}', doublingTime.toFixed(1));
-                        this.els.rule72Desc.textContent = filledText;
-                    }
+                    this.renderRule72();
 
                     this.renderProjectionUI(); this.updateThresholdDisplay(); State.triggerCalc();
                 },
@@ -1540,7 +1544,7 @@
                 setInert(element, isInert) {
                     if ('inert' in HTMLElement.prototype) { element.inert = isInert; } 
                     else {
-                        if (isInert) { element.setAttribute('aria-hidden', 'true'); element.style.pointerEvents = 'none'; const focusables = element.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'); focusables.forEach(el => { if (!el.hasAttribute('data-original-tabindex')) { el.setAttribute('data-original-tabindex', el.getAttribute('tabindex') || ''); } el.setAttribute('tabindex', '-1'); }); } 
+                        if (isInert) { element.setAttribute('aria-hidden', 'true'); element.style.pointerEvents = 'none'; const focusables = element.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'); focusables.forEach(el => { if (!el.hasAttribute('data-original-tabindex')) { el.setAttribute('data-original-tabindex', el.getAttribute('tabindex', '-1') || ''); } el.setAttribute('tabindex', '-1'); }); } 
                         else { element.removeAttribute('aria-hidden'); element.style.pointerEvents = ''; const focusables = element.querySelectorAll('[data-original-tabindex]'); focusables.forEach(el => { const original = el.getAttribute('data-original-tabindex'); if (original === '') { el.removeAttribute('tabindex'); } else { el.setAttribute('tabindex', original); } el.removeAttribute('data-original-tabindex'); }); }
                     }
                 },
@@ -1579,11 +1583,8 @@
                 gtag('js', new Date());
                 gtag('config', 'G-8GJYYGEB88');
             };
-            if ('requestIdleCallback' in window) {
-                requestIdleCallback(loadGA, { timeout: 3000 });
-            } else {
-                setTimeout(loadGA, 2000);
-            }
+            const onIdle = window.requestIdleCallback || function(cb) { setTimeout(cb, 2000); };
+            onIdle(loadGA, { timeout: 4000 });
         });
     </script>
 </body>
